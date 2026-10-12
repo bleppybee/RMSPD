@@ -29,10 +29,10 @@ This ledger tracks the current patch in `index.html`. `Complete` means the struc
 
 | Section | Status | Current result / remaining work |
 | --- | --- | --- |
-| 1. Large-reader stability | Complete | Virtualised line history, separate chapter-title rows, direct reader chapter navigation, bounded speaker viewport, reader-only/history toggle, adaptive text fitting with A−/A+ controls down to 60%, keyboard/mouse splitter, saved split, and compact non-overlay reader controls are implemented. |
+| 1. Large-reader stability | Complete | Virtualised line history, separate chapter-title rows, direct reader chapter navigation, click/arrow selection, double-click source reveal, contained Shift+double-click line editing, bounded speaker viewport, reader-only/history toggle, adaptive text fitting with A−/A+ controls down to 60%, keyboard/mouse splitter, saved split, compact non-overlay reader controls, and an app-wide compact default density calibrated so browser 130% restores the former 100% sizing are implemented. |
 | 2. Toggle overlap/defaults | Complete | Controls have separate lanes; top bar and reader dock default closed and remember explicit choices. |
-| 3. Character image gallery | In progress | Sprite gallery, bounded/resizable thumbnail viewport, saved preview sizing, a compact sticky tools disclosure, collapsed character records, character jump selection, face-crop thumbnails, explicit-only reader assignment, direct/multiple character assignments, sprite-to-new-character creation, shared folder/search organisation, optional icon face crops and priority controls, palette extraction, safe removal, nested per-character advanced disclosures, a reversible Character/Existing/Narration/System role selector, stale-character cleanup, and protagonist controls are implemented. Remaining: occurrence-by-occurrence rename exclusions and a confirmation prompt when moving protagonist-specific settings. |
-| 4. Narrator/highlighted script | In progress | Reserved Narrator roles, an unambiguous `@System:` tag with legacy `Dice Maiden:` support, portrait-free storybook/system layouts, adjacent multiline narration coalescing, highlighted speaker buttons, exact reader-to-source navigation across chapters, one-toggle coloured-name preview, saved visual dialogue spacing, optional neutral reader subtitles, semantic colours, protagonist overrides, and selection-based bold/italic/colour/quote formatting are implemented. Remaining: finish ambiguity warnings for malformed speaker labels. |
+| 3. Character image gallery | In progress | Sprite gallery, bounded/resizable thumbnail viewport, saved whole-card sizing for previews/buttons/labels, a compact sticky tools disclosure, collapsed character records, character jump selection, face-crop thumbnails, explicit-only reader assignment, direct/multiple character assignments, sprite-to-new-character creation, shared folder/search organisation, optional icon face crops and priority controls, palette extraction, safe removal, nested per-character advanced disclosures, a reversible Character/Existing/Narration/System role selector, stale-character cleanup, and protagonist controls are implemented. Remaining: occurrence-by-occurrence rename exclusions and a confirmation prompt when moving protagonist-specific settings. |
+| 4. Narrator/highlighted script | In progress | Reserved Narrator roles, an unambiguous `@System:` tag with legacy `Dice Maiden:` support, portrait-free storybook/system layouts, adjacent multiline narration coalescing, highlighted speaker buttons, exact reader-to-source navigation across chapters, editable-view coloured speaker names, saved live-editor dialogue spacing, lower-emphasis character subtitles with durable per-line overrides, semantic colours, protagonist overrides, and selection-based bold/italic/colour/quote formatting are implemented. Remaining: finish ambiguity warnings for malformed speaker labels. |
 | 5. Persistent locations | In progress | Scene/background/corner/clear parsing, persistence between lines, opacity, gallery asset references, reader display, generated output, highlighting, and a location builder are implemented. Remaining: named reusable location records and unresolved/missing-asset validation. |
 | 6. Browser-local saving | Complete | IndexedDB with localStorage fallback, manual/auto modes, explicit save/revert/clear, dirty state, and unload protection are implemented without requiring a download. |
 | 7. Chapter workspace | Complete | Separate chapter records, numbered/dropdown navigation, editable titles, reorder/delete/new/import, chapter-local history/cursor/images, gated script drafts with Save Script Edits/blur apply, and schema migration are implemented. |
@@ -223,7 +223,8 @@ The fixed top-bar toggle and the reader collapse toggle can occupy the same top-
 - Removing an in-use image must warn the user and clearly state which assignments will be cleared.
 - Add character-panel organisation tools that search characters and sprites together and filter both by named folders.
 - Keep the organisation controls in a compact, collapsible sticky header so they remain available without floating a large open form over the gallery.
-- Confine sprite cards to an independently scrolling, vertically resizable gallery viewport and provide a saved preview-size slider.
+- Confine sprite cards to an independently scrolling, vertically resizable gallery viewport and provide a saved whole-card size slider that scales the preview, labels, padding, gaps, and action buttons together.
+- Keep a compact `+` image-upload action beside the gallery-size controls so uploads remain reachable after the larger paste/drop area has scrolled off-screen.
 - Render character records as compact icon/name rows by default; expanding a row reveals its simple options, with Advanced options nested inside.
 - Keep the compact icon's expand action separate from the explicit `Upload / crop icon` button so one action can never trigger the other.
 - Add a character dropdown that opens and scrolls directly to the chosen record, so large casts do not require manual searching through every row.
@@ -319,10 +320,13 @@ Speaker labels inside the raw script are difficult to scan. Recognised labels su
   - Move the Visual Novel Reader to the corresponding story item when possible.
 - Highlight unmatched speaker labels differently and offer `Create character` or `Map to existing character`.
 - Keep line numbers or stable source indexes so edits and reader positions stay synchronised.
-- Activating a reader-history line must open its source chapter and reveal the exact source line: select the text in Edit view or visibly mark and centre it in Highlighted view. Previous/Next and autoplay must not switch workspace tabs or steal editor focus.
-- Add a direct `Colour speaker names` option that opens/closes the coloured script preview without requiring the user to understand the `Highlighted` tab name.
-- Add a saved, display-only dialogue-spacing slider for the highlighted script. It separates speaker lines visually without inserting whitespace or changing saved script text.
+- Double-clicking a reader-history line must open its source chapter and reveal the exact source line: select the text in Edit view or visibly mark and centre it in Highlighted view. Previous/Next and autoplay must not switch workspace tabs or steal editor focus.
+- Use progressive reader-history interactions: single-click selects without leaving the reader, arrow keys continue from that selection, double-click reveals the source, and Shift+double-click opens a contained dialogue editor with explicit Apply/Cancel. Provide Ctrl/Cmd+Enter and Shift+Enter keyboard equivalents.
+- Add a direct `Colour speaker names` editing aid inside the raw Edit view; toggling it must never switch the user to Highlighted view.
+- Add a saved, display-only dialogue-spacing slider to the raw editor as well as the Highlighted view. It increases editable line spacing without inserting whitespace or changing saved script text.
 - Give each character an optional reader subtitle and a per-character visibility toggle. Render it beside the coloured reader name as separate neutral text, such as `ALICE (4 of Diamonds)`, without changing the script label or spoken name.
+- Let the contained reader-line editor override or hide the subtitle on one source line. Persist the override with a portable `[[subtitle: ...]]`/`[[subtitle: off]]` directive, keep it out of displayed/spoken dialogue, and preserve any line dice directive when applying the edit.
+- Keep character names visibly larger and heavier than subtitles; subtitles use lower opacity and must remain secondary in both light and dark reader themes.
 
 ### Narration and thought colours
 
@@ -374,9 +378,11 @@ Run contrast checks against the active reader surface and warn before applying a
 - `Character:` and `3:` become coloured buttons in Highlighted view.
 - `Narrator:`, `Narration:`, `-:`, and `null:` render as full-width storybook narration without creating narrator characters or portrait placeholders.
 - Clicking a speaker button opens the correct character/portrait workflow.
-- Clicking a reader-history line opens the correct chapter and source line in whichever Script view is active; reader navigation buttons remain reader-only.
-- Coloured names and dialogue spacing can be enabled directly, survive reloads as UI preferences, and never modify source text.
+- Double-clicking a reader-history line opens the correct chapter and source line in whichever Script view is active; reader navigation buttons remain reader-only.
+- A single reader-history click never changes workspace tabs; double-click reveals the source; Shift+double-click edits dialogue and subtitle from the reader without changing the speaker label or discarding dice metadata.
+- Coloured names and dialogue spacing work while the raw script remains editable, never force a view change, survive reloads as UI preferences, and never modify source text.
 - Character subtitles can be shown or hidden independently and never inherit the character-name accent colour.
+- Per-line subtitle overrides survive save/export/import, fall back to the character subtitle when absent, and never leak directive text into the reader, speech, or generated output.
 - Switching between Edit and Highlighted views does not change or reorder the raw script.
 - Parenthesised thoughts and square-bracket narration/actions use their configured colours only when semantic colouring is enabled.
 - Protagonist-only semantic colours never leak onto another character or Narrator line.

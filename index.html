@@ -7,11 +7,17 @@
   <title>Story Tool</title>
   <style>
     :root {
+      /* 10/13 keeps the compact workspace as the 100% default; browser 130% restores the former size. */
+      --app-ui-scale: 0.76923077;
+      --app-layout-width: 130vw;
+      --app-layout-height: 130vh;
       --workspace-rail: 176px;
       --workspace-gap: 14px;
-      --editor-pane-width: calc((100vw - var(--workspace-rail) - 62px) / 2);
-      --reader-pane-width: calc((100vw - var(--workspace-rail) - 62px) / 2);
+      --editor-pane-width: calc((var(--app-layout-width) - var(--workspace-rail) - 62px) / 2);
+      --reader-pane-width: calc((var(--app-layout-width) - var(--workspace-rail) - 62px) / 2);
     }
+
+    html { zoom: var(--app-ui-scale); }
 
     .workspace-tabs .workspace-tab[draggable="true"] {
       cursor: grab;
@@ -272,7 +278,7 @@
 
     .portrait-card-folder {
       color: var(--muted);
-      font-size: 0.68rem !important;
+      font-size: var(--portrait-folder-font-size, 0.68rem) !important;
     }
 
     @container (max-width: 560px) {
@@ -300,7 +306,7 @@
 
     .portrait-gallery-controls {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(0, 1fr) auto auto;
       align-items: center;
       gap: 6px 12px;
       margin: 10px 0 8px;
@@ -327,6 +333,17 @@
     .portrait-gallery-controls output {
       color: var(--muted);
       font-size: 0.76rem;
+    }
+
+    .portrait-gallery-add {
+      width: 30px;
+      min-width: 30px;
+      height: 30px;
+      min-height: 30px;
+      padding: 0 !important;
+      justify-content: center;
+      font-size: 1.05rem !important;
+      line-height: 1;
     }
 
     .portrait-library-viewport {
@@ -552,7 +569,7 @@
       color: var(--reader-theme-foreground);
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 492px) {
       #theme-card .theme-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
@@ -941,9 +958,57 @@
       background: color-mix(in srgb, var(--card-2) 88%, var(--accent) 12%);
     }
 
-    .script-format-toolbar + #scriptInput {
+    .script-format-toolbar + .script-edit-shell #scriptInput {
       border-top-left-radius: 0;
       border-top-right-radius: 0;
+    }
+
+    .script-edit-shell {
+      --script-dialogue-gap: 0px;
+      position: relative;
+      min-width: 0;
+    }
+
+    .script-edit-shell #scriptInput {
+      position: relative;
+      z-index: 1;
+      display: block;
+      line-height: calc(1.5em + var(--script-dialogue-gap));
+    }
+
+    .script-edit-highlights {
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      overflow: scroll;
+      padding: 10px 12px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      color: transparent;
+      font-family: "Trebuchet MS", "Verdana", sans-serif;
+      font-size: 0.95rem;
+      line-height: calc(1.5em + var(--script-dialogue-gap));
+      overflow-wrap: break-word;
+      pointer-events: none;
+      scrollbar-color: transparent transparent;
+      scrollbar-width: thin;
+      white-space: pre-wrap;
+    }
+
+    .script-edit-highlights::-webkit-scrollbar { width: 12px; height: 12px; }
+    .script-edit-highlights::-webkit-scrollbar-thumb,
+    .script-edit-highlights::-webkit-scrollbar-track { background: transparent; }
+
+    .script-edit-name {
+      border-radius: 3px;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
+      font-weight: 700;
+    }
+
+    .script-edit-name.narrator {
+      background: var(--bg-3);
+      color: var(--muted);
     }
 
     .script-format-toolbar .btn {
@@ -1105,7 +1170,7 @@
       font-size: 0.84rem;
     }
 
-    @media (max-width: 640px) {
+    @media (max-width: 492px) {
       .chapter-title-field { grid-template-columns: 1fr; }
       .chapter-picker { max-width: none; width: 100%; }
     }
@@ -1444,14 +1509,26 @@
 
     .portrait-library {
       --portrait-card-size: 144px;
+      --portrait-card-padding: 6px;
+      --portrait-grid-gap: 10px;
+      --portrait-action-gap: 5px;
+      --portrait-action-margin: 6px;
+      --portrait-button-height: 30px;
+      --portrait-button-pad-y: 4px;
+      --portrait-button-pad-x: 7px;
+      --portrait-button-font-size: 0.72rem;
+      --portrait-label-font-size: 0.75rem;
+      --portrait-folder-font-size: 0.68rem;
+      --portrait-label-margin: 5px;
+      --portrait-image-radius: 8px;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--portrait-card-size)), 1fr));
-      gap: 10px;
+      gap: var(--portrait-grid-gap);
     }
 
     .portrait-card {
       min-width: 0;
-      padding: 6px;
+      padding: var(--portrait-card-padding);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       background: rgba(255,255,255,0.04);
@@ -1474,15 +1551,16 @@
     .portrait-card-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 6px;
+      gap: var(--portrait-action-gap);
+      margin-top: var(--portrait-action-margin);
     }
 
     .portrait-card-actions .btn {
       flex: 1 1 auto;
-      min-height: 30px;
-      padding: 4px 7px;
-      font-size: 0.72rem;
+      min-height: var(--portrait-button-height);
+      padding: var(--portrait-button-pad-y) var(--portrait-button-pad-x);
+      font-size: var(--portrait-button-font-size);
+      line-height: 1.1;
     }
 
     .portrait-card.selected {
@@ -1495,17 +1573,17 @@
       height: clamp(68px, calc(var(--portrait-card-size) * 0.62), 148px);
       display: block;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: var(--portrait-image-radius);
       background: #10131f;
     }
 
     .portrait-card span {
       display: block;
       overflow: hidden;
-      margin-top: 5px;
+      margin-top: var(--portrait-label-margin);
       text-overflow: ellipsis;
       white-space: nowrap;
-      font-size: 0.75rem;
+      font-size: var(--portrait-label-font-size);
     }
 
     .portrait-dropzone {
@@ -1642,15 +1720,16 @@
 
     .reader-speaker {
       color: var(--accent);
-      font-size: 1.25rem;
-      font-weight: bold;
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.1;
     }
 
     .reader-subtitle {
       color: inherit;
-      font-size: .92rem;
+      font-size: .78rem;
       font-weight: 500;
-      opacity: .72;
+      opacity: .58;
     }
 
     .reader-subtitle[hidden] { display: none; }
@@ -1783,7 +1862,7 @@
 
     .import-speaker-section { min-height: 0; }
 
-    @media (max-height: 700px) {
+    @media (max-height: 538px) {
       .modal { align-items: flex-start; padding: 8px; }
       .import-review-card { max-height: calc(100dvh - 16px); }
       .import-review-details { max-height: 150px; }
@@ -1797,7 +1876,7 @@
       align-items: center;
     }
 
-    @media (max-width: 700px) {
+    @media (max-width: 538px) {
       .import-speaker-row { grid-template-columns: 1fr; }
     }
 
@@ -1861,6 +1940,47 @@
       width: 1px;
       min-height: 0;
       pointer-events: none;
+    }
+
+    .reader-line-editor {
+      position: absolute;
+      z-index: 5;
+      inset: 12px;
+      display: grid;
+      align-content: start;
+      gap: 9px;
+      min-width: 0;
+      overflow: auto;
+      padding: 14px;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-sm);
+      background: color-mix(in srgb, var(--card) 96%, var(--accent) 4%);
+      box-shadow: var(--shadow);
+    }
+
+    .reader-line-editor[hidden] { display: none; }
+
+    .reader-line-editor-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .reader-line-editor-header strong { color: var(--accent); }
+
+    .reader-line-editor textarea {
+      min-height: 92px;
+      max-height: 180px;
+      resize: vertical;
+    }
+
+    .reader-line-editor .actions { margin-top: 0; }
+
+    .reader-line-editor-status {
+      min-height: 1.2em;
+      color: var(--muted);
+      font-size: .78rem;
     }
 
     .reader-splitter {
@@ -2291,8 +2411,8 @@
       left: 0;
       right: 0;
       bottom: 0;
-      width: 100vw;
-      height: 100vh;
+      width: var(--app-layout-width);
+      height: var(--app-layout-height);
       max-width: none;
       max-height: none;
       border-radius: 0;
@@ -2305,7 +2425,7 @@
       display: none;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 692px) {
       .theme-colors {
         grid-template-columns: 1fr;
         gap: 0;
@@ -2534,7 +2654,7 @@
     }
 
     body.reader-collapsed main.grid {
-      width: calc(100vw - var(--workspace-rail) - 84px);
+      width: calc(var(--app-layout-width) - var(--workspace-rail) - 84px);
       left: calc(var(--workspace-rail) + 26px);
     }
 
@@ -2547,7 +2667,7 @@
 
     body.reader-collapsed.reader-left main.grid {
       left: calc(var(--workspace-rail) + 68px);
-      width: calc(100vw - var(--workspace-rail) - 92px);
+      width: calc(var(--app-layout-width) - var(--workspace-rail) - 92px);
     }
 
     body.reader-collapsed.reader-left #reader-card {
@@ -2857,10 +2977,10 @@
       color: var(--reader-theme-foreground);
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 692px) {
       body {
         height: auto;
-        min-height: 100vh;
+        min-height: var(--app-layout-height);
         overflow: auto;
         padding: 0 12px 12px;
       }
@@ -3056,7 +3176,7 @@
         right: 2vw;
         bottom: auto;
         width: auto;
-        height: 96vh;
+        height: 124.8vh;
         min-width: 0;
         min-height: 0;
         max-width: none;
@@ -3082,8 +3202,8 @@
         inset: 0;
         top: 0;
         left: 0;
-        width: 100vw;
-        height: 100vh;
+        width: var(--app-layout-width);
+        height: var(--app-layout-height);
         max-width: none;
         max-height: none;
         resize: none;
@@ -3417,9 +3537,10 @@
               <button class="btn ghost row" id="clearPortraitSelection" type="button" disabled>Clear selection</button>
             </div>
             <div class="portrait-gallery-controls">
-              <label for="portraitThumbnailSize">Preview size</label>
+              <label for="portraitThumbnailSize">Card, preview &amp; button size</label>
               <output id="portraitThumbnailSizeValue" for="portraitThumbnailSize">144 px</output>
-              <input id="portraitThumbnailSize" type="range" min="104" max="240" step="8" value="144" aria-label="Sprite preview size" />
+              <button class="btn ghost row portrait-gallery-add" id="addPortraitsFromGallery" type="button" aria-label="Add sprite images" title="Add sprite images">+</button>
+              <input id="portraitThumbnailSize" type="range" min="104" max="240" step="8" value="144" aria-label="Sprite card, preview, and button size" />
             </div>
             <div class="portrait-library-viewport" id="portraitLibraryViewport">
               <div class="portrait-library" id="portraitLibrary"></div>
@@ -3530,7 +3651,10 @@
             <button class="btn ghost row" id="formatScriptColourApply" type="button">Apply colour</button>
             <button class="btn ghost row" id="clearScriptFormatting" type="button" title="Remove bold, italic, quote, and colour tags from selected text">Clear style</button>
           </div>
-          <textarea id="scriptInput" placeholder=":: Scene 1 ::&#10;!Madoka: Okay... [1]&#10;Raika: H-Huh?!&#10;CW: Flashing imagery&#10;:: Scene 2 ::&#10;Narration line here."></textarea>
+          <div class="script-edit-shell" id="scriptEditShell">
+            <textarea id="scriptInput" placeholder=":: Scene 1 ::&#10;!Madoka: Okay... [1]&#10;Raika: H-Huh?!&#10;CW: Flashing imagery&#10;:: Scene 2 ::&#10;Narration line here."></textarea>
+            <div class="script-edit-highlights" id="scriptEditHighlights" aria-hidden="true" hidden></div>
+          </div>
           <div class="highlighted-script" id="highlightedScript" aria-label="Highlighted script view" hidden></div>
         </div>
         <div class="actions script-toolbar">
@@ -3696,6 +3820,24 @@
             <div class="reader-dialogue" id="readerDialogue">Add dialogue to your script to read it here.</div>
           </div>
           <img class="reader-location-corner" id="readerLocationCorner" alt="" hidden />
+          <form class="reader-line-editor" id="readerLineEditor" hidden>
+            <div class="reader-line-editor-header">
+              <strong id="readerLineEditorTitle">Edit reader line</strong>
+              <button class="btn ghost row" id="cancelReaderLineEditTop" type="button" aria-label="Cancel line edit" title="Cancel">×</button>
+            </div>
+            <label for="readerLineEditText">Dialogue or narration</label>
+            <textarea id="readerLineEditText" maxlength="10000"></textarea>
+            <label class="toggle"><input id="readerLineSubtitleOverride" type="checkbox" /> Change subtitle for this line</label>
+            <div class="field" id="readerLineSubtitleField" hidden>
+              <label for="readerLineSubtitleText">Line subtitle <span class="muted">(leave blank to hide it)</span></label>
+              <input id="readerLineSubtitleText" type="text" maxlength="120" placeholder="(from Wonderland?)" />
+            </div>
+            <div class="reader-line-editor-status" id="readerLineEditorStatus" role="status" aria-live="polite"></div>
+            <div class="actions">
+              <button class="btn row" type="submit" aria-label="Apply reader line edit">✓ Apply edit</button>
+              <button class="btn ghost row" id="cancelReaderLineEdit" type="button">× Cancel</button>
+            </div>
+          </form>
         </div>
         <div
           class="reader-splitter"
@@ -3854,6 +3996,8 @@
 
   <script>
     const el = (id) => document.getElementById(id);
+    const APP_UI_SCALE = 10 / 13;
+    const APP_DESKTOP_BREAKPOINT = 900 * APP_UI_SCALE;
     const charactersList = el('charactersList');
     const notesList = el('notesList');
     const scriptImagesList = el('scriptImagesList');
@@ -3883,6 +4027,7 @@
     let readerLineWindowEnd = 0;
     let readerLineWindowFrame = 0;
     let readerLineWindowTimer = 0;
+    let readerLineEditTarget = null;
     let resetReaderSplitLayout = () => {};
     let refreshReaderSplitLayout = () => {};
     let diceTags = ['Attack roll', 'Damage roll', 'Check'];
@@ -4026,6 +4171,7 @@
       { id: 'initiative-enter', title: 'Enter initiative', example: ':: ⚔ Enter Initiative ::', description: 'Starts battle state and the optional battle palette.' },
       { id: 'initiative-exit', title: 'Exit initiative', example: ':: ⚔ Exit Initiative ::', description: 'Ends battle state according to Dice Options.' },
       { id: 'dice', title: 'Line dice override', example: 'Alice: Attack! [[dice: Attack roll | advantage]]', description: 'Marks one line as a roll. Modes are advantage or disadvantage; use [[dice: off]] to suppress a character default.' },
+      { id: 'subtitle', title: 'Line subtitle override', example: 'Alice: Hello. [[subtitle: (from Wonderland?)]]', description: 'Changes the reader subtitle for this line only. Use [[subtitle: off]] to hide the character subtitle on one line.' },
       { id: 'warning', title: 'Content warning', example: 'CW: Flashing imagery', description: 'Adds a visible scene warning without creating a character.' },
       { id: 'note', title: 'Translator note marker', example: 'Alice: A curious word.[1]', description: 'Links [1] to translator note 1.' },
       { id: 'image-slot', title: 'Pasteable script image', example: 'Image', description: 'Creates a numbered paste/upload slot in Script Images.' },
@@ -4046,6 +4192,18 @@
         directive: label.toLowerCase() === 'off'
           ? { enabled: false, label: '', mode: '' }
           : { enabled: true, label: label || 'Dice', mode }
+      };
+    }
+
+    function parseSubtitleDirective(rawLine) {
+      const match = rawLine.match(/\s*\[\[subtitle\s*:\s*(.*?)\s*\]\]\s*$/i);
+      if (!match) return { line: rawLine, directive: null };
+      const value = match[1].trim();
+      return {
+        line: rawLine.slice(0, match.index),
+        directive: value.toLowerCase() === 'off'
+          ? { enabled: false, value: '' }
+          : { enabled: true, value }
       };
     }
 
@@ -4577,7 +4735,7 @@
 
       const availablePaneWidth = () => {
         const rail = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--workspace-rail')) || 176;
-        return Math.max(560, window.innerWidth - rail - (readerSide === 'left' ? 36 : 50));
+        return Math.max(560, (window.innerWidth / APP_UI_SCALE) - rail - (readerSide === 'left' ? 36 : 50));
       };
 
       const setEditorWidth = width => {
@@ -4586,7 +4744,7 @@
         const readerWidth = available - editorWidth;
         document.documentElement.style.setProperty('--editor-pane-width', `${editorWidth}px`);
         document.documentElement.style.setProperty('--reader-pane-width', `${readerWidth}px`);
-        if (window.innerWidth > 900) {
+        if (window.innerWidth > APP_DESKTOP_BREAKPOINT) {
           localStorage.setItem('storyToolEditorPaneWidth', String(editorWidth));
         }
       };
@@ -4620,6 +4778,11 @@
         syncDockToggle();
       };
 
+      const layoutDensityVersion = 'compact-10-13';
+      if (localStorage.getItem('storyToolLayoutDensityVersion') !== layoutDensityVersion) {
+        localStorage.removeItem('storyToolEditorPaneWidth');
+        localStorage.setItem('storyToolLayoutDensityVersion', layoutDensityVersion);
+      }
       const savedWidth = parseFloat(localStorage.getItem('storyToolEditorPaneWidth'));
       setEditorWidth(Number.isFinite(savedWidth) ? savedWidth : availablePaneWidth() / 2);
       syncLayoutControls();
@@ -4661,7 +4824,7 @@
           const draggedTab = sectionTabs.find(item => item.dataset.panel === draggedPanel);
           if (!draggedTab || draggedTab === tab) return;
           const bounds = tab.getBoundingClientRect();
-          const horizontal = window.innerWidth <= 900;
+          const horizontal = window.innerWidth <= APP_DESKTOP_BREAKPOINT;
           const insertAfter = horizontal
             ? event.clientX > bounds.left + bounds.width / 2
             : event.clientY > bounds.top + bounds.height / 2;
@@ -4682,14 +4845,15 @@
       });
 
       resizeHandle.addEventListener('pointerdown', event => {
-        if (locked || document.body.classList.contains('reader-collapsed') || window.innerWidth <= 900) return;
+        if (locked || document.body.classList.contains('reader-collapsed') || window.innerWidth <= APP_DESKTOP_BREAKPOINT) return;
         event.preventDefault();
         document.body.classList.add('layout-resizing');
         const resize = moveEvent => {
           const rail = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--workspace-rail')) || 176;
+          const logicalPointerX = moveEvent.clientX / APP_UI_SCALE;
           const width = readerSide === 'left'
-            ? availablePaneWidth() - (moveEvent.clientX - rail - 21)
-            : moveEvent.clientX - rail - 35;
+            ? availablePaneWidth() - (logicalPointerX - rail - 21)
+            : logicalPointerX - rail - 35;
           setEditorWidth(width);
           syncLayoutControls();
         };
@@ -5945,6 +6109,7 @@
       updateScriptHistoryButtons();
       renderChapterNavigation();
       if (!el('highlightedScript').hidden) renderHighlightedScript();
+      renderEditableScriptAids();
       switchingChapter = false;
       requestAnimationFrame(() => {
         const length = textarea.value.length;
@@ -6842,7 +7007,8 @@
 
         String(chapter.script || '').replace(/\r\n/g, '\n').split('\n').forEach((rawLine, lineIndex) => {
           const parsedLine = parseDiceDirective(rawLine);
-          const line = parsedLine.line.trim();
+          const parsedSubtitle = parseSubtitleDirective(parsedLine.line);
+          const line = parsedSubtitle.line.trim();
           if (!line || /^={3,}$/.test(line)) return;
           if (/^.+\.txt$/i.test(line)) {
             advanceInitiativeChapter(initiativeState, initiativeSettings);
@@ -6919,7 +7085,8 @@
             lineIndex,
             sourceKey: `${chapter.id}:${lineIndex}`,
             initiative: initiativeState.initiative,
-            location: activeLocation ? { ...activeLocation } : null
+            location: activeLocation ? { ...activeLocation } : null,
+            subtitleOverride: parsedSubtitle.directive
           };
           const match = line.match(/^(.+?)\s*:\s*(.*)$/);
           if (match) {
@@ -6994,7 +7161,7 @@
             return;
           }
 
-          if (!lastSpeaker && lastNarrationItem && !parsedLine.directive) {
+          if (!lastSpeaker && lastNarrationItem && !parsedLine.directive && !parsedSubtitle.directive) {
             lastNarrationItem.text += `\n${line}`;
           } else {
             const item = {
@@ -7156,6 +7323,50 @@
       if (matchingReaderIndex >= 0) setReaderLine(matchingReaderIndex);
     }
 
+    function syncEditableScriptAidScroll() {
+      const textarea = el('scriptInput');
+      const overlay = el('scriptEditHighlights');
+      overlay.scrollTop = textarea.scrollTop;
+      overlay.scrollLeft = textarea.scrollLeft;
+    }
+
+    function renderEditableScriptAids() {
+      const textarea = el('scriptInput');
+      const overlay = el('scriptEditHighlights');
+      const enabled = el('scriptColourNames').checked && !textarea.hidden;
+      overlay.hidden = !enabled;
+      if (!enabled) {
+        overlay.replaceChildren();
+        return;
+      }
+      const speakers = buildSpeakerMap(collectCharacters());
+      const fragment = document.createDocumentFragment();
+      textarea.value.replace(/\r\n/g, '\n').split('\n').forEach((rawLine, lineIndex, lines) => {
+        const match = rawLine.match(/^(\s*)(.+?)(\s*:\s*)(.*)$/);
+        if (!match || parseLocationDirective(rawLine)) {
+          fragment.appendChild(document.createTextNode(rawLine));
+        } else {
+          fragment.appendChild(document.createTextNode(match[1]));
+          const token = match[2].trim();
+          const descriptor = resolveSpeakerDescriptor(token, speakers);
+          const narrator = isNarratorToken(token) || Boolean(descriptor?.narration);
+          const system = /^cw$/i.test(token) || isSystemToken(token) || Boolean(descriptor?.system);
+          const name = document.createElement('span');
+          name.className = `script-edit-name${narrator || system ? ' narrator' : ''}`;
+          name.textContent = match[2];
+          if (!narrator && !system) {
+            const colour = descriptor?.character?.bubbleColor || inferredColorFor(token);
+            name.style.backgroundColor = colour;
+            name.style.color = readableTextForHex(colour);
+          }
+          fragment.append(name, document.createTextNode(`${match[3]}${match[4]}`));
+        }
+        if (lineIndex < lines.length - 1) fragment.appendChild(document.createTextNode('\n'));
+      });
+      overlay.replaceChildren(fragment);
+      syncEditableScriptAidScroll();
+    }
+
     function renderHighlightedScript() {
       const container = el('highlightedScript');
       const characters = collectCharacters();
@@ -7221,24 +7432,28 @@
     function setScriptView(mode) {
       const highlighted = mode === 'highlighted';
       el('scriptInput').hidden = highlighted;
+      el('scriptEditShell').hidden = highlighted;
       el('highlightedScript').hidden = !highlighted;
-      el('scriptColourNames').checked = highlighted;
       el('scriptEditView').setAttribute('aria-selected', highlighted ? 'false' : 'true');
       el('scriptHighlightedView').setAttribute('aria-selected', highlighted ? 'true' : 'false');
       el('scriptEditView').tabIndex = highlighted ? -1 : 0;
       el('scriptHighlightedView').tabIndex = highlighted ? 0 : -1;
       localStorage.setItem('storyToolScriptView', highlighted ? 'highlighted' : 'edit');
       if (highlighted) renderHighlightedScript();
-      else el('scriptInput').focus();
+      else {
+        renderEditableScriptAids();
+        el('scriptInput').focus();
+      }
     }
 
-    function setScriptDialogueSpacing(value, { persist = false, openPreview = false } = {}) {
+    function setScriptDialogueSpacing(value, { persist = false } = {}) {
       const spacing = Math.min(24, Math.max(0, Number(value) || 0));
       el('scriptDialogueSpacing').value = String(spacing);
       el('scriptDialogueSpacingValue').value = `${spacing} px`;
+      el('scriptEditShell').style.setProperty('--script-dialogue-gap', `${spacing}px`);
       el('highlightedScript').style.setProperty('--script-dialogue-gap', `${spacing}px`);
       if (persist) localStorage.setItem('storyToolScriptDialogueSpacing', String(spacing));
-      if (openPreview && el('highlightedScript').hidden) setScriptView('highlighted');
+      syncEditableScriptAidScroll();
     }
 
     function createPortraitAssetId() {
@@ -7647,6 +7862,113 @@
       });
     }
 
+    function readerSourceLineParts(rawLine) {
+      const parsedDice = parseDiceDirective(rawLine);
+      const parsedSubtitle = parseSubtitleDirective(parsedDice.line);
+      const core = parsedSubtitle.line.replace(/\s+$/, '');
+      const speakerMatch = core.match(/^(\s*.+?\s*:\s*)(.*)$/);
+      return {
+        core,
+        dialogue: speakerMatch ? speakerMatch[2] : core,
+        prefix: speakerMatch ? speakerMatch[1] : '',
+        dice: parsedDice.directive,
+        subtitle: parsedSubtitle.directive
+      };
+    }
+
+    function serializedDiceDirective(directive) {
+      if (!directive) return '';
+      if (directive.enabled === false) return '[[dice: off]]';
+      return `[[dice: ${directive.label || 'Dice'}${directive.mode ? ` | ${directive.mode}` : ''}]]`;
+    }
+
+    function closeReaderLineEditor({ restoreFocus = true } = {}) {
+      const editor = el('readerLineEditor');
+      if (editor.hidden) return;
+      editor.hidden = true;
+      readerLineEditTarget = null;
+      el('readerLineEditorStatus').textContent = '';
+      el('readerLineSubtitleText').setCustomValidity('');
+      if (restoreFocus) requestAnimationFrame(() => {
+        el('readerLines').querySelector('.reader-line.active')?.focus({ preventScroll: true });
+      });
+    }
+
+    function openReaderLineEditor(item, index) {
+      const chapter = chapters.find(candidate => candidate.id === item?.chapterId);
+      if (!chapter || !Number.isInteger(item?.lineIndex)) return;
+      setReaderLine(index);
+      stopReaderSpeech();
+      const source = activeChapterId === chapter.id ? el('scriptInput').value : chapter.script;
+      const lines = String(source || '').replace(/\r\n?/g, '\n').split('\n');
+      const rawLine = lines[item.lineIndex];
+      if (rawLine === undefined) return;
+      const parts = readerSourceLineParts(rawLine);
+      const characterSubtitle = item.character?.showReaderSubtitle && item.character.readerSubtitle
+        ? item.character.readerSubtitle.trim()
+        : '';
+      readerLineEditTarget = {
+        readerIndex: index,
+        chapterId: item.chapterId,
+        lineIndex: item.lineIndex,
+        sourceKey: item.sourceKey
+      };
+      el('readerLineEditorTitle').textContent = `Edit ${item.speaker || 'narration'} · source line ${item.lineIndex + 1}`;
+      el('readerLineEditText').value = parts.dialogue;
+      el('readerLineSubtitleOverride').checked = Boolean(parts.subtitle);
+      el('readerLineSubtitleText').value = parts.subtitle?.enabled ? parts.subtitle.value : characterSubtitle;
+      el('readerLineSubtitleField').hidden = !parts.subtitle;
+      el('readerLineEditorStatus').textContent = 'Apply updates the source script; Cancel leaves it unchanged.';
+      el('readerLineEditor').hidden = false;
+      requestAnimationFrame(() => {
+        el('readerLineEditText').focus();
+        el('readerLineEditText').select();
+      });
+    }
+
+    function applyReaderLineEdit() {
+      const target = readerLineEditTarget;
+      if (!target) return;
+      const subtitleInput = el('readerLineSubtitleText');
+      const subtitleValue = subtitleInput.value.trim();
+      if (subtitleValue.includes(']]')) {
+        subtitleInput.setCustomValidity('A subtitle cannot contain ]].');
+        subtitleInput.reportValidity();
+        return;
+      }
+      subtitleInput.setCustomValidity('');
+      const chapter = chapters.find(candidate => candidate.id === target.chapterId);
+      if (!chapter) {
+        closeReaderLineEditor({ restoreFocus: false });
+        return;
+      }
+      if (activeChapterId !== chapter.id) activateChapter(chapter.id, { focus: false });
+      const textarea = el('scriptInput');
+      const lines = textarea.value.replace(/\r\n?/g, '\n').split('\n');
+      if (target.lineIndex < 0 || target.lineIndex >= lines.length) {
+        el('readerLineEditorStatus').textContent = 'That source line no longer exists. Cancel and select it again.';
+        return;
+      }
+      const parts = readerSourceLineParts(lines[target.lineIndex]);
+      const dialogue = el('readerLineEditText').value.replace(/\s*\r?\n+\s*/g, ' ').trim();
+      const rebuilt = [`${parts.prefix}${dialogue}`];
+      if (el('readerLineSubtitleOverride').checked) {
+        rebuilt.push(subtitleValue ? `[[subtitle: ${subtitleValue}]]` : '[[subtitle: off]]');
+      }
+      const diceDirective = serializedDiceDirective(parts.dice);
+      if (diceDirective) rebuilt.push(diceDirective);
+      commitScriptHistory();
+      lines[target.lineIndex] = rebuilt.join(' ');
+      textarea.value = lines.join('\n');
+      const range = scriptSourceRange(textarea.value, target.lineIndex);
+      if (range) textarea.setSelectionRange(range.start, range.end);
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      closeReaderLineEditor({ restoreFocus: false });
+      applyScriptDraft();
+      const refreshedIndex = readerItems.findIndex(candidate => candidate.sourceKey === target.sourceKey);
+      if (refreshedIndex >= 0) setReaderLine(refreshedIndex);
+    }
+
     function readerLineButtonText(item, index) {
       const startsChapter = index === 0 || readerItems[index - 1]?.chapterIndex !== item.chapterIndex;
       const speakerLabel = item.dice ? `🎲 ${item.speaker}` : item.speaker;
@@ -7671,12 +7993,36 @@
       content.className = 'reader-line-content';
       content.textContent = readerLineButtonText(item, index);
       button.appendChild(content);
-      button.title = 'Read this line and reveal it in Script';
+      button.title = 'Click to select · Double-click to reveal in Script · Shift+double-click to edit';
       button.setAttribute('aria-posinset', String(index + 1));
       button.setAttribute('aria-setsize', String(readerItems.length));
       button.addEventListener('click', () => {
         setReaderLine(index);
-        revealReaderSource(item);
+      });
+      button.addEventListener('dblclick', event => {
+        event.preventDefault();
+        if (event.shiftKey) openReaderLineEditor(item, index);
+        else revealReaderSource(item);
+      });
+      button.addEventListener('keydown', event => {
+        if (event.key === 'Enter' && event.shiftKey) {
+          event.preventDefault();
+          openReaderLineEditor(item, index);
+          return;
+        }
+        if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
+          event.preventDefault();
+          revealReaderSource(item);
+          return;
+        }
+        if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const direction = ['ArrowUp', 'ArrowLeft'].includes(event.key) ? -1 : 1;
+        setReaderLine(index + direction);
+        requestAnimationFrame(() => {
+          el('readerLines').querySelector('.reader-line.active')?.focus({ preventScroll: true });
+        });
       });
       return button;
     }
@@ -7688,6 +8034,7 @@
         button.classList.toggle('active', buttonIndex === readerIndex);
         button.classList.toggle('spoiler-blur', buttonIndex > readerIndex && spoilerMode === 'blur');
         button.classList.toggle('spoiler-hide', buttonIndex > readerIndex && spoilerMode === 'hide');
+        button.tabIndex = buttonIndex === readerIndex ? 0 : -1;
         button.setAttribute(
           'aria-label',
           buttonIndex > readerIndex && spoilerMode === 'hide'
@@ -7758,7 +8105,11 @@
 
     function setReaderLine(index) {
       stopReaderSpeech();
+      if (readerLineEditTarget && index !== readerLineEditTarget.readerIndex) {
+        closeReaderLineEditor({ restoreFocus: false });
+      }
       if (!readerItems.length) {
+        closeReaderLineEditor({ restoreFocus: false });
         readerIndex = 0;
         el('readerSpeaker').textContent = 'Visual novel reader';
         el('readerSubtitle').hidden = true;
@@ -7804,9 +8155,12 @@
         : item.locationTransition
           ? 'Location'
           : item.system ? 'System' : 'Narration';
-      const visibleSubtitle = item.character?.showReaderSubtitle && item.character.readerSubtitle
+      const characterSubtitle = item.character?.showReaderSubtitle && item.character.readerSubtitle
         ? item.character.readerSubtitle.trim()
         : '';
+      const visibleSubtitle = item.subtitleOverride
+        ? (item.subtitleOverride.enabled ? item.subtitleOverride.value : '')
+        : characterSubtitle;
       el('readerSubtitle').textContent = visibleSubtitle;
       el('readerSubtitle').hidden = !visibleSubtitle;
       const dialogueTheme = isThemePreviewing
@@ -9011,7 +9365,8 @@
 
       lines.forEach(rawLine => {
         const parsedLine = parseDiceDirective(rawLine);
-        const trimmed = parsedLine.line.trim();
+        const parsedSubtitle = parseSubtitleDirective(parsedLine.line);
+        const trimmed = parsedSubtitle.line.trim();
         if (!trimmed) return;
 
         const initiativeMarker = trimmed.match(/^::\s*(?:⚔\s*)?(?:initiative\s+(start|enter|end|exit)|(enter|exit)\s+initiative)\s*::$/i);
@@ -10151,10 +10506,13 @@
     el('scriptEditView').addEventListener('click', () => setScriptView('edit'));
     el('scriptHighlightedView').addEventListener('click', () => setScriptView('highlighted'));
     el('scriptColourNames').addEventListener('change', event => {
-      setScriptView(event.target.checked ? 'highlighted' : 'edit');
+      localStorage.setItem('storyToolScriptColourNames', event.target.checked ? 'true' : 'false');
+      renderEditableScriptAids();
+      el('scriptInput').focus();
     });
     el('scriptDialogueSpacing').addEventListener('input', event => {
-      setScriptDialogueSpacing(event.target.value, { persist: true, openPreview: true });
+      setScriptDialogueSpacing(event.target.value, { persist: true });
+      el('scriptInput').focus();
     });
     el('formatScriptBold').addEventListener('click', () => wrapScriptSelection('[b]', '[/b]', 'bold text'));
     el('formatScriptItalic').addEventListener('click', () => wrapScriptSelection('[i]', '[/i]', 'italic text'));
@@ -10277,6 +10635,17 @@
       readerLineWindowFrame = requestAnimationFrame(renderScrolledWindow);
       readerLineWindowTimer = setTimeout(renderScrolledWindow, 50);
     }, { passive: true });
+    el('readerLineEditor').addEventListener('submit', event => {
+      event.preventDefault();
+      applyReaderLineEdit();
+    });
+    [el('cancelReaderLineEdit'), el('cancelReaderLineEditTop')].forEach(button => {
+      button.addEventListener('click', () => closeReaderLineEditor());
+    });
+    el('readerLineSubtitleOverride').addEventListener('change', event => {
+      el('readerLineSubtitleField').hidden = !event.target.checked;
+      if (event.target.checked) el('readerLineSubtitleText').focus();
+    });
     el('readerPrevious').addEventListener('click', () => setReaderLine(readerIndex - 1));
     el('readerNext').addEventListener('click', () => setReaderLine(readerIndex + 1));
     el('readerPreviousChapter').addEventListener('click', () => moveReaderChapter(-1));
@@ -10327,6 +10696,7 @@
     el('readerFullscreen').addEventListener('click', toggleReaderFullscreen);
     el('readerBackdrop').addEventListener('click', closeReaderPopout);
     el('addPortraits').addEventListener('click', () => el('portraitFiles').click());
+    el('addPortraitsFromGallery').addEventListener('click', () => el('portraitFiles').click());
     el('clearPortraitSelection').addEventListener('click', () => {
       selectedPortrait = '';
       renderPortraitLibrary();
@@ -10351,8 +10721,34 @@
     const portraitThumbnailSize = el('portraitThumbnailSize');
     const applyPortraitThumbnailSize = value => {
       const size = Math.min(240, Math.max(104, Number(value) || 144));
+      const factor = size / 144;
+      const scaled = (base, minimum, maximum) => Math.min(maximum, Math.max(minimum, base * factor));
+      const setPixels = (property, base, minimum, maximum) => {
+        portraitLibrary.style.setProperty(property, `${scaled(base, minimum, maximum).toFixed(2)}px`);
+      };
       portraitThumbnailSize.value = String(size);
       portraitLibrary.style.setProperty('--portrait-card-size', `${size}px`);
+      setPixels('--portrait-card-padding', 6, 4, 8);
+      setPixels('--portrait-grid-gap', 10, 6, 14);
+      setPixels('--portrait-action-gap', 5, 3, 7);
+      setPixels('--portrait-action-margin', 6, 4, 8);
+      setPixels('--portrait-button-height', 30, 24, 38);
+      setPixels('--portrait-button-pad-y', 4, 2.5, 6);
+      setPixels('--portrait-button-pad-x', 7, 4.5, 11);
+      setPixels('--portrait-label-margin', 5, 3, 7);
+      setPixels('--portrait-image-radius', 8, 6, 11);
+      portraitLibrary.style.setProperty(
+        '--portrait-button-font-size',
+        `${scaled(0.72, 0.58, 0.9).toFixed(3)}rem`
+      );
+      portraitLibrary.style.setProperty(
+        '--portrait-label-font-size',
+        `${scaled(0.75, 0.6, 0.9).toFixed(3)}rem`
+      );
+      portraitLibrary.style.setProperty(
+        '--portrait-folder-font-size',
+        `${scaled(0.68, 0.56, 0.8).toFixed(3)}rem`
+      );
       el('portraitThumbnailSizeValue').value = `${size} px`;
       return size;
     };
@@ -10451,6 +10847,11 @@
       if (event.key === 'Escape' && cropperModal.classList.contains('active')) {
         event.preventDefault();
         closeCropper();
+        return;
+      }
+      if (event.key === 'Escape' && !el('readerLineEditor').hidden) {
+        event.preventDefault();
+        closeReaderLineEditor();
         return;
       }
       if (event.key === 'Escape' && document.body.classList.contains('reader-open')) {
@@ -10609,6 +11010,7 @@
       markScriptDraftDirty();
       scheduleScriptHistory();
       syncScriptImageSlots();
+      renderEditableScriptAids();
       if (!el('highlightedScript').hidden) renderHighlightedScript();
     });
     el('scriptInput').addEventListener('blur', () => applyScriptDraft());
@@ -10616,6 +11018,7 @@
     el('scriptInput').addEventListener('scroll', () => {
       const chapter = activeChapter();
       if (chapter && !switchingChapter) chapter.scrollTop = el('scriptInput').scrollTop;
+      syncEditableScriptAidScroll();
     }, { passive: true });
     el('scriptInput').addEventListener('select', () => {
       const chapter = activeChapter();
@@ -10666,6 +11069,15 @@
     initReaderSplitter();
     initTopbar();
     initSyntaxReference();
+    const scriptEditAidVersion = 'editable-v1';
+    if (localStorage.getItem('storyToolScriptEditAidVersion') !== scriptEditAidVersion) {
+      if (localStorage.getItem('storyToolScriptView') === 'highlighted') {
+        localStorage.setItem('storyToolScriptColourNames', 'true');
+        localStorage.setItem('storyToolScriptView', 'edit');
+      }
+      localStorage.setItem('storyToolScriptEditAidVersion', scriptEditAidVersion);
+    }
+    el('scriptColourNames').checked = localStorage.getItem('storyToolScriptColourNames') === 'true';
     setScriptDialogueSpacing(localStorage.getItem('storyToolScriptDialogueSpacing'));
     if (localStorage.getItem('storyToolScriptView') === 'highlighted') setScriptView('highlighted');
 
