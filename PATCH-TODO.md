@@ -29,18 +29,18 @@ This ledger tracks the current patch in `index.html`. `Complete` means the struc
 
 | Section | Status | Current result / remaining work |
 | --- | --- | --- |
-| 1. Large-reader stability | Complete | Virtualised line history, separate chapter-title rows, direct reader chapter navigation, bounded speaker viewport, reader-only/history toggle, adaptive text fitting with A−/A+ controls, keyboard/mouse splitter, saved split, and compact non-overlay reader controls are implemented. |
+| 1. Large-reader stability | Complete | Virtualised line history, separate chapter-title rows, direct reader chapter navigation, bounded speaker viewport, reader-only/history toggle, adaptive text fitting with A−/A+ controls down to 60%, keyboard/mouse splitter, saved split, and compact non-overlay reader controls are implemented. |
 | 2. Toggle overlap/defaults | Complete | Controls have separate lanes; top bar and reader dock default closed and remember explicit choices. |
-| 3. Character image gallery | In progress | Sprite gallery, direct/multiple assignments, optional icon face crops and priority controls, palette extraction, safe removal, per-character advanced disclosures, a reversible Character/Existing/Narration/System role selector, stale-character cleanup, and protagonist controls are implemented. Remaining: occurrence-by-occurrence rename exclusions and a confirmation prompt when moving protagonist-specific settings. |
-| 4. Narrator/highlighted script | In progress | Reserved Narrator roles, portrait-free storybook layout, adjacent multiline narration coalescing, highlighted speaker buttons, semantic colours, and protagonist overrides are implemented. Remaining: finish ambiguity warnings for malformed speaker labels. |
+| 3. Character image gallery | In progress | Sprite gallery, face-crop thumbnails, explicit-only reader assignment, direct/multiple character assignments, sprite-to-new-character creation, shared folder/search organisation, optional icon face crops and priority controls, palette extraction, safe removal, per-character advanced disclosures, a reversible Character/Existing/Narration/System role selector, stale-character cleanup, and protagonist controls are implemented. Remaining: occurrence-by-occurrence rename exclusions and a confirmation prompt when moving protagonist-specific settings. |
+| 4. Narrator/highlighted script | In progress | Reserved Narrator roles, an unambiguous `@System:` tag with legacy `Dice Maiden:` support, portrait-free storybook/system layouts, adjacent multiline narration coalescing, highlighted speaker buttons, optional neutral reader subtitles, semantic colours, protagonist overrides, and selection-based bold/italic/colour/quote formatting are implemented. Remaining: finish ambiguity warnings for malformed speaker labels. |
 | 5. Persistent locations | In progress | Scene/background/corner/clear parsing, persistence between lines, opacity, gallery asset references, reader display, generated output, highlighting, and a location builder are implemented. Remaining: named reusable location records and unresolved/missing-asset validation. |
 | 6. Browser-local saving | Complete | IndexedDB with localStorage fallback, manual/auto modes, explicit save/revert/clear, dirty state, and unload protection are implemented without requiring a download. |
-| 7. Chapter workspace | Complete | Separate chapter records, numbered/dropdown navigation, editable titles, reorder/delete/new/import, chapter-local history/cursor/images, and schema migration are implemented. |
+| 7. Chapter workspace | Complete | Separate chapter records, numbered/dropdown navigation, editable titles, reorder/delete/new/import, chapter-local history/cursor/images, gated script drafts with Save Script Edits/blur apply, and schema migration are implemented. |
 | 8. Dice Options | In progress | Renamed side-tab, roll types, character defaults, line overrides, initiative settings, syntax, and battle-theme integration are implemented. Remaining: show explicit line-vs-character provenance and add stronger contradictory-option guidance. |
 | 9. Syntax Reference | In progress | Searchable side-tab, canonical examples, Insert/Copy actions, disguise parsing, and a parameterised location builder are implemented. Remaining: pinned/custom shortcuts, shortcut-key conflict handling, and entity-aware builders for characters/dice/notes. |
 | 10. Combined TXT import | In progress | Review-before-commit, 57-chapter detection, separator cleanup, Narrator/System handling, initiative inference, destinations, and per-speaker create/map/narrator/system/ignore choices are implemented. Remaining: richer mechanics classification/reporting and a project-level undo wrapper for a whole import. |
 | 11. Light/Dark themes | Complete | Separate mode state, explicit staged preview/apply/reset/cancel, linked reader by default, opt-in custom reader theme, optional global heading override, battle presets, black/white palette anchors, and zero-default contrast are implemented. |
-| 12. Accessibility/TTS/clarity | In progress | Workspace/script/theme keyboard navigation, global shortcuts, saved/fallback speech voices, per-character rate/pitch, narrator-voice names, dialogue-only filtering, autoplay/auto-advance, preview naming, and optional example placeholders are implemented. Remaining: complete focus-return audits for every modal and equivalent keyboard controls for every crop/reorder gesture. |
+| 12. Accessibility/TTS/clarity | In progress | Workspace/script/theme keyboard navigation, global shortcuts, saved/fallback speech voices, per-character rate/pitch and voice previews, narrator-voice names, timed muted narration, race-safe autoplay/auto-advance, preview naming, and optional example placeholders are implemented. Remaining: complete focus-return audits for every modal and equivalent keyboard controls for every crop/reorder gesture. |
 
 ---
 
@@ -128,7 +128,7 @@ When a large script is pasted or imported, the Visual Novel Reader's line list c
 - Treat the Visual Novel Reader as the primary reading experience; the Icon-style Preview is an optional alternate export/format.
 - Add a `Reader only` toggle that hides the line-preview/history list while preserving Previous/Next navigation and the active line.
 - Let text scale within safe limits from the available reader viewport. Text length must not resize the sprite column or make the sprite chase the text dimensions.
-- Fit dialogue text down by a limited amount before enabling internal scrolling, and provide A−/A+ reader text-size controls with a visible percentage.
+- Fit dialogue text down by a limited amount before enabling internal scrolling, and provide A−/A+ reader text-size controls with a visible percentage and a user-selectable minimum of 60%.
 - Keep character sprites sized from the reader viewport rather than from dialogue length.
 - In reader-only mode, present the current sprite, speaker, and dialogue like a visual-novel text-box scene and let the reader use all remaining safe height.
 
@@ -199,6 +199,8 @@ The fixed top-bar toggle and the reader collapse toggle can occupy the same top-
 - Add an `Assign portrait` control directly to every character row.
 - The assignment control should show gallery thumbnails or a searchable gallery picker.
 - Selecting a gallery image and then a character should assign it immediately; clicking dialogue in the reader must not be required.
+- Never assign or replace a sprite merely because the user clicked the reader dialogue area or a reader-history line.
+- If reader-side assignment is offered, expose a clearly labelled `Assign selected sprite to current speaker` button, disable it until both a sprite and character line are selected, and confirm the completed assignment in visible status text.
 - Keep the current crop/position tools available before assignment.
 - Allow more than one image to be assigned to a character without losing the original gallery asset.
 - Add `Select Face` to every assigned character image:
@@ -208,6 +210,7 @@ The fixed top-bar toggle and the reader collapse toggle can occupy the same top-
   - Priority 1 is the character's primary small icon.
   - Lower-priority faces are fallbacks or alternate preview faces.
 - Use the selected face crop for compact character previews, speaker buttons, reader-line previews, and any small avatar treatment.
+- Once a face crop exists, use it as that sprite's gallery-card thumbnail while retaining the full sprite as the assignable reader image.
 - Continue using the full portrait assignment in the main reader portrait area.
 - If no face is selected, fall back to the first assigned portrait crop and then to the character's initials/solid-colour icon.
 - Add `Select character colours from image` to gallery thumbnails and assigned portraits:
@@ -218,6 +221,9 @@ The fixed top-bar toggle and the reader collapse toggle can occupy the same top-
   - Do not change character colours until the user confirms a swatch or Quick assign.
 - If an image is already assigned, show which character or characters use it.
 - Removing an in-use image must warn the user and clearly state which assignments will be cleared.
+- Add character-panel organisation tools that search characters and sprites together and filter both by named folders.
+- Store folders in project data, allow characters and sprites to be moved between folders, and retain empty user-created folders.
+- Add `Make character` to each sprite card; it creates a new character with that full sprite already assigned, carries over the sprite folder, and focuses the new character's name for review.
 
 ### Character identity, typo mapping, and disguise names
 
@@ -262,6 +268,7 @@ The fixed top-bar toggle and the reader collapse toggle can occupy the same top-
 - Reusing one image for multiple characters does not duplicate the stored image data.
 - A character can have a full portrait and an independently cropped, prioritised face icon.
 - Small previews consistently use the highest-priority available face.
+- A cropped sprite's gallery card changes immediately to show its face crop.
 - Image-palette suggestions can be previewed and applied without leaving the character row/gallery.
 - Bulk colour changes do not overwrite a colour-locked protagonist.
 - A likely typo can be safely replaced or mapped as an alias without creating a duplicate character.
@@ -307,6 +314,7 @@ Speaker labels inside the raw script are difficult to scan. Recognised labels su
   - Move the Visual Novel Reader to the corresponding story item when possible.
 - Highlight unmatched speaker labels differently and offer `Create character` or `Map to existing character`.
 - Keep line numbers or stable source indexes so edits and reader positions stay synchronised.
+- Give each character an optional reader subtitle and a per-character visibility toggle. Render it beside the coloured reader name as separate neutral text, such as `ALICE (4 of Diamonds)`, without changing the script label or spoken name.
 
 ### Narration and thought colours
 
@@ -324,6 +332,15 @@ Speaker labels inside the raw script are difficult to scan. Recognised labels su
 - Only style balanced delimiters. Leave unmatched `(`, `)`, `[`, or `]` as ordinary text.
 - Styling must also work in generated HTML, the live reader, highlighted script view, and exported/imported projects.
 
+### Selection-based text formatting
+
+- Add a compact editor toolbar for bold, italic, quote-block, and exact text-colour formatting.
+- Apply formatting to the current selection with portable script tags: `[b]`, `[i]`, `[quote]`, and `[color=#RRGGBB]`.
+- Keep the tags editable in raw Edit mode, and render their effect in Highlighted view, the Visual Novel Reader, and generated HTML.
+- Provide a Clear style action for a selected formatted passage.
+- Strip formatting tags from text-to-speech and compact reader-line labels.
+- Support Ctrl/Cmd+B and Ctrl/Cmd+I while the script editor has focus.
+
 ### Colour precedence
 
 Apply colours in this order so the result is predictable:
@@ -340,7 +357,8 @@ Run contrast checks against the active reader surface and warn before applying a
 ### Parsing safeguards
 
 - Do not treat URLs, timestamps, bracketed metadata, or punctuation-only prefixes as speakers.
-- Do not create characters from Discord/system lines such as `Dice Maiden:` unless the user explicitly maps them.
+- Reserve `@System:` for non-character system/function text; keep plain `System:` available as a normal character label.
+- Continue accepting `Dice Maiden:` as a legacy system label for the supplied script, without creating a cast character.
 - Multiline dialogue without another valid speaker label must remain attached to the previous speaker.
 
 ### Acceptance criteria
@@ -348,9 +366,11 @@ Run contrast checks against the active reader surface and warn before applying a
 - `Character:` and `3:` become coloured buttons in Highlighted view.
 - `Narrator:`, `Narration:`, `-:`, and `null:` render as full-width storybook narration without creating narrator characters or portrait placeholders.
 - Clicking a speaker button opens the correct character/portrait workflow.
+- Character subtitles can be shown or hidden independently and never inherit the character-name accent colour.
 - Switching between Edit and Highlighted views does not change or reorder the raw script.
 - Parenthesised thoughts and square-bracket narration/actions use their configured colours only when semantic colouring is enabled.
 - Protagonist-only semantic colours never leak onto another character or Narrator line.
+- Selected bold, italic, colour, and quote formatting renders consistently without exposing its tags in the reader, speech, or generated output.
 
 ---
 
@@ -496,6 +516,9 @@ The project currently stores one very large script, so adding or editing a new c
 ### Chapter editor
 
 - Give every chapter a fresh, independent script editor rather than showing every chapter in one textarea.
+- Treat typing as an unapplied script draft: do not scan/create characters or rebuild the reader while the user is still entering a speaker label.
+- Add `Save Script Edits`; also apply the draft when focus leaves the script textarea or the user deliberately navigates away.
+- Keep browser-level Manual/Auto Save separate from applying a script draft, while ensuring an explicit project save first applies the current draft.
 - Add `New Chapter` and create it with an empty editor.
 - Add `Duplicate Chapter`, `Delete Chapter`, and `Reorder Chapters`.
 - Deleting a non-empty chapter requires confirmation and names the chapter being removed.
@@ -559,6 +582,7 @@ The project currently stores one very large script, so adding or editing a new c
 - Importing the combined S1–S4 file in split mode creates 57 separately editable chapters.
 - Switching chapters restores each chapter's cursor, editor scroll, reader position, and undo history.
 - Existing one-script projects migrate without data loss.
+- Typing an unfinished speaker label never creates a character; creation happens only after Save Script Edits, blur, or deliberate chapter/project navigation.
 
 ---
 
@@ -773,7 +797,7 @@ Observed structure in the supplied file:
 - Preserve Unicode names exactly; use a normalised comparison key only for matching aliases.
 - Accept numeric labels such as `3:` as possible speakers.
 - Reject obvious false speaker labels, including timestamps, bracket-only prefixes, URLs, and punctuation-only prefixes.
-- Classify `Dice Maiden:` and decorated dice blocks as system/dice events by default, not cast characters.
+- Classify `@System:`, legacy `Dice Maiden:`, and decorated dice blocks as system/dice events by default, not cast characters.
 - Convert a detected initiative start into `:: ⚔ Enter Initiative ::`.
 - When the source provides no explicit initiative exit, close initiative at the next detected chapter boundary and report that inference in the review screen.
 - Recognise common mechanic lines—rolls, advantage/disadvantage, attack, damage, AC, HP, saves, initiative order, quest, and tooltip—without rewriting their original text.
@@ -795,7 +819,7 @@ Observed structure in the supplied file:
 - Unicode speaker names remain intact.
 - Continuation dialogue remains with the correct preceding speaker.
 - `-:` lines become the reserved Narrator type and never show a missing-portrait state.
-- Dice Maiden and decorated roll blocks do not become ordinary characters by default.
+- `@System:`, legacy Dice Maiden, and decorated roll blocks do not become ordinary characters by default; plain `System:` may be a character.
 - The initiative section is active after the initiative marker and closes at the following chapter boundary unless the review screen changes that choice.
 - The import does not create timestamp or bracket-only characters.
 - The user can review all uncertain mappings before the current project is replaced.
@@ -883,6 +907,7 @@ It is not sufficiently obvious which mode is being edited, colour selection can 
 
 - Put each character's text-to-speech voice, speed, and pitch in that character's options rather than treating them as reader-wide voice settings.
 - Let different characters use different installed browser/system voices.
+- Add a `Preview voice` button to each character that speaks a short sample using that character's currently selected voice, speed, and pitch without enabling autoplay or advancing the reader.
 - Reader text-to-speech options control Narrator, narration, system/non-character dialogue, and the fallback used when a character has no valid assigned voice.
 - Add `Read character names aloud` as an independent reader toggle.
 - When name reading is off, speak only the dialogue text; when on, announce the displayed speaker name before the line.
@@ -893,7 +918,9 @@ It is not sufficiently obvious which mode is being edited, colour selection can 
 - Do not auto-play speech on project load, chapter changes, or reader navigation unless a separate continuous-reading option is explicitly enabled.
 - Add spoken-line autoplay as that explicit continuous-reading option, plus an optional advance-to-next-line action when speech finishes.
 - Add `Always read character name in narrator voice`; when enabled, speak the name with narrator/fallback settings before the character voice reads dialogue.
-- Add `Only read dialogue`; skip Narrator items and remove parenthesised thoughts and bracketed action/narration spans from character speech without changing source text.
+- Add `Mute narration, thoughts, and actions`; queue Narrator items and parenthesised/bracketed spans as zero-volume speech so their reading time is preserved before auto-advance, without changing source text.
+- Cancel pending autoplay and advance callbacks whenever the active reader line changes. A canceled or stale utterance must never advance a newer line.
+- Treat a held Arrow key as one reader navigation action per physical press so keyboard repeat cannot race autoplay.
 
 ### Progressive settings disclosure
 
@@ -923,6 +950,9 @@ It is not sufficiently obvious which mode is being edited, colour selection can 
 - The complete core workflow can be performed with a keyboard and always shows where focus is.
 - Drag-only actions have keyboard equivalents and dialogs return focus correctly.
 - Two characters can use different voices/rates/pitches while Narrator uses the reader fallback settings.
+- Character voice previews use the selected character settings without enabling autoplay or advancing reader navigation.
+- Rapid Arrow-key navigation with Auto-read/Advance enabled starts speech only for the final selected line, and completion from an older line cannot move the reader.
+- Muted narration remains visible for its silent speech duration before Advance moves to the next line.
 - Toggling `Read character names aloud` changes name announcement without changing the spoken dialogue.
 - The interface never describes Icon-style Script Preview as the Visual Novel Reader.
 - Example text can be hidden, is visibly distinct when shown, and is never saved as user content.

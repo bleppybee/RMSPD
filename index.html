@@ -206,6 +206,38 @@
       background: var(--card);
     }
 
+    .character-organisation {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) minmax(150px, .75fr) auto;
+      gap: 8px;
+      width: 100%;
+      align-items: end;
+    }
+
+    .character-organisation .field { margin: 0; }
+
+    .sprite-selection-status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card-2);
+    }
+
+    .portrait-card-folder {
+      color: var(--muted);
+      font-size: 0.68rem !important;
+    }
+
+    @container (max-width: 560px) {
+      .character-organisation { grid-template-columns: minmax(0, 1fr); }
+    }
+
     .portrait-library-section {
       margin: 12px 0;
       border: 1px solid var(--border);
@@ -702,6 +734,46 @@
       background: color-mix(in srgb, var(--accent) 22%, var(--bg-3));
       border-color: var(--accent);
       color: var(--text);
+    }
+
+    .script-format-toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-bottom: 0;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      background: color-mix(in srgb, var(--card-2) 88%, var(--accent) 12%);
+    }
+
+    .script-format-toolbar + #scriptInput {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+
+    .script-format-toolbar .btn {
+      min-width: 34px;
+      min-height: 32px;
+      padding: 5px 9px;
+    }
+
+    .script-format-colour {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-left: 3px;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    .script-format-colour input[type="color"] {
+      width: 32px;
+      height: 30px;
+      padding: 2px;
+      border-radius: 7px;
+      cursor: pointer;
     }
 
     .highlighted-script {
@@ -1389,6 +1461,15 @@
       font-weight: bold;
     }
 
+    .reader-subtitle {
+      color: inherit;
+      font-size: .92rem;
+      font-weight: 500;
+      opacity: .72;
+    }
+
+    .reader-subtitle[hidden] { display: none; }
+
     .reader-speaker::before,
     .reader-speaker::after { content: none !important; }
 
@@ -1443,6 +1524,16 @@
     }
 
     .semantic-thought { font-style: italic; }
+
+    .story-format-quote {
+      display: block;
+      margin: .45em 0;
+      padding: .2em .8em;
+      border-left: .18em solid color-mix(in srgb, currentColor 52%, transparent);
+      color: inherit;
+      font: inherit;
+      font-style: italic;
+    }
 
     .reader:not(.initiative-active):not(.custom-reader-theme) .reader-dialogue {
       color: var(--dialogue-theme-colour, inherit);
@@ -3101,6 +3192,18 @@
           <button class="btn" id="addCharacter">Add Character</button>
           <button class="btn ghost row" id="addPortraits" type="button">Add Sprite Images</button>
           <button class="btn ghost row" id="removeUnusedCharacters" type="button">Remove characters not in script</button>
+          <div class="character-organisation" aria-label="Character organisation">
+            <div class="field">
+              <label for="characterSearch">Find characters or sprites</label>
+              <input id="characterSearch" type="search" placeholder="Search names, labels, or sprites" />
+            </div>
+            <div class="field">
+              <label for="characterFolderFilter">Folder</label>
+              <select id="characterFolderFilter"><option value="">All folders</option></select>
+            </div>
+            <button class="btn ghost row" id="addCharacterFolder" type="button">＋ New folder</button>
+            <datalist id="characterFolderOptions"></datalist>
+          </div>
         </div>
         <details class="portrait-library-section">
           <summary>Sprite Image Gallery</summary>
@@ -3109,9 +3212,12 @@
               <label>Picture upload area</label>
               <div class="portrait-dropzone" id="portraitDropzone" tabindex="0">
                 <div>Paste with <strong>Ctrl+V</strong>/<strong>Cmd+V</strong>, drop full character sprites here, or select image files.</div>
-                <button class="btn ghost row" id="removePortrait" type="button" disabled>Remove Selected Portrait</button>
                 <input type="file" id="portraitFiles" accept="image/*" multiple hidden />
               </div>
+            </div>
+            <div class="sprite-selection-status">
+              <span id="portraitSelectionStatus" class="muted" aria-live="polite">No sprite selected.</span>
+              <button class="btn ghost row" id="clearPortraitSelection" type="button" disabled>Clear selection</button>
             </div>
             <div class="portrait-library" id="portraitLibrary"></div>
             <div class="muted">Sprites are used in the Visual Novel Reader. Use <strong>Select face</strong> only when you want a cropped icon for the optional Icon-style Preview.</div>
@@ -3201,10 +3307,21 @@
               <button class="btn ghost row" id="scriptHighlightedView" type="button" role="tab" aria-selected="false">Highlighted</button>
             </div>
           </div>
+          <div class="script-format-toolbar" role="toolbar" aria-label="Format selected script text">
+            <button class="btn ghost row" id="formatScriptBold" type="button" title="Bold selected text (Ctrl+B)" aria-label="Bold selected text"><strong>B</strong></button>
+            <button class="btn ghost row" id="formatScriptItalic" type="button" title="Italicise selected text (Ctrl+I)" aria-label="Italicise selected text"><em>I</em></button>
+            <button class="btn ghost row" id="formatScriptQuote" type="button" title="Turn selected text into a quote block">❝ Quote</button>
+            <label class="script-format-colour" for="scriptFormatColour">Colour
+              <input id="scriptFormatColour" type="color" value="#cba6f7" data-palette-enhance="false" aria-label="Selected text colour" />
+            </label>
+            <button class="btn ghost row" id="formatScriptColourApply" type="button">Apply colour</button>
+            <button class="btn ghost row" id="clearScriptFormatting" type="button" title="Remove bold, italic, quote, and colour tags from selected text">Clear style</button>
+          </div>
           <textarea id="scriptInput" placeholder=":: Scene 1 ::&#10;!Madoka: Okay... [1]&#10;Raika: H-Huh?!&#10;CW: Flashing imagery&#10;:: Scene 2 ::&#10;Narration line here."></textarea>
           <div class="highlighted-script" id="highlightedScript" aria-label="Highlighted script view" hidden></div>
         </div>
         <div class="actions script-toolbar">
+          <button class="btn row" type="button" id="applyScriptChanges" title="Apply this draft to characters, the reader, and the project" disabled>Save Script Edits</button>
           <span class="muted">History:</span>
           <div class="script-history-buttons" role="group" aria-label="Script undo and redo">
             <button class="btn ghost row" type="button" id="undoScript" title="Undo script edit (Ctrl+Z)" aria-label="Undo script edit" disabled>↶ Undo</button>
@@ -3299,6 +3416,8 @@
             <span class="pill" id="readerTextSizeValue" aria-live="polite">100%</span>
             <button class="btn ghost row" id="readerTextLarger" type="button" aria-label="Larger reader text" title="Larger reader text">A+</button>
           </div>
+          <button class="btn ghost row" id="readerAssignSprite" type="button" disabled>Assign selected sprite to current speaker</button>
+          <span class="pill" id="readerSpriteStatus" aria-live="polite" hidden></span>
           <span class="pill" id="readerPosition">No dialogue lines</span>
         </div>
         <div class="reader-quick-options" aria-label="Reader options">
@@ -3323,7 +3442,7 @@
                 </div>
                 <label class="toggle"><input type="checkbox" id="readerSpeakNames" /> Read character names aloud</label>
                 <label class="toggle"><input type="checkbox" id="readerSpeakNamesNarratorVoice" disabled /> Always read character names in narrator voice</label>
-                <label class="toggle"><input type="checkbox" id="readerOnlyDialogueSpeech" /> Only read dialogue (skip Narrator and remove (...) / [...] parts)</label>
+                <label class="toggle"><input type="checkbox" id="readerOnlyDialogueSpeech" /> Mute narration, thoughts, and actions (keep their reading time)</label>
                 <div class="field">
                   <label for="readerSpoilerStyle">Spoiler cover</label>
                   <select id="readerSpoilerStyle" aria-label="Upcoming line spoiler cover">
@@ -3356,6 +3475,7 @@
           <div class="reader-copy">
             <div class="reader-heading">
               <div class="reader-speaker" id="readerSpeaker">Visual novel reader</div>
+              <span class="reader-subtitle" id="readerSubtitle" hidden></span>
               <span class="pill reader-location-chip" id="readerLocationChip" hidden></span>
               <span class="initiative-badge" id="readerInitiativeBadge" hidden>⚔ Initiative</span>
               <span class="dice-roll-label" id="readerDiceLabel" hidden></span>
@@ -3537,10 +3657,11 @@
     const cropperFile = el('cropperFile');
     const cropperCtx = cropperCanvas.getContext('2d');
     let portraitAssets = [];
+    let characterFolders = [];
     let selectedPortrait = '';
     let readerItems = [];
     let readerIndex = 0;
-    let readerTextScale = Math.min(1.25, Math.max(0.8, Number(localStorage.getItem('storyToolReaderTextScale')) || 1));
+    let readerTextScale = Math.min(1.25, Math.max(0.6, Number(localStorage.getItem('storyToolReaderTextScale')) || 1));
     let readerTextFitFrame = 0;
     const READER_LINE_STEP = 42;
     const READER_LINE_OVERSCAN = 10;
@@ -3555,11 +3676,15 @@
     let scriptHistoryIndex = -1;
     let scriptHistoryTimer = null;
     let restoringScriptHistory = false;
+    let scriptDraftDirty = false;
     let chapters = [];
     let activeChapterId = '';
     let chapterSequence = 0;
     let switchingChapter = false;
     let lastAutoplaySourceKey = '';
+    let readerSpeechRunId = 0;
+    let readerAutoplayTimer = 0;
+    let readerAdvanceTimer = 0;
     const PROJECT_DB_NAME = 'rmspd-projects';
     const PROJECT_DB_VERSION = 1;
     const PROJECT_STORE_NAME = 'projects';
@@ -3672,7 +3797,11 @@
       { id: 'dialogue', title: 'Character dialogue', example: 'Alice: Hello there.', description: 'A speaker label followed by a colon and dialogue.' },
       { id: 'disguise', title: 'Disguise / display name', example: 'Alice (as Red Queen): Who are you?', description: 'Keeps Alice\'s identity, portrait, voice, and colours while displaying Red Queen.' },
       { id: 'narration', title: 'Narration', example: 'Narrator: The door opens.', description: 'Narrator, Narration, - and null are equivalent and never create a character.' },
+      { id: 'system', title: 'System text', example: '@System: Quest updated.', description: 'Reserved non-character text. Plain System: remains available as a character name; Dice Maiden: is accepted as a legacy system label.' },
       { id: 'semantic', title: 'Thoughts and actions', example: 'Alice: (I wonder...) [She looks away.]', description: 'Parentheses and square brackets can receive semantic theme colours.' },
+      { id: 'format-basic', title: 'Bold and italic text', example: 'Alice: [b]Important[/b] and [i]quietly[/i].', description: 'Format selected dialogue or narration with the editor toolbar. Tags remain portable in saved scripts.' },
+      { id: 'format-colour', title: 'Coloured text', example: 'Alice: [color=#cba6f7]Purple words[/color]', description: 'Applies an exact six-digit hex colour to selected text.' },
+      { id: 'format-quote', title: 'Quote block', example: 'Narrator: [quote]A remembered passage.[/quote]', description: 'Displays selected text as an indented quote block.' },
       { id: 'scene', title: 'Scene marker', example: ':: Tea Party ::', description: 'Starts a labelled scene in generated output.' },
       { id: 'chapter', title: 'Inline chapter marker', example: ':: Chapter: Down the Rabbit Hole ::', description: 'Marks a chapter inside a script. The chapter workspace is preferred for separate editing.' },
       { id: 'location', title: 'Location scene', example: ':: Location: (Wonderland Gate): Image: images/gate.png ::', description: 'Shows a location transition, then keeps its location name active.' },
@@ -3933,6 +4062,7 @@
     }
 
     function enhanceColorPicker(input) {
+      if (input.dataset.paletteEnhance === 'false') return;
       if (input.dataset.paletteEnhanced) return;
       input.dataset.paletteEnhanced = 'true';
       const originalParent = input.parentNode;
@@ -4032,6 +4162,8 @@
       icon: '',
       shortcut: '',
       displayName: '',
+      readerSubtitle: '',
+      showReaderSubtitle: true,
       bubbleColor: randomCharacterColor(),
       useColorIcon: true,
       nameMatchesBubble: false,
@@ -4993,6 +5125,41 @@
       if (readerVoice) renderSpeechVoiceOptions(readerVoice, readerVoice.dataset.pendingVoice || readerVoice.value);
     }
 
+    function previewCharacterSpeech(row) {
+      if (!speechSynthesisAvailable()) {
+        alert('Text-to-speech is not available in this browser.');
+        return;
+      }
+      const button = row.querySelector('.char-speech-preview');
+      const voiceSelect = row.querySelector('.char-speech-voice');
+      const voiceId = voiceSelect.value || voiceSelect.dataset.pendingVoice || '';
+      const voice = window.speechSynthesis.getVoices().find(candidate => candidate.voiceURI === voiceId);
+      const characterName = row.querySelector('.char-name').value.trim()
+        || row.querySelector('.char-shortcut').value.trim()
+        || 'this character';
+      stopReaderSpeech();
+      const utterance = new SpeechSynthesisUtterance(`Hello. This is a voice preview for ${characterName}.`);
+      if (voice) utterance.voice = voice;
+      utterance.rate = Number(row.querySelector('.char-speech-rate').value) || 1;
+      utterance.pitch = Number(row.querySelector('.char-speech-pitch').value) || 1;
+      const reset = () => {
+        button.disabled = false;
+        button.textContent = 'Preview voice';
+      };
+      utterance.onstart = () => {
+        button.disabled = true;
+        button.textContent = 'Playing…';
+      };
+      utterance.onend = reset;
+      utterance.onerror = event => {
+        reset();
+        if (event.error !== 'canceled' && event.error !== 'interrupted') {
+          console.error('Character voice preview failed.', event.error);
+        }
+      };
+      window.speechSynthesis.speak(utterance);
+    }
+
     function addCharacterRow(data = defaultCharacter()) {
       const row = document.createElement('div');
       row.className = 'char-row';
@@ -5013,13 +5180,22 @@
           </div>
         </div>
         <div class="character-primary-options">
+          <div class="field inline reader-subtitle-settings">
+            <label>Reader subtitle (optional)</label>
+            <input type="text" class="char-reader-subtitle" maxlength="120" placeholder="(4 of Diamonds)" />
+            <label class="toggle"><input type="checkbox" class="char-show-reader-subtitle" /> Show beside name in reader</label>
+          </div>
+          <div class="field inline">
+            <label>Folder</label>
+            <input type="text" class="char-folder" list="characterFolderOptions" placeholder="Unfiled" />
+          </div>
           <div class="field inline character-role-settings">
             <label>How should this label behave?</label>
             <select class="char-role-select">
               <option value="character">Character</option>
               <option value="existing">This is another character</option>
               <option value="narration">Narration / story text</option>
-              <option value="system">System / function text</option>
+              <option value="system">System / function text (@System:)</option>
             </select>
             <input type="checkbox" class="char-is-narration" hidden />
             <input type="checkbox" class="char-is-system" hidden />
@@ -5091,6 +5267,7 @@
                 <div class="field">
                   <label>Voice</label>
                   <select class="char-speech-voice" aria-label="Character speech voice"><option value="">System default</option></select>
+                  <button class="btn ghost row char-speech-preview" type="button">Preview voice</button>
                 </div>
                 <div class="field">
                   <label>Speed <output class="char-speech-rate-value">1.0×</output></label>
@@ -5115,6 +5292,9 @@
       const iconInput = row.querySelector('.char-icon-input');
       const shortcutInput = row.querySelector('.char-shortcut');
       const nameInput = row.querySelector('.char-name');
+      const readerSubtitleInput = row.querySelector('.char-reader-subtitle');
+      const showReaderSubtitleInput = row.querySelector('.char-show-reader-subtitle');
+      const folderInput = row.querySelector('.char-folder');
       const portraitPicker = row.querySelector('.char-portrait-picker');
       const colorInput = row.querySelector('.char-color');
       const useColorIconInput = row.querySelector('.char-use-color-icon');
@@ -5137,6 +5317,7 @@
       const speechVoice = row.querySelector('.char-speech-voice');
       const speechRate = row.querySelector('.char-speech-rate');
       const speechPitch = row.querySelector('.char-speech-pitch');
+      const speechPreview = row.querySelector('.char-speech-preview');
 
       iconInput.value = data.icon || '';
       const legacyAssetId = data.portraitAssetId || portraitAssets.find(asset => asset.src === data.icon)?.id || '';
@@ -5147,6 +5328,9 @@
       row.dataset.portraitAssetId = initialAssetIds[0] || '';
       shortcutInput.value = data.shortcut || '';
       nameInput.value = data.displayName || '';
+      readerSubtitleInput.value = data.readerSubtitle || '';
+      showReaderSubtitleInput.checked = data.showReaderSubtitle !== false;
+      folderInput.value = data.folder || '';
       speechVoice.dataset.pendingVoice = data.speechVoice || '';
       renderSpeechVoiceOptions(speechVoice, speechVoice.dataset.pendingVoice);
       speechRate.value = String(Number.isFinite(Number(data.speechRate)) ? Math.max(0.5, Math.min(2, Number(data.speechRate))) : 1);
@@ -5201,12 +5385,26 @@
       });
       nameInput.addEventListener('input', () => {
         updateCharacterIcon(row);
+        applyCharacterPanelFilters();
+        scheduleAuto();
+      });
+      readerSubtitleInput.addEventListener('input', () => {
+        applyCharacterPanelFilters();
+        scheduleAuto();
+      });
+      showReaderSubtitleInput.addEventListener('change', scheduleAuto);
+      folderInput.addEventListener('change', () => {
+        const folder = folderInput.value.trim();
+        folderInput.value = folder;
+        if (folder && !characterFolders.includes(folder)) characterFolders.push(folder);
+        refreshCharacterOrganisation();
         scheduleAuto();
       });
       fixSpeakerName.addEventListener('click', () => fixCharacterSpeakerName(row));
       shortcutInput.addEventListener('input', () => {
         updateCharacterIcon(row);
         refreshExistingCharacterOptions();
+        applyCharacterPanelFilters();
         scheduleAuto();
       });
       colorInput.addEventListener('input', () => {
@@ -5270,6 +5468,11 @@
         speechVoice.dataset.pendingVoice = speechVoice.value;
         scheduleAuto();
       });
+      speechPreview.disabled = !speechSynthesisAvailable();
+      speechPreview.title = speechPreview.disabled
+        ? 'Text-to-speech is not available in this browser'
+        : 'Speak a sample using this character voice, speed, and pitch';
+      speechPreview.addEventListener('click', () => previewCharacterSpeech(row));
       speechRate.addEventListener('input', () => {
         row.querySelector('.char-speech-rate-value').value = `${Number(speechRate.value).toFixed(1)}×`;
         scheduleAuto();
@@ -5286,6 +5489,7 @@
         row.remove();
         refreshExistingCharacterOptions();
         refreshProtagonistUi();
+        refreshCharacterOrganisation();
         scheduleAuto();
       });
       applyCharacterRole(false);
@@ -5365,8 +5569,10 @@
       const chapter = activeChapter();
       const textarea = el('scriptInput');
       if (!chapter || !textarea || switchingChapter) return;
-      chapter.script = textarea.value;
-      chapter.images = collectScriptImages();
+      if (!scriptDraftDirty) {
+        chapter.script = textarea.value;
+        chapter.images = collectScriptImages();
+      }
       chapter.cursorStart = textarea.selectionStart;
       chapter.cursorEnd = textarea.selectionEnd;
       chapter.scrollTop = textarea.scrollTop;
@@ -5474,6 +5680,7 @@
       const target = chapters.find(chapter => chapter.id === chapterId);
       if (!target) return;
       if (saveCurrent && activeChapter()) {
+        if (scriptDraftDirty) applyScriptDraft({ refresh: false });
         commitScriptHistory();
         saveActiveChapterState();
       } else {
@@ -5484,6 +5691,8 @@
       switchingChapter = true;
       const textarea = el('scriptInput');
       textarea.value = target.script;
+      scriptDraftDirty = false;
+      el('applyScriptChanges').disabled = true;
       scriptHistory = (target.history?.length ? target.history : [{
         value: target.script,
         selectionStart: target.cursorStart || 0,
@@ -5609,7 +5818,7 @@
             narratorLines += 1;
             return;
           }
-          if (/^(?:dice maiden|cw)$/i.test(token)) {
+          if (isSystemToken(token) || /^cw$/i.test(token)) {
             systemLines += 1;
             return;
           }
@@ -5710,7 +5919,7 @@
         if (!mapping || mapping.action === 'create') return line;
         if (mapping.action === 'map' && mapping.target) return `${match[1]}${mapping.target}${match[3]}${match[4]}`;
         if (mapping.action === 'narrator') return `${match[1]}Narrator${match[3]}${match[4]}`;
-        if (mapping.action === 'system') return `${match[1]}Dice Maiden${match[3]}${match[4]}`;
+        if (mapping.action === 'system') return `${match[1]}@System${match[3]}${match[4]}`;
         if (mapping.action === 'ignore') return `${match[1]}Narrator${match[3]}${match[4]}`;
         return line;
       }).join('\n');
@@ -5737,7 +5946,7 @@
       `;
       const warnings = [];
       if (analysis.narratorLines) warnings.push(`${analysis.narratorLines} Narrator/Narration/-:/null: lines will use storybook narration.`);
-      if (analysis.systemLines) warnings.push(`${analysis.systemLines} Dice Maiden/content-warning lines will be treated as system content, not cast characters.`);
+      if (analysis.systemLines) warnings.push(`${analysis.systemLines} @System/Dice Maiden/content-warning lines will be treated as system content, not cast characters.`);
       if (hasSplit && analysis.chapters.length === 57) warnings.push('The expected 57 Wonderland chapters were detected.');
       el('importReviewWarnings').innerHTML = warnings.length
         ? warnings.map(message => `<div>${escapeHtml(message)}</div>`).join('')
@@ -5812,6 +6021,38 @@
       textarea.selectionStart = textarea.selectionEnd = start + text.length;
       textarea.focus();
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function wrapScriptSelection(openTag, closeTag, placeholder = 'formatted text') {
+      if (!el('highlightedScript').hidden) setScriptView('edit');
+      const textarea = el('scriptInput');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selected = textarea.value.slice(start, end);
+      const content = selected || placeholder;
+      commitScriptHistory();
+      textarea.setRangeText(`${openTag}${content}${closeTag}`, start, end, 'select');
+      textarea.selectionStart = start + openTag.length;
+      textarea.selectionEnd = textarea.selectionStart + content.length;
+      textarea.focus();
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      commitScriptHistory();
+    }
+
+    function clearSelectedScriptFormatting() {
+      if (!el('highlightedScript').hidden) setScriptView('edit');
+      const textarea = el('scriptInput');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      if (start === end) return;
+      const cleaned = storyFormattingPlainText(textarea.value.slice(start, end));
+      commitScriptHistory();
+      textarea.setRangeText(cleaned, start, end, 'select');
+      textarea.selectionStart = start;
+      textarea.selectionEnd = start + cleaned.length;
+      textarea.focus();
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      commitScriptHistory();
     }
 
     function replaceSpeakerTags(row) {
@@ -5958,51 +6199,117 @@
         && typeof window.SpeechSynthesisUtterance !== 'undefined';
     }
 
+    function parseStoryFormatting(text) {
+      const root = { type: 'root', children: [] };
+      const stack = [root];
+      const pattern = /\[(\/?)\s*(b|i|quote|color)(?:\s*=\s*(#[0-9a-f]{6}))?\s*\]/gi;
+      let cursor = 0;
+      let match;
+      const appendText = value => {
+        if (!value) return;
+        const children = stack[stack.length - 1].children;
+        const previous = children[children.length - 1];
+        if (previous?.type === 'text') previous.value += value;
+        else children.push({ type: 'text', value });
+      };
+      while ((match = pattern.exec(String(text || '')))) {
+        appendText(String(text || '').slice(cursor, match.index));
+        cursor = pattern.lastIndex;
+        const closing = Boolean(match[1]);
+        const type = match[2].toLowerCase();
+        const color = match[3]?.toLowerCase() || '';
+        const invalidOpening = !closing && ((type === 'color' && !color) || (type !== 'color' && color));
+        if (invalidOpening || (closing && stack[stack.length - 1].type !== type)) {
+          appendText(match[0]);
+          continue;
+        }
+        if (closing) {
+          stack.pop();
+          continue;
+        }
+        const node = { type, color, children: [] };
+        stack[stack.length - 1].children.push(node);
+        stack.push(node);
+      }
+      appendText(String(text || '').slice(cursor));
+      return root.children;
+    }
+
+    function storyFormattingPlainText(text) {
+      const flatten = nodes => nodes.map(node => node.type === 'text' ? node.value : flatten(node.children)).join('');
+      return flatten(parseStoryFormatting(text));
+    }
+
+    function appendSemanticDomText(target, text, theme, isProtagonist = false) {
+      if (!theme) {
+        target.appendChild(document.createTextNode(text));
+        return;
+      }
+      const normalizedTheme = normalizeDialogueTheme(theme, activeThemeMode);
+      const semanticPattern = /(\([^()\n]*\)|\[[^\[\]\n]*\])/g;
+      String(text || '').split(semanticPattern).forEach(part => {
+        if (!part) return;
+        const semanticType = /^\([^()\n]*\)$/.test(part)
+          ? 'thought'
+          : /^\[[^\[\]\n]*\]$/.test(part) && !/^\[\d+\]$/.test(part)
+            ? 'action'
+            : '';
+        if (!normalizedTheme.semantic || !semanticType) {
+          target.appendChild(document.createTextNode(part));
+          return;
+        }
+        const span = document.createElement('span');
+        span.className = `semantic-${semanticType}`;
+        const useProtagonist = isProtagonist && normalizedTheme.uniqueProtagonist;
+        span.style.setProperty('--semantic-colour', useProtagonist
+          ? normalizedTheme[semanticType === 'thought' ? 'protagonistThought' : 'protagonistAction']
+          : normalizedTheme[semanticType]);
+        span.textContent = part;
+        target.appendChild(span);
+      });
+    }
+
+    function appendFormattedStoryText(target, text, theme = null, isProtagonist = false) {
+      const appendNodes = (parent, nodes) => nodes.forEach(node => {
+        if (node.type === 'text') {
+          appendSemanticDomText(parent, node.value, theme, isProtagonist);
+          return;
+        }
+        const element = document.createElement(node.type === 'b'
+          ? 'strong'
+          : node.type === 'i'
+            ? 'em'
+            : node.type === 'quote'
+              ? 'blockquote'
+              : 'span');
+        element.className = `story-format-${node.type}`;
+        if (node.type === 'color') element.style.color = node.color;
+        appendNodes(element, node.children);
+        parent.appendChild(element);
+      });
+      appendNodes(target, parseStoryFormatting(text));
+    }
+
     function syncReaderSpeechOptionState() {
       const namesEnabled = el('readerSpeakNames').checked;
       el('readerSpeakNamesNarratorVoice').disabled = !namesEnabled;
       if (!namesEnabled) el('readerSpeakNamesNarratorVoice').checked = false;
     }
 
-    function speechDialogueOnlyText(text) {
-      return String(text || '')
-        .replace(/\([^()\n]*\)/g, ' ')
-        .replace(/\[[^\[\]\n]*\]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+    function readerSpeechSegments(item, muteNarration) {
+      const text = storyFormattingPlainText(item?.text || '');
+      if (!muteNarration) return text.trim() ? [{ text, muted: false }] : [];
+      if (!item?.character) return text.trim() ? [{ text, muted: true }] : [];
+      const semanticPattern = /(\([^()\n]*\)|\[[^\[\]\n]*\])/g;
+      return text.split(semanticPattern).map(part => ({
+        text: part,
+        muted: /^\([^()\n]*\)$/.test(part) || /^\[[^\[\]\n]*\]$/.test(part)
+      })).filter(segment => segment.text.trim());
     }
 
-    function advanceAfterSpeech() {
-      if (!el('readerAutoAdvanceSpeech').checked || readerIndex >= readerItems.length - 1) return;
-      setTimeout(() => setReaderLine(readerIndex + 1), 120);
-    }
-
-    function speakCurrentReaderLine() {
-      if (!speechSynthesisAvailable()) {
-        alert('Text-to-speech is not available in this browser.');
-        return;
-      }
-      const item = readerItems[readerIndex];
-      if (!item || item.speakable === false) return;
-      window.speechSynthesis.cancel();
-      const onlyDialogue = el('readerOnlyDialogueSpeech').checked;
-      if (onlyDialogue && !item.character) {
-        advanceAfterSpeech();
-        return;
-      }
-      const announceName = item.character && el('readerSpeakNames').checked && item.speaker;
-      const spokenText = onlyDialogue ? speechDialogueOnlyText(item.text) : item.text;
-      if (!spokenText) {
-        advanceAfterSpeech();
-        return;
-      }
-      const separateNameVoice = Boolean(announceName && el('readerSpeakNamesNarratorVoice').checked);
-      const utterance = new SpeechSynthesisUtterance(
-        announceName && !separateNameVoice ? `${item.speaker}. ${spokenText}` : spokenText
-      );
-      const character = item.character;
+    function configureReaderUtterance(utterance, character, useNarratorVoice = false) {
       const voices = window.speechSynthesis.getVoices();
-      const characterVoice = character
+      const characterVoice = !useNarratorVoice && character
         ? voices.find(candidate => candidate.voiceURI === character.speechVoice)
         : null;
       const fallbackVoiceId = el('readerSpeechVoice').value || el('readerSpeechVoice').dataset.pendingVoice || '';
@@ -6016,39 +6323,92 @@
         utterance.rate = Number(el('readerSpeechRate').value) || 1;
         utterance.pitch = Number(el('readerSpeechPitch').value) || 1;
       }
+    }
+
+    function advanceAfterSpeech(runId, sourceIndex, sourceKey) {
+      if (runId !== readerSpeechRunId
+        || !el('readerAutoAdvanceSpeech').checked
+        || readerIndex !== sourceIndex
+        || readerItems[readerIndex]?.sourceKey !== sourceKey
+        || sourceIndex >= readerItems.length - 1) return;
+      clearTimeout(readerAdvanceTimer);
+      readerAdvanceTimer = setTimeout(() => {
+        readerAdvanceTimer = 0;
+        if (runId !== readerSpeechRunId
+          || readerIndex !== sourceIndex
+          || readerItems[readerIndex]?.sourceKey !== sourceKey) return;
+        setReaderLine(sourceIndex + 1);
+      }, 120);
+    }
+
+    function speakCurrentReaderLine() {
+      if (!speechSynthesisAvailable()) {
+        alert('Text-to-speech is not available in this browser.');
+        return;
+      }
+      const item = readerItems[readerIndex];
+      if (!item || item.speakable === false) return;
+      stopReaderSpeech();
+      const runId = readerSpeechRunId;
+      const sourceIndex = readerIndex;
+      const sourceKey = item.sourceKey;
+      const muteNarration = el('readerOnlyDialogueSpeech').checked;
+      const entries = [];
+      const announceName = item.character && el('readerSpeakNames').checked && item.speaker;
+      if (announceName) {
+        entries.push({
+          text: `${item.speaker}.`,
+          muted: false,
+          narratorVoice: el('readerSpeakNamesNarratorVoice').checked
+        });
+      }
+      readerSpeechSegments(item, muteNarration).forEach(segment => entries.push({
+        ...segment,
+        narratorVoice: !item.character
+      }));
       const showSpeaking = () => {
+        if (runId !== readerSpeechRunId) return;
         el('readerSpeak').disabled = true;
         el('readerStopSpeech').disabled = false;
       };
-      utterance.onend = () => {
+      const finish = () => {
+        if (runId !== readerSpeechRunId) return;
         el('readerSpeak').disabled = false;
         el('readerStopSpeech').disabled = true;
-        advanceAfterSpeech();
+        advanceAfterSpeech(runId, sourceIndex, sourceKey);
       };
-      utterance.onerror = event => {
-        el('readerSpeak').disabled = false;
-        el('readerStopSpeech').disabled = true;
-        if (event.error !== 'canceled' && event.error !== 'interrupted') {
-          console.error('Text-to-speech playback failed.', event.error);
-          alert('Could not read this line aloud. Check the browser speech settings and try again.');
+      const playEntry = entryIndex => {
+        if (runId !== readerSpeechRunId) return;
+        const entry = entries[entryIndex];
+        if (!entry) {
+          finish();
+          return;
         }
-      };
-      utterance.onstart = showSpeaking;
-      if (separateNameVoice) {
-        const nameUtterance = new SpeechSynthesisUtterance(`${item.speaker}.`);
-        if (fallbackVoice) nameUtterance.voice = fallbackVoice;
-        nameUtterance.rate = Number(el('readerSpeechRate').value) || 1;
-        nameUtterance.pitch = Number(el('readerSpeechPitch').value) || 1;
-        nameUtterance.onstart = showSpeaking;
-        nameUtterance.onend = () => window.speechSynthesis.speak(utterance);
-        nameUtterance.onerror = utterance.onerror;
-        window.speechSynthesis.speak(nameUtterance);
-      } else {
+        const utterance = new SpeechSynthesisUtterance(entry.text);
+        configureReaderUtterance(utterance, item.character, entry.narratorVoice);
+        utterance.volume = entry.muted ? 0 : 1;
+        utterance.onstart = showSpeaking;
+        utterance.onend = () => playEntry(entryIndex + 1);
+        utterance.onerror = event => {
+          if (runId !== readerSpeechRunId) return;
+          el('readerSpeak').disabled = false;
+          el('readerStopSpeech').disabled = true;
+          if (event.error !== 'canceled' && event.error !== 'interrupted') {
+            console.error('Text-to-speech playback failed.', event.error);
+            alert('Could not read this line aloud. Check the browser speech settings and try again.');
+          }
+        };
         window.speechSynthesis.speak(utterance);
-      }
+      };
+      playEntry(0);
     }
 
     function stopReaderSpeech() {
+      readerSpeechRunId += 1;
+      clearTimeout(readerAutoplayTimer);
+      clearTimeout(readerAdvanceTimer);
+      readerAutoplayTimer = 0;
+      readerAdvanceTimer = 0;
       if (typeof window.speechSynthesis !== 'undefined') window.speechSynthesis.cancel();
       el('readerSpeak').disabled = false;
       el('readerStopSpeech').disabled = true;
@@ -6098,6 +6458,10 @@
     function isNarratorToken(token) {
       const normalized = String(token || '').trim().toLowerCase();
       return normalized === '-' || ['narrator', 'narration', 'null'].includes(normalized);
+    }
+
+    function isSystemToken(token) {
+      return ['@system', 'dice maiden'].includes(String(token || '').trim().toLowerCase());
     }
 
     function parseLocationDirective(line) {
@@ -6335,7 +6699,7 @@
               lastNarrationItem = narrationItem;
               return;
             }
-            if (/^dice maiden$/i.test(token)) {
+            if (isSystemToken(token)) {
               lastSpeaker = null;
               lastNarrationItem = null;
               items.push({
@@ -6425,7 +6789,7 @@
         const match = line.match(/^(.+?)\s*:\s*(.*)$/);
         if (!match) return;
         const token = match[1].trim();
-        if (!token || token.length > 80 || /^(?:cw|dice maiden)$/i.test(token) || isNarratorToken(token)) return;
+        if (!token || token.length > 80 || /^cw$/i.test(token) || isSystemToken(token) || isNarratorToken(token)) return;
         const disguise = token.match(/^(.+?)\s*\(as\s+(.+?)\)$/i);
         if (disguise && known.has(disguise[1].trim().toLowerCase())) return;
         if (!known.has(token.toLowerCase())) tokens.add(token);
@@ -6445,6 +6809,40 @@
       }
     }
 
+    function markScriptDraftDirty() {
+      if (switchingChapter) return;
+      scriptDraftDirty = true;
+      el('applyScriptChanges').disabled = false;
+      const chapter = activeChapter();
+      el('chapterStatus').textContent = chapter
+        ? `Draft changes in ${chapter.title} · save edits or leave the editor to apply`
+        : 'Draft script changes have not been applied.';
+      setProjectSaveState('dirty', 'Script draft not applied');
+    }
+
+    function applyScriptDraft({ refresh = true } = {}) {
+      if (!scriptDraftDirty || switchingChapter) return false;
+      const chapter = activeChapter();
+      const textarea = el('scriptInput');
+      if (!chapter || !textarea) return false;
+      chapter.script = textarea.value;
+      chapter.images = collectScriptImages();
+      chapter.cursorStart = textarea.selectionStart;
+      chapter.cursorEnd = textarea.selectionEnd;
+      chapter.scrollTop = textarea.scrollTop;
+      scriptDraftDirty = false;
+      el('applyScriptChanges').disabled = true;
+      commitScriptHistory();
+      syncScriptCharacters();
+      renderChapterNavigation(`Saved script edits to ${chapter.title}.`);
+      if (refresh) {
+        updateReader();
+        updatePreview();
+      }
+      scheduleSave();
+      return true;
+    }
+
     function removeCharactersNotInScript() {
       saveActiveChapterState({ includeHistory: false });
       const usedTokens = new Set();
@@ -6454,7 +6852,7 @@
         const match = line.match(/^(.+?)\s*:/);
         if (!match) return;
         const token = match[1].trim();
-        if (isNarratorToken(token) || /^(?:cw|dice maiden)$/i.test(token)) return;
+        if (isNarratorToken(token) || /^cw$/i.test(token) || isSystemToken(token)) return;
         usedTokens.add(token.toLowerCase());
         const disguise = token.match(/^(.+?)\s*\(as\s+.+?\)$/i);
         if (disguise) usedTokens.add(disguise[1].trim().toLowerCase());
@@ -6484,15 +6882,10 @@
       unused.forEach(row => row.remove());
       refreshExistingCharacterOptions();
       refreshProtagonistUi();
+      refreshCharacterOrganisation();
       updateReader();
       updatePreview();
       scheduleAuto();
-    }
-
-    let speakerSyncTimer = null;
-    function scheduleSpeakerSync() {
-      clearTimeout(speakerSyncTimer);
-      speakerSyncTimer = setTimeout(syncScriptCharacters, 450);
     }
 
     function characterRowForDescriptor(character) {
@@ -6550,7 +6943,7 @@
         }
         const match = rawLine.match(/^(\s*)(.+?)(\s*:\s*)(.*)$/);
         if (!match) {
-          line.appendChild(document.createTextNode(rawLine));
+          appendFormattedStoryText(line, rawLine);
           fragment.appendChild(line);
           return;
         }
@@ -6558,7 +6951,7 @@
         const token = match[2].trim();
         const descriptor = resolveSpeakerDescriptor(token, speakers);
         const narrator = isNarratorToken(token) || Boolean(descriptor?.narration);
-        const system = /^(?:cw|dice maiden)$/i.test(token) || Boolean(descriptor?.system);
+        const system = /^cw$/i.test(token) || isSystemToken(token) || Boolean(descriptor?.system);
         const speaker = document.createElement(narrator || system ? 'span' : 'button');
         if (speaker instanceof HTMLButtonElement) speaker.type = 'button';
         speaker.className = `highlighted-speaker${narrator || system ? ' narrator' : descriptor ? '' : ' unmatched'}`;
@@ -6573,7 +6966,8 @@
           speaker.title = 'Create this speaker or map it to an existing character';
           speaker.addEventListener('click', () => openHighlightedSpeaker(token, lineIndex));
         }
-        line.append(speaker, document.createTextNode(`${match[3]}${match[4]}`));
+        line.append(speaker, document.createTextNode(match[3]));
+        appendFormattedStoryText(line, match[4]);
         fragment.appendChild(line);
       });
       container.replaceChildren(fragment);
@@ -6655,23 +7049,95 @@
       scheduleAuto();
     }
 
+    function knownCharacterFolders() {
+      return [...new Set([
+        ...characterFolders,
+        ...portraitAssets.map(asset => String(asset.folder || '').trim()),
+        ...Array.from(charactersList.querySelectorAll('.char-folder'), input => input.value.trim())
+      ].filter(Boolean))].sort((first, second) => first.localeCompare(second));
+    }
+
+    function applyCharacterPanelFilters() {
+      const query = (el('characterSearch')?.value || '').trim().toLowerCase();
+      const folder = el('characterFolderFilter')?.value || '';
+      charactersList.querySelectorAll('.char-row').forEach(row => {
+        const rowFolder = row.querySelector('.char-folder')?.value.trim() || '';
+        const searchable = [
+          row.querySelector('.char-name')?.value,
+          row.querySelector('.char-shortcut')?.value,
+          row.querySelector('.char-reader-subtitle')?.value,
+          rowFolder
+        ].join(' ').toLowerCase();
+        row.hidden = Boolean((folder && rowFolder !== folder) || (query && !searchable.includes(query)));
+      });
+      portraitLibrary.querySelectorAll('.portrait-card').forEach(card => {
+        const searchable = `${card.dataset.name || ''} ${card.dataset.folder || ''}`.toLowerCase();
+        card.hidden = Boolean((folder && card.dataset.folder !== folder) || (query && !searchable.includes(query)));
+      });
+    }
+
+    function refreshCharacterOrganisation() {
+      const folders = knownCharacterFolders();
+      characterFolders = folders;
+      const filter = el('characterFolderFilter');
+      const current = filter?.value || '';
+      if (filter) {
+        filter.replaceChildren(new Option('All folders', ''), ...folders.map(folder => new Option(folder, folder)));
+        filter.value = folders.includes(current) ? current : '';
+      }
+      const datalist = el('characterFolderOptions');
+      if (datalist) datalist.replaceChildren(...folders.map(folder => new Option(folder, folder)));
+      applyCharacterPanelFilters();
+    }
+
+    function createCharacterFromPortraitAsset(asset) {
+      const suggestedName = String(asset.name || 'New character').replace(/\.[a-z0-9]{2,5}$/i, '').trim() || 'New character';
+      addCharacterRow({
+        ...defaultCharacter(),
+        icon: asset.src,
+        portraitAssetId: asset.id,
+        portraitAssetIds: [asset.id],
+        displayName: suggestedName,
+        folder: asset.folder || '',
+        useColorIcon: false
+      });
+      const row = charactersList.lastElementChild;
+      el('characterSearch').value = '';
+      refreshCharacterOrganisation();
+      el('characterFolderFilter').value = asset.folder || '';
+      applyCharacterPanelFilters();
+      refreshExistingCharacterOptions();
+      updateReader();
+      scheduleAuto();
+      activateWorkspacePanel('characters');
+      row.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      row.querySelector('.char-name').focus();
+    }
+
     function renderPortraitLibrary() {
       portraitLibrary.innerHTML = '';
       portraitAssets.forEach((asset, index) => {
         const card = document.createElement('div');
         card.className = `portrait-card${asset.src === selectedPortrait ? ' selected' : ''}`;
+        card.dataset.name = asset.name || `Portrait ${index + 1}`;
+        card.dataset.folder = asset.folder || '';
         const main = document.createElement('button');
         main.type = 'button';
         main.className = 'portrait-card-main';
-        main.title = 'Select this portrait for assignment';
+        main.title = 'Select this sprite. Assignment only happens from an explicit Assign button.';
         const image = document.createElement('img');
-        image.src = asset.src;
-        image.alt = asset.name || `Portrait ${index + 1}`;
+        image.src = asset.faceSrc || asset.src;
+        image.alt = asset.faceSrc
+          ? `${asset.name || `Portrait ${index + 1}`} face crop`
+          : asset.name || `Portrait ${index + 1}`;
         const name = document.createElement('span');
         name.textContent = asset.name || `Portrait ${index + 1}`;
-        main.append(image, name);
+        const folder = document.createElement('span');
+        folder.className = 'portrait-card-folder';
+        folder.textContent = asset.folder ? `Folder: ${asset.folder}` : 'Unfiled';
+        main.append(image, name, folder);
         main.addEventListener('click', () => {
-          selectedPortrait = asset.src;
+          selectedPortrait = selectedPortrait === asset.src ? '' : asset.src;
           renderPortraitLibrary();
         });
 
@@ -6701,6 +7167,23 @@
         colours.className = 'btn ghost row';
         colours.textContent = 'Colours';
         colours.addEventListener('click', () => openImagePalette(asset));
+        const makeCharacter = document.createElement('button');
+        makeCharacter.type = 'button';
+        makeCharacter.className = 'btn row';
+        makeCharacter.textContent = 'Make character';
+        makeCharacter.addEventListener('click', () => createCharacterFromPortraitAsset(asset));
+        const moveFolder = document.createElement('button');
+        moveFolder.type = 'button';
+        moveFolder.className = 'btn ghost row';
+        moveFolder.textContent = 'Folder';
+        moveFolder.addEventListener('click', () => {
+          const nextFolder = prompt('Sprite folder (leave blank for Unfiled)', asset.folder || '');
+          if (nextFolder === null) return;
+          asset.folder = nextFolder.trim();
+          if (asset.folder && !characterFolders.includes(asset.folder)) characterFolders.push(asset.folder);
+          renderPortraitLibrary();
+          scheduleAuto();
+        });
         const rename = document.createElement('button');
         rename.type = 'button';
         rename.className = 'btn ghost row';
@@ -6717,11 +7200,15 @@
         remove.className = 'btn ghost row';
         remove.textContent = 'Remove';
         remove.addEventListener('click', () => removePortraitAsset(asset));
-        actions.append(selectFace, colours, rename, remove);
+        actions.append(makeCharacter, selectFace, colours, moveFolder, rename, remove);
         card.append(main, actions);
         portraitLibrary.appendChild(card);
       });
-      el('removePortrait').disabled = !selectedPortrait;
+      const selectedAsset = portraitAssets.find(asset => asset.src === selectedPortrait);
+      el('clearPortraitSelection').disabled = !selectedAsset;
+      el('portraitSelectionStatus').textContent = selectedAsset
+        ? `Selected sprite: ${selectedAsset.name || 'Unnamed sprite'}. Nothing is assigned until you press an Assign button.`
+        : 'No sprite selected.';
       const locationAssets = el('locationImageAssets');
       if (locationAssets) {
         locationAssets.replaceChildren(...portraitAssets.map((asset, index) => {
@@ -6732,6 +7219,8 @@
         }));
       }
       refreshPortraitAssignmentOptions();
+      refreshCharacterOrganisation();
+      syncReaderSpriteAssignmentControl();
     }
 
     function getReaderSpoilerMode() {
@@ -6776,6 +7265,8 @@
       const dialogue = el('readerDialogue');
       dialogue.style.removeProperty('font-size');
       el('readerTextSizeValue').textContent = `${Math.round(readerTextScale * 100)}%`;
+      el('readerTextSmaller').disabled = readerTextScale <= 0.6;
+      el('readerTextLarger').disabled = readerTextScale >= 1.25;
       if (dialogue.clientWidth < 20 || dialogue.clientHeight < 20) return;
       const naturalSize = Number.parseFloat(getComputedStyle(dialogue).fontSize) || 24;
       const minimumSize = Math.max(16, naturalSize * 0.78);
@@ -6797,9 +7288,11 @@
     }
 
     function adjustReaderTextScale(change) {
-      readerTextScale = Math.min(1.25, Math.max(0.8, Math.round((readerTextScale + change) * 10) / 10));
+      readerTextScale = Math.min(1.25, Math.max(0.6, Math.round((readerTextScale + change) * 10) / 10));
       localStorage.setItem('storyToolReaderTextScale', String(readerTextScale));
       el('readerTextSizeValue').textContent = `${Math.round(readerTextScale * 100)}%`;
+      el('readerTextSmaller').disabled = readerTextScale <= 0.6;
+      el('readerTextLarger').disabled = readerTextScale >= 1.25;
       scheduleReaderTextFit();
     }
 
@@ -6807,7 +7300,7 @@
       const startsChapter = index === 0 || readerItems[index - 1]?.chapterIndex !== item.chapterIndex;
       const speakerLabel = item.dice ? `🎲 ${item.speaker}` : item.speaker;
       const diceLabel = item.dice ? `[${item.dice.label}${item.dice.mode ? ` · ${item.dice.mode}` : ''}] ` : '';
-      return `${diceLabel}${speakerLabel ? `${speakerLabel}: ` : ''}${truncateText(item.text, 100)}`;
+      return `${diceLabel}${speakerLabel ? `${speakerLabel}: ` : ''}${truncateText(storyFormattingPlainText(item.text), 100)}`;
     }
 
     function createReaderLineButton(item, index) {
@@ -6827,14 +7320,11 @@
       content.className = 'reader-line-content';
       content.textContent = readerLineButtonText(item, index);
       button.appendChild(content);
-      button.title = selectedPortrait && item.character
-        ? 'Click to select this line and assign the selected portrait'
-        : 'Click to read this line';
+      button.title = 'Click to read this line';
       button.setAttribute('aria-posinset', String(index + 1));
       button.setAttribute('aria-setsize', String(readerItems.length));
       button.addEventListener('click', () => {
         setReaderLine(index);
-        if (selectedPortrait && item.character) assignPortraitToCharacter(item.character);
       });
       return button;
     }
@@ -6915,10 +7405,12 @@
     }
 
     function setReaderLine(index) {
-      if (typeof window.speechSynthesis !== 'undefined' && window.speechSynthesis.speaking) stopReaderSpeech();
+      stopReaderSpeech();
       if (!readerItems.length) {
         readerIndex = 0;
         el('readerSpeaker').textContent = 'Visual novel reader';
+        el('readerSubtitle').hidden = true;
+        el('readerSubtitle').textContent = '';
         el('readerDialogue').textContent = 'Add dialogue to your script to read it here.';
         el('readerDialogue').classList.remove('assignable');
         el('readerPortrait').style.backgroundImage = '';
@@ -6941,6 +7433,7 @@
         el('readerPosition').textContent = 'No dialogue lines';
         el('readerLines').innerHTML = '';
         el('readerSpeak').disabled = true;
+        syncReaderSpriteAssignmentControl();
         syncReaderChapterNavigation();
         scheduleReaderTextFit();
         return;
@@ -6959,34 +7452,17 @@
         : item.locationTransition
           ? 'Location'
           : item.system ? 'System' : 'Narration';
+      const visibleSubtitle = item.character?.showReaderSubtitle && item.character.readerSubtitle
+        ? item.character.readerSubtitle.trim()
+        : '';
+      el('readerSubtitle').textContent = visibleSubtitle;
+      el('readerSubtitle').hidden = !visibleSubtitle;
       const dialogueTheme = isThemePreviewing
         ? collectDialogueThemeControls()
         : collectDialogueTheme(activeThemeMode);
       const dialogue = el('readerDialogue');
       dialogue.replaceChildren();
-      const semanticPattern = /(\([^()\n]*\)|\[[^\[\]\n]*\])/g;
-      let semanticIndex = 0;
-      String(item.text || '').split(semanticPattern).forEach(part => {
-        if (!part) return;
-        const semanticType = /^\([^()\n]*\)$/.test(part)
-          ? 'thought'
-          : /^\[[^\[\]\n]*\]$/.test(part) && !/^\[\d+\]$/.test(part)
-            ? 'action'
-            : '';
-        if (!dialogueTheme.semantic || !semanticType) {
-          dialogue.appendChild(document.createTextNode(part));
-          return;
-        }
-        const span = document.createElement('span');
-        span.className = `semantic-${semanticType}`;
-        const useProtagonist = Boolean(item.character?.isProtagonist && dialogueTheme.uniqueProtagonist);
-        span.style.setProperty('--semantic-colour', useProtagonist
-          ? dialogueTheme[semanticType === 'thought' ? 'protagonistThought' : 'protagonistAction']
-          : dialogueTheme[semanticType]);
-        span.textContent = part;
-        span.dataset.semanticIndex = String(semanticIndex++);
-        dialogue.appendChild(span);
-      });
+      appendFormattedStoryText(dialogue, item.text, dialogueTheme, Boolean(item.character?.isProtagonist));
       el('readerPanel').style.setProperty(
         '--dialogue-theme-colour',
         item.narration || !item.character ? dialogueTheme.narrator : dialogueTheme.bubble
@@ -7041,10 +7517,8 @@
         el('readerPanel').style.setProperty('--battle-foreground', battle.adjustedFg);
         el('readerPanel').style.setProperty('--battle-accent', battle.adjustedAccent);
       }
-      el('readerDialogue').classList.toggle('assignable', Boolean(item.character));
-      el('readerDialogue').title = item.character
-        ? (selectedPortrait ? 'Click to assign the selected portrait' : 'Choose a portrait above, then click here to assign it')
-        : 'This line has no recognized character to assign';
+      el('readerDialogue').classList.remove('assignable');
+      el('readerDialogue').title = 'Current reader text';
       const solidIcon = Boolean(item.character?.useColorIcon && !item.locationTransition);
       const portrait = item.locationTransition
         ? (location?.image || '')
@@ -7061,6 +7535,7 @@
       el('readerPortrait').classList.toggle('solid-icon', solidIcon);
       const chapterText = item.chapterLabel ? ` · ${item.chapterLabel}` : '';
       el('readerPosition').textContent = `Line ${readerIndex + 1} of ${readerItems.length}${chapterText}`;
+      syncReaderSpriteAssignmentControl();
       syncReaderChapterNavigation();
       const sourceChapter = chapters.find(chapter => chapter.id === item.chapterId);
       if (sourceChapter) sourceChapter.readerLine = item.lineIndex;
@@ -7070,7 +7545,16 @@
       if (activeButton) activeButton.scrollIntoView({ block: 'nearest' });
       if (el('readerAutoplaySpeech').checked && item.sourceKey !== lastAutoplaySourceKey) {
         lastAutoplaySourceKey = item.sourceKey;
-        setTimeout(speakCurrentReaderLine, 80);
+        const expectedIndex = readerIndex;
+        const expectedSourceKey = item.sourceKey;
+        clearTimeout(readerAutoplayTimer);
+        readerAutoplayTimer = setTimeout(() => {
+          readerAutoplayTimer = 0;
+          if (!el('readerAutoplaySpeech').checked
+            || readerIndex !== expectedIndex
+            || readerItems[readerIndex]?.sourceKey !== expectedSourceKey) return;
+          speakCurrentReaderLine();
+        }, 80);
       }
       scheduleReaderTextFit();
     }
@@ -7097,8 +7581,27 @@
       if (nextIndex >= 0) setReaderLine(nextIndex);
     }
 
+    function syncReaderSpriteAssignmentControl() {
+      const button = el('readerAssignSprite');
+      if (!button) return;
+      const asset = portraitAssets.find(candidate => candidate.src === selectedPortrait);
+      const character = readerItems[readerIndex]?.character || null;
+      const characterName = character?.displayName || character?.shortcut || '';
+      button.disabled = !asset || !character;
+      button.textContent = asset && character
+        ? `Assign “${asset.name || 'selected sprite'}” to ${characterName || 'current speaker'}`
+        : asset
+          ? 'Current line has no character to assign'
+          : 'Assign selected sprite to current speaker';
+      button.title = button.disabled
+        ? 'Select a sprite in Characters, then choose a character line in the reader.'
+        : `Assign ${asset.name || 'the selected sprite'} to ${characterName || 'the current speaker'}`;
+      const status = el('readerSpriteStatus');
+      if (status && !asset) status.hidden = true;
+    }
+
     function assignPortraitToCharacter(character) {
-      if (!selectedPortrait || !character) return;
+      if (!selectedPortrait || !character) return false;
       const row = Array.from(charactersList.querySelectorAll('.char-row')).find(candidate =>
         candidate.querySelector('.char-shortcut').value.trim().toLowerCase() === (character.shortcut || '').toLowerCase()
         && candidate.querySelector('.char-name').value.trim().toLowerCase() === (character.displayName || '').toLowerCase()
@@ -7114,7 +7617,9 @@
         return charactersList.lastElementChild;
       })();
       const asset = portraitAssets.find(candidate => candidate.src === selectedPortrait);
-      if (asset) assignPortraitAssetToRow(targetRow, asset.id);
+      if (!asset) return false;
+      assignPortraitAssetToRow(targetRow, asset.id);
+      return true;
     }
 
     async function addPortraitFile(file) {
@@ -7154,7 +7659,8 @@
         portraitAssets.push({
           id: createPortraitAssetId(),
           src,
-          name: name || `Portrait ${portraitAssets.length + 1}`
+          name: name || `Portrait ${portraitAssets.length + 1}`,
+          folder: el('characterFolderFilter')?.value || ''
         });
       }
       selectedPortrait = src;
@@ -7484,9 +7990,7 @@
       scriptInput.dispatchEvent(new Event('input', { bubbles: true }));
       commitScriptHistory();
       syncScriptImageSlots();
-      scheduleSpeakerSync();
-      scheduleAuto();
-      updatePreview();
+      applyScriptDraft();
     }
 
     function collectCharacters() {
@@ -7502,6 +8006,9 @@
           faceIcon: assignedAssets.find(asset => asset.faceSrc)?.faceSrc || assignedAssets[0]?.src || '',
           shortcut: row.querySelector('.char-shortcut').value.trim(),
           displayName: row.querySelector('.char-name').value.trim(),
+          readerSubtitle: row.querySelector('.char-reader-subtitle').value.trim(),
+          showReaderSubtitle: row.querySelector('.char-show-reader-subtitle').checked,
+          folder: row.querySelector('.char-folder').value.trim(),
           bubbleColor: row.querySelector('.char-color').value.trim(),
           useColorIcon: row.querySelector('.char-use-color-icon').checked,
           nameMatchesBubble: row.querySelector('.char-name-match').checked,
@@ -8044,6 +8551,7 @@
         version: 3,
         meta: collectMeta(),
         characters: collectCharacters(),
+        characterFolders: knownCharacterFolders(),
         notes: collectNotes(),
         images: allChapterImages(structuredChapters),
         portraitAssets,
@@ -8091,7 +8599,7 @@
     function renderSemanticStoryText(text, noteMap, warnings, theme, isProtagonist = false) {
       const normalizedTheme = normalizeDialogueTheme(theme, activeThemeMode);
       const semanticPattern = /(\([^()\n]*\)|\[[^\[\]\n]*\])/g;
-      return String(text || '').split(semanticPattern).map(part => {
+      const renderText = value => String(value || '').split(semanticPattern).map(part => {
         if (!part) return '';
         const semanticType = /^\([^()\n]*\)$/.test(part)
           ? 'thought'
@@ -8106,6 +8614,15 @@
           : normalizedTheme[semanticType];
         return `<span class="semantic-${semanticType}" style="--semantic-colour:${escapeAttr(color)}">${safePart}</span>`;
       }).join('');
+      const renderNodes = nodes => nodes.map(node => {
+        if (node.type === 'text') return renderText(node.value);
+        const content = renderNodes(node.children);
+        if (node.type === 'b') return `<strong class="story-format-b">${content}</strong>`;
+        if (node.type === 'i') return `<em class="story-format-i">${content}</em>`;
+        if (node.type === 'quote') return `<blockquote class="story-format-quote">${content}</blockquote>`;
+        return `<span class="story-format-color" style="color:${escapeAttr(node.color)}">${content}</span>`;
+      }).join('');
+      return renderNodes(parseStoryFormatting(text));
     }
 
     function renderScript(scriptText, characters, notes, warnings, options = {}) {
@@ -8223,17 +8740,6 @@
           return;
         }
 
-        if (/^Dice Maiden\s*:/i.test(trimmed)) {
-          ensureScene();
-          current.items.push({
-            type: 'system',
-            text: trimmed.replace(/^Dice Maiden\s*:\s*/i, '').trim()
-          });
-          lastSpeaker = null;
-          lastSpeakerRun = null;
-          return;
-        }
-
         const match = trimmed.match(/^(.+?)\s*:\s*(.*)$/);
         if (match) {
           const token = match[1].trim();
@@ -8246,6 +8752,13 @@
               html: renderSemanticStoryText(line, noteMap, warnings, options.dialogueTheme, false),
               dice: resolveDiceAssignment(parsedLine.directive, null)
             });
+            lastSpeaker = null;
+            lastSpeakerRun = null;
+            return;
+          }
+          if (isSystemToken(token)) {
+            ensureScene();
+            current.items.push({ type: 'system', text: line });
             lastSpeaker = null;
             lastSpeakerRun = null;
             return;
@@ -8550,6 +9063,15 @@
     .narration-bubble { color: var(--narrator-color); }
     .semantic-thought, .semantic-action { color: var(--semantic-colour, inherit); }
     .semantic-thought { font-style: italic; }
+    .story-format-quote {
+      display: block;
+      margin: .45em 0;
+      padding: .2em .8em;
+      border-left: .18em solid currentColor;
+      color: inherit;
+      font: inherit;
+      font-style: italic;
+    }
     .dice-character { margin-right: 0.35em; }
     .dice-roll-label {
       display: inline-block;
@@ -8901,9 +9423,16 @@
       }
     }
 
-    async function saveProjectToBrowser() {
+    async function saveProjectToBrowser({ applyScript = false } = {}) {
       clearTimeout(saveTimer);
       saveTimer = null;
+      if (scriptDraftDirty && applyScript) applyScriptDraft();
+      clearTimeout(saveTimer);
+      saveTimer = null;
+      if (scriptDraftDirty) {
+        setProjectSaveState('dirty', 'Script draft not applied');
+        return false;
+      }
       const data = collectData();
       setProjectSaveState('saving');
       try {
@@ -9033,6 +9562,9 @@
       renderDiceTags();
       el('contentWarnings').value = (data.meta?.contentWarnings || []).join('\n');
       setChapterCollection(data);
+      characterFolders = Array.isArray(data.characterFolders)
+        ? [...new Set(data.characterFolders.map(folder => String(folder || '').trim()).filter(Boolean))]
+        : [];
       const portraitIds = new Set();
       portraitAssets = Array.isArray(data.portraitAssets)
         ? data.portraitAssets
@@ -9041,15 +9573,16 @@
             let id = String(asset.id || '').trim();
             if (!id || portraitIds.has(id)) id = createPortraitAssetId();
             portraitIds.add(id);
-            return { ...asset, id, name: asset.name || `Portrait ${index + 1}` };
+            return { ...asset, id, name: asset.name || `Portrait ${index + 1}`, folder: String(asset.folder || '').trim() };
           })
         : [];
       selectedPortrait = '';
+      charactersList.innerHTML = '';
       renderPortraitLibrary();
 
-      charactersList.innerHTML = '';
       (data.characters || []).forEach(char => addCharacterRow(char));
       if (!(data.characters || []).length) addCharacterRow();
+      refreshCharacterOrganisation();
       refreshExistingCharacterOptions();
       activateChapter(activeChapterId, { saveCurrent: false, focus: false, refresh: false });
       syncScriptCharacters();
@@ -9224,6 +9757,7 @@
 
     el('addCharacter').addEventListener('click', () => {
       addCharacterRow();
+      refreshCharacterOrganisation();
       scheduleAuto();
     });
     el('removeUnusedCharacters').addEventListener('click', removeCharactersNotInScript);
@@ -9232,6 +9766,7 @@
       if (!confirm('Remove all characters from the lineup?')) return;
       charactersList.innerHTML = '';
       addCharacterRow();
+      refreshCharacterOrganisation();
       scheduleAuto();
     });
 
@@ -9253,6 +9788,7 @@
         charactersList.innerHTML = '';
         (data || []).forEach(char => addCharacterRow(char));
         if (!(data || []).length) addCharacterRow();
+        refreshCharacterOrganisation();
         scheduleAuto();
       });
     });
@@ -9260,6 +9796,14 @@
     el('cleanDiscordScript').addEventListener('click', cleanDiscordPaste);
     el('scriptEditView').addEventListener('click', () => setScriptView('edit'));
     el('scriptHighlightedView').addEventListener('click', () => setScriptView('highlighted'));
+    el('formatScriptBold').addEventListener('click', () => wrapScriptSelection('[b]', '[/b]', 'bold text'));
+    el('formatScriptItalic').addEventListener('click', () => wrapScriptSelection('[i]', '[/i]', 'italic text'));
+    el('formatScriptQuote').addEventListener('click', () => wrapScriptSelection('[quote]', '[/quote]', 'quoted text'));
+    el('formatScriptColourApply').addEventListener('click', () => {
+      const colour = el('scriptFormatColour').value;
+      wrapScriptSelection(`[color=${colour}]`, '[/color]', 'coloured text');
+    });
+    el('clearScriptFormatting').addEventListener('click', clearSelectedScriptFormatting);
     [el('scriptEditView'), el('scriptHighlightedView')].forEach((button, index, buttons) => {
       button.addEventListener('keydown', event => {
         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
@@ -9333,9 +9877,14 @@
       reader.readAsText(file);
       event.target.value = '';
     });
-    el('readerDialogue').addEventListener('click', () => {
+    el('readerAssignSprite').addEventListener('click', () => {
       const item = readerItems[readerIndex];
-      if (selectedPortrait && item?.character) assignPortraitToCharacter(item.character);
+      if (!assignPortraitToCharacter(item?.character)) return;
+      const asset = portraitAssets.find(candidate => candidate.src === selectedPortrait);
+      const status = el('readerSpriteStatus');
+      status.textContent = `Assigned ${asset?.name || 'sprite'} to ${item.character.displayName || item.character.shortcut || 'current speaker'}.`;
+      status.hidden = false;
+      syncReaderSpriteAssignmentControl();
     });
     const readerOptionMenus = Array.from(el('reader-card').querySelectorAll('.reader-compact-menu'));
     const reflowReaderOptions = () => {
@@ -9398,7 +9947,13 @@
     el('scriptInput').addEventListener('keydown', event => {
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
       const key = event.key.toLowerCase();
-      if (key === 'z') {
+      if (key === 'b' && !event.shiftKey) {
+        event.preventDefault();
+        wrapScriptSelection('[b]', '[/b]', 'bold text');
+      } else if (key === 'i' && !event.shiftKey) {
+        event.preventDefault();
+        wrapScriptSelection('[i]', '[/i]', 'italic text');
+      } else if (key === 'z') {
         event.preventDefault();
         if (event.shiftKey) redoScriptEdit();
         else undoScriptEdit();
@@ -9412,9 +9967,21 @@
     el('readerFullscreen').addEventListener('click', toggleReaderFullscreen);
     el('readerBackdrop').addEventListener('click', closeReaderPopout);
     el('addPortraits').addEventListener('click', () => el('portraitFiles').click());
-    el('removePortrait').addEventListener('click', () => {
-      const asset = portraitAssets.find(candidate => candidate.src === selectedPortrait);
-      if (asset) removePortraitAsset(asset);
+    el('clearPortraitSelection').addEventListener('click', () => {
+      selectedPortrait = '';
+      renderPortraitLibrary();
+    });
+    el('characterSearch').addEventListener('input', applyCharacterPanelFilters);
+    el('characterFolderFilter').addEventListener('change', applyCharacterPanelFilters);
+    el('addCharacterFolder').addEventListener('click', () => {
+      const folder = prompt('New character/sprite folder name');
+      if (folder === null || !folder.trim()) return;
+      const name = folder.trim();
+      if (!characterFolders.includes(name)) characterFolders.push(name);
+      refreshCharacterOrganisation();
+      el('characterFolderFilter').value = name;
+      applyCharacterPanelFilters();
+      scheduleAuto();
     });
     el('portraitFiles').addEventListener('change', async event => {
       for (const file of Array.from(event.target.files || [])) await addPortraitFile(file);
@@ -9460,7 +10027,7 @@
     window.addEventListener('keydown', event => {
       if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 's') {
         event.preventDefault();
-        saveProjectToBrowser();
+        saveProjectToBrowser({ applyScript: true });
         return;
       }
       if (event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 's') {
@@ -9470,6 +10037,7 @@
       }
       if (event.altKey && ['ArrowUp', 'ArrowDown'].includes(event.key)) {
         event.preventDefault();
+        if (event.repeat) return;
         setReaderLine(readerIndex + (event.key === 'ArrowUp' ? -1 : 1));
         return;
       }
@@ -9508,6 +10076,7 @@
       if (!['ArrowDown', 'ArrowUp', 'ArrowRight'].includes(event.key)) return;
       if (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
       event.preventDefault();
+      if (event.repeat) return;
       if (event.key === 'ArrowRight' && el('readerNextChapterMode').checked) {
         goToNextChapter();
       } else {
@@ -9537,7 +10106,7 @@
       if (automatic && projectDirty) saveProjectToBrowser();
       else if (!automatic) setProjectSaveState(projectDirty ? 'dirty' : 'saved', projectDirty ? 'Manual save required' : 'Manual save mode');
     });
-    el('saveProjectNow').addEventListener('click', () => saveProjectToBrowser());
+    el('saveProjectNow').addEventListener('click', () => saveProjectToBrowser({ applyScript: true }));
     el('revertBrowserProject').addEventListener('click', async () => {
       if (projectDirty && !confirm('Discard current unsaved changes and return to the last browser save?')) return;
       const loaded = await loadBrowserProject();
@@ -9606,9 +10175,10 @@
       setChapterCollection({ script: '', images: [] });
       activateChapter(activeChapterId, { saveCurrent: false, focus: false, refresh: false });
       portraitAssets = [];
+      characterFolders = [];
       selectedPortrait = '';
-      renderPortraitLibrary();
       charactersList.innerHTML = '';
+      renderPortraitLibrary();
       addCharacterRow();
       notesList.innerHTML = '';
       addNoteRow({ id: 1, text: '' });
@@ -9636,22 +10206,22 @@
     });
 
     document.querySelectorAll('input, textarea').forEach(input => {
-      input.addEventListener('input', scheduleAuto);
+      if (input !== el('scriptInput')) input.addEventListener('input', scheduleAuto);
     });
 
     el('scriptInput').addEventListener('input', () => {
       const chapter = activeChapter();
       if (chapter && !switchingChapter) {
-        chapter.script = el('scriptInput').value;
         chapter.cursorStart = el('scriptInput').selectionStart;
         chapter.cursorEnd = el('scriptInput').selectionEnd;
-        el('chapterStatus').textContent = `Editing ${chapter.title} · ${chapter.script.split(/\r?\n/).length} source lines`;
       }
+      markScriptDraftDirty();
       scheduleScriptHistory();
       syncScriptImageSlots();
-      scheduleSpeakerSync();
       if (!el('highlightedScript').hidden) renderHighlightedScript();
     });
+    el('scriptInput').addEventListener('blur', () => applyScriptDraft());
+    el('applyScriptChanges').addEventListener('click', () => applyScriptDraft());
     el('scriptInput').addEventListener('scroll', () => {
       const chapter = activeChapter();
       if (chapter && !switchingChapter) chapter.scrollTop = el('scriptInput').scrollTop;
