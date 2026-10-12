@@ -232,10 +232,6 @@
       display: none !important;
     }
 
-    #characters-card[data-settings-mode="simple"] #charactersList .char-row {
-      grid-template-columns: 56px minmax(0, 1fr) auto;
-    }
-
     #characters-card .card-body { container-type: inline-size; }
     #characters-card { overflow: visible; }
     #project-card .card-body,
@@ -248,22 +244,12 @@
         grid-template-columns: minmax(0, 1fr);
       }
 
-      #charactersList .char-row {
-        grid-template-columns: minmax(0, 1fr);
+      #charactersList .character-summary {
+        grid-template-columns: 56px minmax(0, 1fr);
       }
 
-      #charactersList .char-row > .char-icon {
-        justify-self: start;
-      }
-
-      #charactersList .char-row > .field.inline,
-      #charactersList .char-row > .existing-character-settings {
-        grid-column: 1;
-        min-width: 0;
-      }
-
-      #charactersList .char-row > .btn {
-        justify-self: start;
+      #charactersList .char-portrait-assignment {
+        grid-column: 1 / -1;
       }
     }
 
@@ -590,13 +576,72 @@
 
     .char-row {
       display: grid;
-      grid-template-columns: 56px 1.2fr 1fr 1.2fr 0.7fr 1fr 1fr auto auto;
-      gap: 10px;
-      align-items: center;
-      padding: 10px;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      align-items: stretch;
+      padding: 12px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
+    }
+
+    .character-summary {
+      display: grid;
+      grid-template-columns: 56px minmax(140px, 1fr) minmax(190px, 1.2fr);
+      gap: 10px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .character-summary > * { min-width: 0; }
+    .character-summary > .char-icon { align-self: start; }
+
+    .character-primary-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr));
+      gap: 10px;
+      align-items: start;
+      min-width: 0;
+    }
+
+    .character-primary-options .field,
+    .character-advanced-grid .field {
+      min-width: 0;
+      margin: 0;
+    }
+
+    .character-advanced {
+      min-width: 0;
+      padding-top: 9px;
+      border-top: 1px solid var(--border);
+    }
+
+    .character-advanced > summary {
+      width: fit-content;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .character-advanced-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+      gap: 10px;
+      align-items: start;
+      padding-top: 12px;
+    }
+
+    .character-card-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .char-row label {
+      letter-spacing: 0.08em;
+      overflow-wrap: normal;
+      word-break: normal;
     }
 
     .existing-character-settings {
@@ -612,7 +657,6 @@
     .existing-character-settings[hidden] { display: none; }
 
     .char-speech-settings {
-      grid-column: 1 / -1;
       margin-top: 4px;
       padding-top: 8px;
       border-top: 1px solid var(--border);
@@ -931,7 +975,23 @@
       box-shadow: 0 0 0 2px var(--accent);
     }
 
-    .import-review-card { width: min(760px, 94vw); }
+    .import-review-card {
+      width: min(760px, 94vw);
+      max-height: calc(100dvh - 32px);
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+
+    .import-review-card > .cropper-actions {
+      position: sticky;
+      bottom: 0;
+      z-index: 2;
+      margin: 0 -18px -18px;
+      padding: 12px 18px 18px;
+      background: #20243a;
+      border-top: 1px solid var(--border);
+    }
 
     .import-review-details {
       max-height: min(36vh, 320px);
@@ -1445,6 +1505,15 @@
       padding-right: 4px;
     }
 
+    .import-speaker-section { min-height: 0; }
+
+    @media (max-height: 700px) {
+      .modal { align-items: flex-start; padding: 8px; }
+      .import-review-card { max-height: calc(100dvh - 16px); }
+      .import-review-details { max-height: 150px; }
+      .import-speaker-review { max-height: 230px; }
+    }
+
     .import-speaker-row {
       display: grid;
       grid-template-columns: minmax(130px, 1fr) minmax(145px, .8fr) minmax(145px, .8fr);
@@ -1486,10 +1555,31 @@
     }
 
     .reader-line.chapter-start {
+      padding-top: 3px;
+      padding-bottom: 3px;
       border-top-color: color-mix(in srgb, var(--accent) 72%, var(--border));
       box-shadow: inset 3px 0 0 color-mix(in srgb, var(--accent) 72%, transparent);
       color: var(--text);
     }
+
+    .reader-line-chapter,
+    .reader-line-content {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .reader-line-chapter {
+      color: var(--accent);
+      font-size: 0.67rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .reader-line-content { line-height: 1.35; }
 
     .reader-line-spacer {
       width: 1px;
@@ -1574,53 +1664,107 @@
     }
 
     .reader-dice-controls select { width: auto; min-width: 140px; }
-    .reader-visual-options {
+    .reader-quick-options {
       position: relative;
+      z-index: 4;
+      display: flex;
       flex: 0 0 auto;
-      margin: 8px 0;
-      padding: 8px 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 7px 0;
+    }
+
+    .reader-chapter-nav {
+      display: inline-grid;
+      grid-template-columns: auto minmax(120px, 190px) auto;
+      gap: 4px;
+      align-items: center;
+      min-width: 0;
+    }
+
+    .reader-chapter-nav select {
+      min-width: 0;
+      padding: 7px 9px;
+      font-size: 0.8rem;
+    }
+
+    .reader-text-size {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .reader-text-size .pill {
+      min-width: 44px;
+      justify-content: center;
+      padding: 6px 7px;
+      font-size: 0.72rem;
+    }
+
+    .reader-quick-options > .toggle,
+    .reader-compact-menu > summary {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      gap: 6px;
+      padding: 6px 9px;
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: rgba(255,255,255,0.025);
-    }
-
-    #reader-card .reader-visual-options[open] {
-      position: relative;
-      z-index: auto;
-      top: auto;
-      right: auto;
-      width: auto;
-      max-height: min(320px, 42vh);
-      overflow: auto;
-      background: var(--card);
-      box-shadow: none;
-    }
-
-    .reader-visual-options > summary {
+      border-radius: 999px;
+      background: var(--card-2);
       color: var(--muted);
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
     }
 
-    #reader-card .reader-visual-options[open] > summary {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      padding: 3px 0 7px;
+    .reader-quick-options > .toggle:has(input:checked),
+    .reader-compact-menu[open] > summary {
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .reader-compact-menu {
+      position: relative;
+    }
+
+    .reader-compact-menu > summary {
+      list-style: none;
+    }
+
+    .reader-compact-menu > summary::-webkit-details-marker { display: none; }
+
+    .reader-compact-menu-panel {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 8;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(180px, 1fr));
+      gap: 10px;
+      width: min(520px, calc(100vw - 48px));
+      max-height: min(430px, 60vh);
+      overflow: auto;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
       background: var(--card);
+      box-shadow: var(--shadow);
     }
 
-    .reader-visual-options-content {
-      display: flex;
-      align-items: end;
-      flex-wrap: wrap;
-      gap: 10px 18px;
-      padding-top: 10px;
-    }
-
-    .reader-visual-options-content .field {
-      width: min(240px, 100%);
+    .reader-compact-menu-panel .field {
+      width: 100%;
       margin: 0;
+    }
+
+    .reader-compact-menu-panel > .toggle { align-self: center; }
+
+    .reader-compact-menu:last-child .reader-compact-menu-panel {
+      left: auto;
+      right: 0;
+      grid-template-columns: minmax(180px, 1fr);
     }
 
     .reader-line-dice-options {
@@ -1670,6 +1814,23 @@
       margin: 0;
     }
 
+    .reader-compact-menu.reader-line-dice-options {
+      flex: 0 0 auto;
+      min-width: 0;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .reader-compact-menu.reader-line-dice-options > summary {
+      font-size: 0.78rem;
+    }
+
+    .reader-compact-menu .reader-dice-controls {
+      margin: 0;
+    }
+
     #reader-card {
       container: reader-panel / inline-size;
     }
@@ -1699,6 +1860,7 @@
     .dice-inline-status[data-state="error"] { color: var(--accent-2); }
     .dice-syntax-help { margin-top: 10px; }
     .dice-roll-label { display: inline-block; margin: 0 0 8px; padding: 3px 8px; border-radius: 999px; background: var(--accent); color: var(--card); font-size: 0.8rem; font-weight: 700; }
+    .dice-roll-label[hidden] { display: none; }
     .dice-roll-label[data-mode="advantage"]::after { content: " · Advantage"; }
     .dice-roll-label[data-mode="disadvantage"]::after { content: " · Disadvantage"; }
 
@@ -2215,6 +2377,21 @@
       min-height: 0;
     }
 
+    #reader-card .reader.narration-active {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    #reader-card .reader.narration-active .reader-copy {
+      width: 100%;
+      max-width: none;
+    }
+
+    #reader-card .reader.narration-active .reader-dialogue {
+      width: 100%;
+      font-size: clamp(1.1rem, 3.2cqi, 2rem);
+      overflow-wrap: break-word;
+    }
+
     #reader-card .reader-portrait {
       min-height: 0;
     }
@@ -2290,26 +2467,13 @@
         justify-content: center;
       }
 
-      #reader-card .reader-visual-options-content {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      #reader-card .reader-visual-options-content .field {
-        width: 100%;
-      }
-
-      #reader-card .reader-navigation-options {
-        grid-column: 1 / -1;
-      }
-
-      #reader-card .reader-navigation-options-content {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      #reader-card .reader-navigation-options-content .field {
-        width: 100%;
+      #reader-card .reader-compact-menu-panel {
+        position: fixed;
+        top: 150px;
+        right: 18px;
+        left: 18px;
+        width: auto;
+        grid-template-columns: minmax(0, 1fr);
       }
 
       #reader-card .reader-line-dice-options {
@@ -2926,17 +3090,12 @@
       </div>
     </section>
 
-    <section class="card full settings-panel" id="characters-card" data-settings-mode="simple" data-workspace-panel="characters" hidden>
+    <section class="card full" id="characters-card" data-workspace-panel="characters" hidden>
       <div class="card-header">
         <h2>Characters</h2>
         <button class="card-toggle" type="button" aria-expanded="true">▾</button>
       </div>
       <div class="card-body">
-        <div class="settings-mode-control" data-settings-control="characters" role="group" aria-label="Character settings detail">
-          <span>Detail:</span>
-          <button class="settings-mode-button" type="button" data-mode="simple" aria-pressed="true">Simple</button>
-          <button class="settings-mode-button" type="button" data-mode="advanced" aria-pressed="false">Advanced</button>
-        </div>
         <div class="muted">Speakers are added from the script automatically. Add full sprite images for the Visual Novel Reader, then optionally crop faces for the Icon-style Preview. The first assignment is the main sprite and face priority.</div>
         <div class="character-list-toolbar">
           <button class="btn" id="addCharacter">Add Character</button>
@@ -3130,28 +3289,26 @@
           <button class="btn ghost row" id="readerSpeak" type="button" aria-label="Read current line aloud" title="Read current line aloud">♫</button>
           <button class="btn ghost row" id="readerStopSpeech" type="button" aria-label="Stop speech" title="Stop speech" disabled>■</button>
           <button class="btn ghost row" id="readerHistoryToggle" type="button" aria-pressed="false">Reader only</button>
-          <label class="toggle" title="Hide upcoming lines"><input type="checkbox" id="readerSpoilerToggle" aria-label="Hide upcoming lines" /> 🙈</label>
+          <div class="reader-chapter-nav" aria-label="Reader chapter navigation">
+            <button class="btn ghost row" id="readerPreviousChapter" type="button" aria-label="Previous chapter" title="Previous chapter">‹</button>
+            <select id="readerChapterPicker" aria-label="Choose reader chapter"></select>
+            <button class="btn ghost row" id="readerNextChapter" type="button" aria-label="Next chapter" title="Next chapter">›</button>
+          </div>
+          <div class="reader-text-size" role="group" aria-label="Reader text size">
+            <button class="btn ghost row" id="readerTextSmaller" type="button" aria-label="Smaller reader text" title="Smaller reader text">A−</button>
+            <span class="pill" id="readerTextSizeValue" aria-live="polite">100%</span>
+            <button class="btn ghost row" id="readerTextLarger" type="button" aria-label="Larger reader text" title="Larger reader text">A+</button>
+          </div>
           <span class="pill" id="readerPosition">No dialogue lines</span>
         </div>
-        <details class="reader-visual-options">
-          <summary>Visual Novel options</summary>
-          <div class="reader-visual-options-content">
-            <details class="reader-navigation-options">
-              <summary>Navigation &amp; spoiler settings</summary>
-              <div class="reader-navigation-options-content">
-                <label class="toggle"><input type="checkbox" id="readerNextChapterMode" /> → goes to next chapter</label>
-                <div class="field">
-                  <label for="readerSpoilerStyle">Spoiler cover</label>
-                  <select id="readerSpoilerStyle" aria-label="Upcoming line spoiler cover">
-                    <option value="blur">Blur upcoming lines</option>
-                    <option value="hide">Hide upcoming lines</option>
-                  </select>
-                </div>
-              </div>
-            </details>
-            <details class="reader-speech-options">
-              <summary>♫ Text-to-speech</summary>
-              <div class="reader-navigation-options-content">
+        <div class="reader-quick-options" aria-label="Reader options">
+          <label class="toggle" title="Continue into the next chapter"><input type="checkbox" id="readerNextChapterMode" /> ↪ Next chapter</label>
+          <label class="toggle" title="Hide upcoming lines"><input type="checkbox" id="readerSpoilerToggle" aria-label="Hide upcoming lines" /> ◉ Spoilers</label>
+          <label class="toggle" title="Read each selected line aloud"><input type="checkbox" id="readerAutoplaySpeech" /> ▶ Auto-read</label>
+          <label class="toggle" title="Move on when speech finishes"><input type="checkbox" id="readerAutoAdvanceSpeech" /> ⏭ Advance</label>
+          <details class="reader-compact-menu reader-speech-options">
+            <summary aria-label="Speech settings" title="Speech settings">♫ Speech</summary>
+            <div class="reader-compact-menu-panel">
                 <div class="field">
                   <label for="readerSpeechVoice">Narrator and fallback voice</label>
                   <select id="readerSpeechVoice"><option value="">System default</option></select>
@@ -3167,12 +3324,18 @@
                 <label class="toggle"><input type="checkbox" id="readerSpeakNames" /> Read character names aloud</label>
                 <label class="toggle"><input type="checkbox" id="readerSpeakNamesNarratorVoice" disabled /> Always read character names in narrator voice</label>
                 <label class="toggle"><input type="checkbox" id="readerOnlyDialogueSpeech" /> Only read dialogue (skip Narrator and remove (...) / [...] parts)</label>
-                <label class="toggle"><input type="checkbox" id="readerAutoplaySpeech" /> Autoplay spoken lines</label>
-                <label class="toggle"><input type="checkbox" id="readerAutoAdvanceSpeech" /> Go to the next line after speech finishes</label>
-              </div>
-            </details>
-            <details class="reader-line-dice-options">
-              <summary>🎲 Line roll options</summary>
+                <div class="field">
+                  <label for="readerSpoilerStyle">Spoiler cover</label>
+                  <select id="readerSpoilerStyle" aria-label="Upcoming line spoiler cover">
+                    <option value="blur">Blur upcoming lines</option>
+                    <option value="hide">Hide upcoming lines</option>
+                  </select>
+                </div>
+            </div>
+          </details>
+          <details class="reader-compact-menu reader-line-dice-options">
+            <summary aria-label="Line roll settings" title="Line roll settings">🎲 Roll</summary>
+            <div class="reader-compact-menu-panel">
               <div class="reader-dice-controls" aria-label="Current line dice assignment">
                 <label class="toggle"><input type="checkbox" id="readerLineIsDice" /> 🎲 Roll for this line</label>
                 <label for="readerDiceTag">Roll type</label>
@@ -3185,9 +3348,9 @@
                 </select>
                 <button class="btn ghost row" id="applyReaderDice" type="button">Apply to line</button>
               </div>
-            </details>
-          </div>
-        </details>
+            </div>
+          </details>
+        </div>
         <div class="reader" id="readerPanel" tabindex="0" aria-label="Visual novel reader">
           <div class="reader-portrait" id="readerPortrait">Choose a character portrait to begin</div>
           <div class="reader-copy">
@@ -3329,13 +3492,13 @@
   </div>
 
   <div class="modal" id="importReviewModal" role="dialog" aria-modal="true" aria-labelledby="importReviewTitle">
-    <div class="cropper-card import-review-card">
+    <div class="cropper-card import-review-card" id="importReviewCard" tabindex="-1">
       <div>
         <strong id="importReviewTitle">Review TXT import</strong>
         <div class="muted" id="importReviewSummary"></div>
       </div>
       <div class="import-review-details" id="importReviewDetails"></div>
-      <div>
+      <div class="import-speaker-section">
         <strong>Speaker review</strong>
         <p class="muted">Choose how each detected label should import. Nothing changes until you press Import.</p>
         <div class="import-speaker-review" id="importSpeakerReview"></div>
@@ -3377,6 +3540,8 @@
     let selectedPortrait = '';
     let readerItems = [];
     let readerIndex = 0;
+    let readerTextScale = Math.min(1.25, Math.max(0.8, Number(localStorage.getItem('storyToolReaderTextScale')) || 1));
+    let readerTextFitFrame = 0;
     const READER_LINE_STEP = 42;
     const READER_LINE_OVERSCAN = 10;
     let readerLineWindowStart = 0;
@@ -3658,7 +3823,7 @@
       const rows = Array.from(charactersList.querySelectorAll('.char-row'));
       const characters = collectCharacters();
       characters.forEach((character, index) => {
-        if (character.isExisting || !character.shortcut && !character.displayName) return;
+        if (character.isExisting || character.isNarrationRole || character.isSystemRole || !character.shortcut && !character.displayName) return;
         const label = document.createElement('label');
         label.className = 'toggle';
         const checkbox = document.createElement('input');
@@ -3872,6 +4037,7 @@
       nameMatchesBubble: false,
       showInMeta: true,
       isNarrationRole: false,
+      isSystemRole: false,
       isExisting: false,
       existingCharacter: '',
       identityMode: 'character',
@@ -4026,20 +4192,19 @@
         const panelName = control.dataset.settingsControl;
         const panel = el(`${panelName}-card`);
         const storageKey = `storyTool${panelName[0].toUpperCase()}${panelName.slice(1)}Mode`;
-        const savedMode = localStorage.getItem(storageKey);
         const setMode = mode => {
           const selectedMode = mode === 'advanced' ? 'advanced' : 'simple';
           panel.dataset.settingsMode = selectedMode;
           control.querySelectorAll('[data-mode]').forEach(button => {
             button.setAttribute('aria-pressed', button.dataset.mode === selectedMode ? 'true' : 'false');
           });
-          localStorage.setItem(storageKey, selectedMode);
         };
 
         control.querySelectorAll('[data-mode]').forEach(button => {
           button.addEventListener('click', () => setMode(button.dataset.mode));
         });
-        setMode(savedMode === 'advanced' ? 'advanced' : 'simple');
+        localStorage.removeItem(storageKey);
+        setMode('simple');
       });
     }
 
@@ -4271,7 +4436,10 @@
           preferredHeight = clamped;
           localStorage.setItem(storageKey, String(clamped));
         }
-        requestAnimationFrame(() => renderReaderLineWindow());
+        requestAnimationFrame(() => {
+          renderReaderLineWindow();
+          scheduleReaderTextFit();
+        });
         return clamped;
       };
 
@@ -4780,7 +4948,11 @@
         const options = characters
           .map((character, characterIndex) => ({ character, characterIndex }))
           .filter(({ character, characterIndex }) =>
-            characterIndex !== index && !character.isExisting && characterKey(character)
+            characterIndex !== index
+              && !character.isExisting
+              && !character.isNarrationRole
+              && !character.isSystemRole
+              && characterKey(character)
           );
         select.innerHTML = '<option value="">Choose a character</option>';
         options.forEach(({ character }) => {
@@ -4825,123 +4997,117 @@
       const row = document.createElement('div');
       row.className = 'char-row';
       row.innerHTML = `
-        <button class="char-icon" type="button" title="Upload/Crop icon"></button>
-        <div class="field inline" data-setting-level="advanced">
-          <label>Icon URL</label>
-          <input type="text" class="char-icon-input" placeholder="images/Icons/Niki1.png" />
-        </div>
-        <div class="field inline" data-setting-level="advanced">
-          <label>Shortcut</label>
-          <input type="text" class="char-shortcut" placeholder="!Niki" />
-        </div>
-        <div class="field inline">
-          <label>Display Name (optional)</label>
-          <input type="text" class="char-name" placeholder="Uses the script name" />
-        </div>
-        <div class="field inline char-portrait-assignment">
-          <label>Primary portrait / add another</label>
-          <select class="char-portrait-picker" aria-label="Primary portrait or portrait to add">
-            <option value="">No gallery portrait</option>
-          </select>
-          <button class="btn ghost row assign-selected-portrait" type="button">Add selected gallery portrait</button>
-          <div class="assigned-portraits" aria-label="Assigned portraits in face priority order"></div>
-        </div>
-        <div class="field inline" data-setting-level="advanced">
-          <button class="btn ghost row fix-speaker-name" type="button">Fix name in script</button>
-        </div>
-        <div class="field inline character-role-settings">
-          <label class="toggle">
-            <input type="checkbox" class="char-is-narration" />
-            Treat this speaker label as Narrator
-          </label>
-          <div class="muted">Narration uses no sprite or icon unless a future narration image is explicitly assigned.</div>
-        </div>
-        <div class="field inline" data-setting-level="advanced">
-          <label>Bubble Color</label>
-          <input type="color" class="char-color" />
-          <label class="toggle">
-            <input type="checkbox" class="char-use-color-icon" />
-            Use color for icon
-          </label>
-        </div>
-        <div class="field inline" data-setting-level="advanced">
-          <label>Name = Bubble</label>
-          <label class="toggle">
-            <input type="checkbox" class="char-name-match" />
-            Match
-          </label>
-        </div>
-        <div class="field inline protagonist-settings">
-          <label class="toggle">
-            <input type="radio" class="char-protagonist" name="project-protagonist" />
-            Assign as protagonist
-          </label>
-          <label class="toggle">
-            <input type="checkbox" class="char-lock-protagonist-color" />
-            Lock protagonist colour from bulk changes
-          </label>
-        </div>
-        <div class="field inline" data-setting-level="advanced">
-          <label>Show In Preview</label>
-          <label class="toggle">
-            <input type="checkbox" class="char-show-meta" />
-            Show
-          </label>
-        </div>
-        <div class="field inline" data-setting-level="advanced">
-          <label>Dice Character</label>
-          <label class="toggle">
-            <input type="checkbox" class="char-dice-character" />
-            Assign as dice character 🎲
-          </label>
-        </div>
-        <div class="field inline character-identity-toggle">
-          <label class="toggle">
-            <input type="checkbox" class="char-is-existing" />
-            Map this label to another character
-          </label>
-        </div>
-        <div class="existing-character-settings" hidden>
-          <div class="field">
-            <label>Cast character</label>
-            <select class="char-existing-target"></select>
+        <div class="character-summary">
+          <button class="char-icon" type="button" title="Choose or crop the character icon"></button>
+          <div class="field inline">
+            <label>Display name (optional)</label>
+            <input type="text" class="char-name" placeholder="Uses the script name" />
           </div>
-          <div class="field">
-            <label>Identity shown in dialogue</label>
-            <select class="char-identity-mode">
-              <option value="character">Show character name</option>
-              <option value="alias">Use an alias</option>
-              <option value="hidden">Hide identity</option>
+          <div class="field inline char-portrait-assignment">
+            <label>Sprite images</label>
+            <select class="char-portrait-picker" aria-label="Primary sprite or sprite to add">
+              <option value="">No gallery sprite</option>
             </select>
+            <button class="btn ghost row assign-selected-portrait" type="button">Add selected gallery sprite</button>
+            <div class="assigned-portraits" aria-label="Assigned sprites in face priority order"></div>
           </div>
-          <div class="field char-alias-field" hidden>
-            <label>Alias</label>
-            <input type="text" class="char-alias" placeholder="Name to show" />
-          </div>
-          <button class="btn ghost row replace-speaker-tags" type="button">Replace script tags with character</button>
-          <div class="muted">The portrait and colour come from the selected cast character. Replacing tags is optional and changes matching speaker labels in the script.</div>
         </div>
-        <details class="char-speech-settings" data-setting-level="advanced">
-          <summary>Text-to-speech voice</summary>
-          <div class="char-speech-fields">
+        <div class="character-primary-options">
+          <div class="field inline character-role-settings">
+            <label>How should this label behave?</label>
+            <select class="char-role-select">
+              <option value="character">Character</option>
+              <option value="existing">This is another character</option>
+              <option value="narration">Narration / story text</option>
+              <option value="system">System / function text</option>
+            </select>
+            <input type="checkbox" class="char-is-narration" hidden />
+            <input type="checkbox" class="char-is-system" hidden />
+            <input type="checkbox" class="char-is-existing" hidden />
+            <div class="muted character-role-help">Character dialogue uses its sprite and colour.</div>
+          </div>
+          <div class="field inline protagonist-settings">
+            <label class="toggle">
+              <input type="radio" class="char-protagonist" name="project-protagonist" />
+              Assign as protagonist
+            </label>
+            <label class="toggle">
+              <input type="checkbox" class="char-lock-protagonist-color" />
+              Lock protagonist colour from bulk changes
+            </label>
+          </div>
+          <div class="existing-character-settings" hidden>
             <div class="field">
-              <label>Voice</label>
-              <select class="char-speech-voice" aria-label="Character speech voice">
-                <option value="">System default</option>
+              <label>Which character?</label>
+              <select class="char-existing-target"></select>
+            </div>
+            <div class="field">
+              <label>Identity shown in dialogue</label>
+              <select class="char-identity-mode">
+                <option value="character">Show character name</option>
+                <option value="alias">Use an alias</option>
+                <option value="hidden">Hide identity</option>
               </select>
             </div>
-            <div class="field">
-              <label>Speed <output class="char-speech-rate-value">1.0×</output></label>
-              <input class="char-speech-rate" type="range" min="0.5" max="2" step="0.1" value="1" aria-label="Character speech speed" />
+            <div class="field char-alias-field" hidden>
+              <label>Alias</label>
+              <input type="text" class="char-alias" placeholder="Name to show" />
             </div>
-            <div class="field">
-              <label>Pitch <output class="char-speech-pitch-value">1.0</output></label>
-              <input class="char-speech-pitch" type="range" min="0" max="2" step="0.1" value="1" aria-label="Character speech pitch" />
+            <button class="btn ghost row replace-speaker-tags" type="button">Replace script tags (optional)</button>
+            <div class="muted">The portrait and colour come from the chosen cast character. Replacing script tags is optional.</div>
+          </div>
+        </div>
+        <details class="character-advanced">
+          <summary>Advanced character options</summary>
+          <div class="character-advanced-grid">
+            <div class="field inline">
+              <label>Icon URL</label>
+              <input type="text" class="char-icon-input" placeholder="images/Icons/Niki1.png" />
             </div>
+            <div class="field inline">
+              <label>Script shortcut</label>
+              <input type="text" class="char-shortcut" placeholder="!Niki" />
+            </div>
+            <div class="field inline">
+              <button class="btn ghost row fix-speaker-name" type="button">Fix name in script</button>
+            </div>
+            <div class="field inline">
+              <label>Bubble colour</label>
+              <input type="color" class="char-color" />
+              <label class="toggle"><input type="checkbox" class="char-use-color-icon" /> Use colour for icon</label>
+            </div>
+            <div class="field inline">
+              <label class="toggle"><input type="checkbox" class="char-name-match" /> Match name colour to bubble</label>
+            </div>
+            <div class="field inline">
+              <label class="toggle"><input type="checkbox" class="char-show-meta" /> Show in Preview metadata</label>
+            </div>
+            <div class="field inline">
+              <label class="toggle"><input type="checkbox" class="char-dice-character" /> Assign as dice character 🎲</label>
+            </div>
+            <details class="char-speech-settings">
+              <summary>Text-to-speech voice</summary>
+              <div class="char-speech-fields">
+                <div class="field">
+                  <label>Voice</label>
+                  <select class="char-speech-voice" aria-label="Character speech voice"><option value="">System default</option></select>
+                </div>
+                <div class="field">
+                  <label>Speed <output class="char-speech-rate-value">1.0×</output></label>
+                  <input class="char-speech-rate" type="range" min="0.5" max="2" step="0.1" value="1" aria-label="Character speech speed" />
+                </div>
+                <div class="field">
+                  <label>Pitch <output class="char-speech-pitch-value">1.0</output></label>
+                  <input class="char-speech-pitch" type="range" min="0" max="2" step="0.1" value="1" aria-label="Character speech pitch" />
+                </div>
+              </div>
+            </details>
+            <button class="btn ghost row upload-icon" type="button">Upload / crop icon</button>
           </div>
         </details>
-        <button class="btn ghost row upload-icon" data-setting-level="advanced">Upload/Crop</button>
-        <button class="btn ghost row remove-char">Remove</button>
+        <div class="character-card-actions">
+          <button class="btn ghost row remove-char" type="button">Remove character</button>
+        </div>
       `;
       charactersList.appendChild(row);
 
@@ -4957,8 +5123,11 @@
       const protagonistLock = row.querySelector('.char-lock-protagonist-color');
       const showMetaInput = row.querySelector('.char-show-meta');
       const diceCharacterInput = row.querySelector('.char-dice-character');
+      const roleSelect = row.querySelector('.char-role-select');
+      const roleHelp = row.querySelector('.character-role-help');
       const existingToggle = row.querySelector('.char-is-existing');
       const narrationToggle = row.querySelector('.char-is-narration');
+      const systemToggle = row.querySelector('.char-is-system');
       const existingSettings = row.querySelector('.existing-character-settings');
       const existingTarget = row.querySelector('.char-existing-target');
       const identityMode = row.querySelector('.char-identity-mode');
@@ -4995,7 +5164,13 @@
       diceCharacterInput.checked = Boolean(data.isDiceCharacter);
       existingToggle.checked = Boolean(data.isExisting);
       narrationToggle.checked = Boolean(data.isNarrationRole);
-      fixSpeakerName.hidden = existingToggle.checked || narrationToggle.checked;
+      systemToggle.checked = Boolean(data.isSystemRole);
+      roleSelect.value = existingToggle.checked
+        ? 'existing'
+        : narrationToggle.checked
+          ? 'narration'
+          : systemToggle.checked ? 'system' : 'character';
+      fixSpeakerName.hidden = roleSelect.value !== 'character';
       identityMode.value = ['character', 'alias', 'hidden'].includes(data.identityMode) ? data.identityMode : 'character';
       aliasInput.value = data.alias || '';
       existingTarget.dataset.pendingTarget = data.existingCharacter || '';
@@ -5059,24 +5234,29 @@
       showMetaInput.addEventListener('change', scheduleAuto);
       diceCharacterInput.addEventListener('change', scheduleAuto);
       nameInput.addEventListener('input', refreshExistingCharacterOptions);
-      existingToggle.addEventListener('change', () => {
-        if (existingToggle.checked) narrationToggle.checked = false;
-        existingSettings.hidden = !existingToggle.checked;
-        fixSpeakerName.hidden = existingToggle.checked || narrationToggle.checked;
+      const applyCharacterRole = (refresh = true) => {
+        const role = roleSelect.value;
+        existingToggle.checked = role === 'existing';
+        narrationToggle.checked = role === 'narration';
+        systemToggle.checked = role === 'system';
+        existingSettings.hidden = role !== 'existing';
+        fixSpeakerName.hidden = role !== 'character';
+        roleHelp.textContent = role === 'existing'
+          ? 'Choose the cast character this script label belongs to.'
+          : role === 'narration'
+            ? 'Narration appears as story text without a sprite or icon.'
+            : role === 'system'
+              ? 'System text appears without a character sprite or dialogue styling.'
+              : 'Character dialogue uses its sprite and colour.';
+        if (role === 'narration' || role === 'system') useColorIconInput.checked = false;
         refreshExistingCharacterOptions();
-        scheduleAuto();
-      });
-      narrationToggle.addEventListener('change', () => {
-        if (narrationToggle.checked) {
-          existingToggle.checked = false;
-          existingSettings.hidden = true;
-          row.querySelector('.char-use-color-icon').checked = false;
-        }
-        fixSpeakerName.hidden = existingToggle.checked || narrationToggle.checked;
         updateCharacterIcon(row);
-        updateReader();
-        scheduleAuto();
-      });
+        if (refresh) {
+          updateReader();
+          scheduleAuto();
+        }
+      };
+      roleSelect.addEventListener('change', () => applyCharacterRole(true));
       existingTarget.addEventListener('change', () => {
         existingTarget.dataset.pendingTarget = existingTarget.value;
         scheduleAuto();
@@ -5108,7 +5288,7 @@
         refreshProtagonistUi();
         scheduleAuto();
       });
-      existingSettings.hidden = !existingToggle.checked;
+      applyCharacterRole(false);
       aliasField.hidden = identityMode.value !== 'alias';
       refreshExistingCharacterOptions();
       refreshProtagonistUi();
@@ -5449,9 +5629,38 @@
       };
     }
 
+    function refreshImportSpeakerTargets() {
+      const rows = Array.from(el('importSpeakerReview').querySelectorAll('.import-speaker-row'));
+      const existingCast = collectCharacters()
+        .filter(character => !character.isExisting && !character.isNarrationRole && !character.isSystemRole && characterKey(character))
+        .map(character => ({ value: characterKey(character), label: character.displayName || character.shortcut }));
+      const importedCast = rows
+        .filter(row => row.querySelector('.import-speaker-action').value === 'create')
+        .map(row => ({ value: row.dataset.token, label: row.dataset.token, row }));
+
+      rows.forEach(row => {
+        const action = row.querySelector('.import-speaker-action');
+        const target = row.querySelector('.import-speaker-target');
+        const previousValue = target.value;
+        const choices = new Map();
+        existingCast.forEach(choice => choices.set(choice.value.toLocaleLowerCase(), { ...choice, source: 'Project' }));
+        importedCast
+          .filter(choice => choice.row !== row)
+          .forEach(choice => {
+            const key = choice.value.toLocaleLowerCase();
+            if (!choices.has(key)) choices.set(key, { ...choice, source: 'This import' });
+          });
+        target.replaceChildren(new Option(choices.size ? 'Choose character…' : 'No available characters', ''));
+        choices.forEach(choice => {
+          target.add(new Option(`${choice.label} · ${choice.source}`, choice.value));
+        });
+        target.disabled = action.value !== 'map' || choices.size === 0;
+        if ([...choices.values()].some(choice => choice.value === previousValue)) target.value = previousValue;
+      });
+    }
+
     function renderImportSpeakerReview(analysis) {
       const container = el('importSpeakerReview');
-      const cast = collectCharacters().filter(character => !character.isExisting && characterKey(character));
       const fragment = document.createDocumentFragment();
       analysis.speakers.forEach(([token, count]) => {
         const row = document.createElement('div');
@@ -5472,23 +5681,16 @@
         const target = document.createElement('select');
         target.className = 'import-speaker-target';
         target.setAttribute('aria-label', `Existing character for ${token}`);
-        target.add(new Option(cast.length ? 'Choose character…' : 'No existing characters', ''));
-        cast.forEach(character => target.add(new Option(
-          character.displayName || character.shortcut,
-          characterKey(character)
-        )));
         target.disabled = true;
         action.addEventListener('change', () => {
-          target.disabled = action.value !== 'map';
-          if (action.value === 'map' && !cast.length) {
-            action.value = 'create';
-            target.disabled = true;
-          }
+          refreshImportSpeakerTargets();
+          if (action.value === 'map' && !target.disabled) target.focus();
         });
         row.append(label, action, target);
         fragment.appendChild(row);
       });
       container.replaceChildren(fragment);
+      refreshImportSpeakerTargets();
     }
 
     function importSpeakerMappings() {
@@ -5542,7 +5744,10 @@
         : '<div>No structural warnings detected.</div>';
       renderImportSpeakerReview(analysis);
       el('importReviewModal').classList.add('active');
-      requestAnimationFrame(() => el('importDestination').focus());
+      requestAnimationFrame(() => {
+        el('importReviewCard').scrollTop = 0;
+        el('importReviewCard').focus({ preventScroll: true });
+      });
     }
 
     function closeTextImportReview() {
@@ -6145,6 +6350,20 @@
               return;
             }
             const descriptor = resolveSpeakerDescriptor(token, byToken) || inferredSpeaker(token);
+            if (descriptor.system) {
+              lastSpeaker = null;
+              lastNarrationItem = null;
+              items.push({
+                speaker: 'System',
+                character: null,
+                narration: true,
+                system: true,
+                text: match[2].trim(),
+                dice: resolveDiceAssignment(parsedLine.directive, null),
+                ...chapterData
+              });
+              return;
+            }
             if (descriptor.narration) {
               lastSpeaker = null;
               const narrationItem = {
@@ -6339,12 +6558,12 @@
         const token = match[2].trim();
         const descriptor = resolveSpeakerDescriptor(token, speakers);
         const narrator = isNarratorToken(token) || Boolean(descriptor?.narration);
-        const system = /^(?:cw|dice maiden)$/i.test(token);
+        const system = /^(?:cw|dice maiden)$/i.test(token) || Boolean(descriptor?.system);
         const speaker = document.createElement(narrator || system ? 'span' : 'button');
         if (speaker instanceof HTMLButtonElement) speaker.type = 'button';
         speaker.className = `highlighted-speaker${narrator || system ? ' narrator' : descriptor ? '' : ' unmatched'}`;
         speaker.textContent = token;
-        if (descriptor?.character && !narrator) {
+        if (descriptor?.character && !narrator && !system) {
           const color = descriptor.character.bubbleColor || inferredColorFor(token);
           speaker.style.backgroundColor = color;
           speaker.style.color = readableTextForHex(color);
@@ -6519,12 +6738,76 @@
       return el('readerSpoilerToggle').checked ? el('readerSpoilerStyle').value : 'none';
     }
 
+    function readerChapterOptions() {
+      const seen = new Set();
+      return readerItems.reduce((options, item, index) => {
+        if (seen.has(item.chapterIndex)) return options;
+        seen.add(item.chapterIndex);
+        options.push({ index, chapterIndex: item.chapterIndex, label: item.chapterLabel || `Chapter ${options.length + 1}` });
+        return options;
+      }, []);
+    }
+
+    function syncReaderChapterNavigation() {
+      const picker = el('readerChapterPicker');
+      const options = readerChapterOptions();
+      const signature = options.map(option => `${option.chapterIndex}:${option.label}`).join('|');
+      if (picker.dataset.signature !== signature) {
+        picker.replaceChildren(...options.map(option => new Option(option.label, String(option.chapterIndex))));
+        picker.dataset.signature = signature;
+      }
+      const currentChapterIndex = readerItems[readerIndex]?.chapterIndex;
+      picker.value = currentChapterIndex === undefined ? '' : String(currentChapterIndex);
+      const position = options.findIndex(option => option.chapterIndex === currentChapterIndex);
+      picker.disabled = !options.length;
+      el('readerPreviousChapter').disabled = position <= 0;
+      el('readerNextChapter').disabled = position < 0 || position >= options.length - 1;
+    }
+
+    function moveReaderChapter(direction) {
+      const options = readerChapterOptions();
+      const currentChapterIndex = readerItems[readerIndex]?.chapterIndex;
+      const position = options.findIndex(option => option.chapterIndex === currentChapterIndex);
+      const target = options[position + direction];
+      if (target) setReaderLine(target.index);
+    }
+
+    function fitReaderDialogueText() {
+      const dialogue = el('readerDialogue');
+      dialogue.style.removeProperty('font-size');
+      el('readerTextSizeValue').textContent = `${Math.round(readerTextScale * 100)}%`;
+      if (dialogue.clientWidth < 20 || dialogue.clientHeight < 20) return;
+      const naturalSize = Number.parseFloat(getComputedStyle(dialogue).fontSize) || 24;
+      const minimumSize = Math.max(16, naturalSize * 0.78);
+      let size = Math.min(46, naturalSize * readerTextScale);
+      dialogue.style.fontSize = `${size}px`;
+      while (size > minimumSize && (dialogue.scrollHeight > dialogue.clientHeight + 1 || dialogue.scrollWidth > dialogue.clientWidth + 1)) {
+        size = Math.max(minimumSize, size - 1);
+        dialogue.style.fontSize = `${size}px`;
+      }
+      dialogue.dataset.autoFit = size < naturalSize * readerTextScale - 0.5 ? 'true' : 'false';
+    }
+
+    function scheduleReaderTextFit() {
+      if (readerTextFitFrame) cancelAnimationFrame(readerTextFitFrame);
+      readerTextFitFrame = requestAnimationFrame(() => {
+        readerTextFitFrame = 0;
+        fitReaderDialogueText();
+      });
+    }
+
+    function adjustReaderTextScale(change) {
+      readerTextScale = Math.min(1.25, Math.max(0.8, Math.round((readerTextScale + change) * 10) / 10));
+      localStorage.setItem('storyToolReaderTextScale', String(readerTextScale));
+      el('readerTextSizeValue').textContent = `${Math.round(readerTextScale * 100)}%`;
+      scheduleReaderTextFit();
+    }
+
     function readerLineButtonText(item, index) {
       const startsChapter = index === 0 || readerItems[index - 1]?.chapterIndex !== item.chapterIndex;
-      const chapterLabel = startsChapter && item.chapterLabel ? `【${item.chapterLabel}】 ` : '';
       const speakerLabel = item.dice ? `🎲 ${item.speaker}` : item.speaker;
       const diceLabel = item.dice ? `[${item.dice.label}${item.dice.mode ? ` · ${item.dice.mode}` : ''}] ` : '';
-      return `${chapterLabel}${diceLabel}${speakerLabel ? `${speakerLabel}: ` : ''}${truncateText(item.text, 100)}`;
+      return `${diceLabel}${speakerLabel ? `${speakerLabel}: ` : ''}${truncateText(item.text, 100)}`;
     }
 
     function createReaderLineButton(item, index) {
@@ -6534,7 +6817,16 @@
       button.dataset.readerIndex = String(index);
       const startsChapter = index === 0 || readerItems[index - 1]?.chapterIndex !== item.chapterIndex;
       button.classList.toggle('chapter-start', startsChapter);
-      button.textContent = readerLineButtonText(item, index);
+      if (startsChapter && item.chapterLabel) {
+        const chapter = document.createElement('span');
+        chapter.className = 'reader-line-chapter';
+        chapter.textContent = item.chapterLabel;
+        button.appendChild(chapter);
+      }
+      const content = document.createElement('span');
+      content.className = 'reader-line-content';
+      content.textContent = readerLineButtonText(item, index);
+      button.appendChild(content);
       button.title = selectedPortrait && item.character
         ? 'Click to select this line and assign the selected portrait'
         : 'Click to read this line';
@@ -6649,6 +6941,8 @@
         el('readerPosition').textContent = 'No dialogue lines';
         el('readerLines').innerHTML = '';
         el('readerSpeak').disabled = true;
+        syncReaderChapterNavigation();
+        scheduleReaderTextFit();
         return;
       }
 
@@ -6767,6 +7061,7 @@
       el('readerPortrait').classList.toggle('solid-icon', solidIcon);
       const chapterText = item.chapterLabel ? ` · ${item.chapterLabel}` : '';
       el('readerPosition').textContent = `Line ${readerIndex + 1} of ${readerItems.length}${chapterText}`;
+      syncReaderChapterNavigation();
       const sourceChapter = chapters.find(chapter => chapter.id === item.chapterId);
       if (sourceChapter) sourceChapter.readerLine = item.lineIndex;
       readerSpeakButton.disabled = !speechSynthesisAvailable() || item.speakable === false;
@@ -6777,6 +7072,7 @@
         lastAutoplaySourceKey = item.sourceKey;
         setTimeout(speakCurrentReaderLine, 80);
       }
+      scheduleReaderTextFit();
     }
 
     function updateReader() {
@@ -7214,6 +7510,7 @@
           showInMeta: row.querySelector('.char-show-meta').checked,
           isDiceCharacter: row.querySelector('.char-dice-character').checked,
           isNarrationRole: row.querySelector('.char-is-narration').checked,
+          isSystemRole: row.querySelector('.char-is-system').checked,
           isExisting: row.querySelector('.char-is-existing').checked,
           existingCharacter: row.querySelector('.char-existing-target').value || row.querySelector('.char-existing-target').dataset.pendingTarget || '',
           identityMode: row.querySelector('.char-identity-mode').value,
@@ -7232,7 +7529,8 @@
         const descriptor = {
           character,
           speakerName: character.displayName || character.shortcut || '',
-          narration: Boolean(character.isNarrationRole)
+          narration: Boolean(character.isNarrationRole),
+          system: Boolean(character.isSystemRole)
         };
         [character.shortcut, character.displayName].filter(Boolean).forEach(token => {
           byToken.set(token.toLowerCase(), descriptor);
@@ -7248,7 +7546,12 @@
           : alias.identityMode === 'alias'
             ? (alias.alias || alias.displayName || alias.shortcut || '')
             : (target.displayName || target.shortcut || '');
-        const descriptor = { character: target, speakerName, narration: Boolean(target.isNarrationRole) };
+        const descriptor = {
+          character: target,
+          speakerName,
+          narration: Boolean(target.isNarrationRole),
+          system: Boolean(target.isSystemRole)
+        };
         [alias.shortcut, alias.displayName].filter(Boolean).forEach(token => {
           byToken.set(token.toLowerCase(), descriptor);
         });
@@ -7268,7 +7571,8 @@
         speakerName: disguise[2].trim(),
         disguiseName: disguise[2].trim(),
         trueSpeakerName: underlying.speakerName,
-        narration: Boolean(underlying.narration)
+        narration: Boolean(underlying.narration),
+        system: Boolean(underlying.system)
       };
     }
 
@@ -7949,6 +8253,12 @@
 
           const descriptor = resolveSpeakerDescriptor(token, byToken) || inferredSpeaker(token);
           ensureScene();
+          if (descriptor.system) {
+            current.items.push({ type: 'system', text: line });
+            lastSpeaker = null;
+            lastSpeakerRun = null;
+            return;
+          }
           if (descriptor.narration) {
             current.items.push({
               type: 'narration',
@@ -9027,18 +9337,25 @@
       const item = readerItems[readerIndex];
       if (selectedPortrait && item?.character) assignPortraitToCharacter(item.character);
     });
-    const readerVisualOptions = el('reader-card').querySelector('.reader-visual-options');
-    const reflowReaderVisualOptions = () => {
-      readerVisualOptions.style.removeProperty('top');
-      readerVisualOptions.style.removeProperty('max-height');
+    const readerOptionMenus = Array.from(el('reader-card').querySelectorAll('.reader-compact-menu'));
+    const reflowReaderOptions = () => {
       requestAnimationFrame(() => {
         refreshReaderSplitLayout();
         renderReaderLineWindow();
       });
     };
-    readerVisualOptions.addEventListener('toggle', reflowReaderVisualOptions);
-    window.addEventListener('resize', reflowReaderVisualOptions);
-    reflowReaderVisualOptions();
+    readerOptionMenus.forEach(menu => menu.addEventListener('toggle', () => {
+      if (menu.open) readerOptionMenus.forEach(otherMenu => {
+        if (otherMenu !== menu) otherMenu.open = false;
+      });
+      reflowReaderOptions();
+    }));
+    document.addEventListener('pointerdown', event => {
+      if (event.target instanceof Element && event.target.closest('.reader-compact-menu')) return;
+      readerOptionMenus.forEach(menu => { menu.open = false; });
+    });
+    window.addEventListener('resize', reflowReaderOptions);
+    reflowReaderOptions();
     el('readerLines').addEventListener('scroll', () => {
       if (readerLineWindowFrame || readerLineWindowTimer) return;
       const renderScrolledWindow = () => {
@@ -9053,6 +9370,15 @@
     }, { passive: true });
     el('readerPrevious').addEventListener('click', () => setReaderLine(readerIndex - 1));
     el('readerNext').addEventListener('click', () => setReaderLine(readerIndex + 1));
+    el('readerPreviousChapter').addEventListener('click', () => moveReaderChapter(-1));
+    el('readerNextChapter').addEventListener('click', () => moveReaderChapter(1));
+    el('readerChapterPicker').addEventListener('change', event => {
+      const chapterIndex = Number(event.target.value);
+      const targetIndex = readerItems.findIndex(item => item.chapterIndex === chapterIndex);
+      if (targetIndex >= 0) setReaderLine(targetIndex);
+    });
+    el('readerTextSmaller').addEventListener('click', () => adjustReaderTextScale(-0.1));
+    el('readerTextLarger').addEventListener('click', () => adjustReaderTextScale(0.1));
     el('readerSpeak').addEventListener('click', speakCurrentReaderLine);
     el('readerStopSpeech').addEventListener('click', stopReaderSpeech);
     const readerHistoryButton = el('readerHistoryToggle');

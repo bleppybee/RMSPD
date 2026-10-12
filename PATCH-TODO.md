@@ -29,9 +29,9 @@ This ledger tracks the current patch in `index.html`. `Complete` means the struc
 
 | Section | Status | Current result / remaining work |
 | --- | --- | --- |
-| 1. Large-reader stability | Complete | Virtualised line history, chapter separators, bounded speaker viewport, reader-only/history toggle, viewport-based text sizing, keyboard/mouse splitter, saved split, and normal-flow reader options are implemented. |
+| 1. Large-reader stability | Complete | Virtualised line history, separate chapter-title rows, direct reader chapter navigation, bounded speaker viewport, reader-only/history toggle, adaptive text fitting with A−/A+ controls, keyboard/mouse splitter, saved split, and compact non-overlay reader controls are implemented. |
 | 2. Toggle overlap/defaults | Complete | Controls have separate lanes; top bar and reader dock default closed and remember explicit choices. |
-| 3. Character image gallery | In progress | Sprite gallery, direct/multiple assignments, optional icon face crops and priority controls, palette extraction, safe removal, prominent identity mapping, narration-role correction, stale-character cleanup, and protagonist controls are implemented. Remaining: occurrence-by-occurrence rename exclusions and a confirmation prompt when moving protagonist-specific settings. |
+| 3. Character image gallery | In progress | Sprite gallery, direct/multiple assignments, optional icon face crops and priority controls, palette extraction, safe removal, per-character advanced disclosures, a reversible Character/Existing/Narration/System role selector, stale-character cleanup, and protagonist controls are implemented. Remaining: occurrence-by-occurrence rename exclusions and a confirmation prompt when moving protagonist-specific settings. |
 | 4. Narrator/highlighted script | In progress | Reserved Narrator roles, portrait-free storybook layout, adjacent multiline narration coalescing, highlighted speaker buttons, semantic colours, and protagonist overrides are implemented. Remaining: finish ambiguity warnings for malformed speaker labels. |
 | 5. Persistent locations | In progress | Scene/background/corner/clear parsing, persistence between lines, opacity, gallery asset references, reader display, generated output, highlighting, and a location builder are implemented. Remaining: named reusable location records and unresolved/missing-asset validation. |
 | 6. Browser-local saving | Complete | IndexedDB with localStorage fallback, manual/auto modes, explicit save/revert/clear, dirty state, and unload protection are implemented without requiring a download. |
@@ -48,7 +48,7 @@ This ledger tracks the current patch in `index.html`. `Complete` means the struc
 
 ### Problem
 
-When a large script is pasted or imported, the Visual Novel Reader's line list compresses into an overlapping cluster. The combined file produces thousands of reader items, so rendering every item at once also risks slow input and scrolling. Expanded portraits/solid-colour character images can also escape the active-speaker area and overlap the Visual Novel options bar or dialogue-line list.
+When a large script is pasted or imported, the Visual Novel Reader's line list compresses into an overlapping cluster. The combined file produces thousands of reader items, so rendering every item at once also risks slow input and scrolling. Expanded portraits/solid-colour character images can also escape the active-speaker area and overlap the reader control bar or dialogue-line list.
 
 ### Patch
 
@@ -66,7 +66,7 @@ When a large script is pasted or imported, the Visual Novel Reader's line list c
 - Treat the visible speaker/portrait/dialogue area as a bounded viewport.
 - Expanded portraits, solid-colour icons, selected face images, location art, and narration layouts must remain inside that viewport.
 - Do not allow an image to overlap:
-  - The Visual Novel options bar.
+  - The reader control bar.
   - Reader navigation/actions.
   - Speaker name or dialogue text.
   - The dialogue-line list.
@@ -112,13 +112,14 @@ When a large script is pasted or imported, the Visual Novel Reader's line list c
   - Shift + Arrow Up/Down adjustment in larger steps.
 - On narrow/mobile layouts, use a larger touch target and clamp more aggressively. If the available height is too small for safe resizing, fall back to the default stacked layout instead of overlapping content.
 
-### Keep Visual Novel options out of the speaker area
+### Keep reader options compact and out of the speaker area
 
-- Keep the `Visual Novel options` block in the reader's normal vertical layout flow.
-- Opening the options must push/reduce the available speaker area instead of layering the controls over the portrait, speaker name, or dialogue.
-- Closing the options must leave one compact summary row above the speaker area; it must not retain an old `top`, height, or overlay position.
-- Give the open options block its own bounded scrolling area when its contents are taller than the available reader space.
-- Recalculate and clamp the draggable speaker/history split whenever the options block opens or closes.
+- Remove the general `Visual Novel options` disclosure.
+- Put common state directly above the reader as compact labelled checkboxes/buttons: next-chapter continuation, spoiler visibility, auto-read, and auto-advance.
+- Keep speech and per-line roll configuration in small icon-labelled popovers rather than one large nested advanced panel.
+- Only one reader popover may be open at a time; clicking outside closes it.
+- Bound and scroll a popover when its contents are taller than the available reader space.
+- Recalculate and clamp the draggable speaker/history split whenever a reader popover opens or closes.
 - Preserve the active reader line and the user's saved speaker/history preference while reflowing the reader.
 - Apply the same behaviour in docked, pop-out, fullscreen, narrow, light, and dark reader layouts.
 
@@ -127,6 +128,7 @@ When a large script is pasted or imported, the Visual Novel Reader's line list c
 - Treat the Visual Novel Reader as the primary reading experience; the Icon-style Preview is an optional alternate export/format.
 - Add a `Reader only` toggle that hides the line-preview/history list while preserving Previous/Next navigation and the active line.
 - Let text scale within safe limits from the available reader viewport. Text length must not resize the sprite column or make the sprite chase the text dimensions.
+- Fit dialogue text down by a limited amount before enabling internal scrolling, and provide A−/A+ reader text-size controls with a visible percentage.
 - Keep character sprites sized from the reader viewport rather than from dialogue length.
 - In reader-only mode, present the current sprite, speaker, and dialogue like a visual-novel text-box scene and let the reader use all remaining safe height.
 
@@ -141,8 +143,8 @@ When a large script is pasted or imported, the Visual Novel Reader's line list c
 - The divider cannot shrink either section below its defined minimum.
 - The chosen split survives reload, while Refresh layout restores the default.
 - Mouse, touch, and keyboard resizing all work without moving the active reader line.
-- Open Visual Novel options never cover the portrait, speaker name, dialogue, resize divider, or history list.
-- Closing Visual Novel options returns the speaker area to its previous size without leaving the summary over the portrait/dialogue.
+- Reader option buttons/popovers never cover the portrait, speaker name, dialogue, resize divider, or history list.
+- Closing a reader popover returns focus/layout cleanly without leaving an invisible overlay over the portrait/dialogue.
 
 ---
 
@@ -247,8 +249,10 @@ The fixed top-bar toggle and the reader collapse toggle can occupy the same top-
 
 - Character gallery uploads are full sprite images for the Visual Novel Reader.
 - `Select Face` is an optional crop for compact icons and the Icon-style Preview; it must not replace the full reader sprite.
-- Make `Map this label to another character` a primary/simple character action. Keep `Fix name in script` secondary and optional.
-- Add `Treat this speaker label as Narrator` for labels mistakenly scanned as characters; mapped narration must never show a character sprite/icon in the reader.
+- Replace panel-wide Simple/Advanced character tabs with a compact primary card and an `Advanced character options` disclosure on each character itself.
+- Put one primary role selector on every character card with `Character`, `This is another character`, `Narration / story text`, and `System / function text`; changing the choice must remain reversible.
+- Keep `Fix name in script` inside that character's advanced disclosure and secondary to role/mapping correction.
+- Narration and System role labels must never show a character sprite/icon in the reader.
 - Add `Remove characters not in script`, show the affected names, and require confirmation before pruning stale character records.
 
 ### Acceptance criteria
@@ -514,6 +518,8 @@ The project currently stores one very large script, so adding or editing a new c
 - The active chapter number must be visually and programmatically selected.
 - Add an optional title dropdown beside the numbered controls.
 - The dropdown should display `chapter number — editable title`.
+- Mirror a subtle previous-chapter button, chapter-title selector, and next-chapter button in the Visual Novel Reader; keep its existing Up/Down buttons for individual lines.
+- In the reader history, render a chapter title on its own line above the first story line instead of prefixing it to `Narration:` or a character name.
 - Add a preference for:
   - Numbers only.
   - Dropdown only.
@@ -748,6 +754,9 @@ Observed structure in the supplied file:
 2. Auto-detect the combined-transcript profile from the repeated separator + `.txt` heading pattern.
 3. Show an import-review screen with detected chapters, characters, narrator lines, system/dice lines, warnings, and ignored lines.
 4. Allow speaker mappings and exclusions before committing the import.
+   - Keep the review dialog within the current viewport at normal browser zoom; its body must scroll and Cancel/Import actions must remain reachable.
+   - Treat detected labels currently set to `Create / keep speaker` as live mapping targets for other detected labels in the same import, not only characters that existed before opening the file.
+   - Refresh mapping targets when a row changes action and prevent mapping loops by allowing only project characters or labels still being created.
 5. Choose the destination: replace current chapter, create one new chapter, or create all detected chapters.
 6. Commit the normalised chapter operation as one undoable project action.
 
@@ -886,6 +895,12 @@ It is not sufficiently obvious which mode is being edited, colour selection can 
 - Add `Always read character name in narrator voice`; when enabled, speak the name with narrator/fallback settings before the character voice reads dialogue.
 - Add `Only read dialogue`; skip Narrator items and remove parenthesised thoughts and bracketed action/narration spans from character speech without changing source text.
 
+### Progressive settings disclosure
+
+- Every panel that offers Simple/Advanced modes must begin in Simple on each page load; do not restore an old Advanced choice from browser storage.
+- Character-specific secondary controls belong in that character's own collapsed `Advanced character options` disclosure, not a panel-wide Advanced tab.
+- Keep role correction, sprite assignment, display name, and protagonist assignment visible without opening Advanced.
+
 ### Clarify the two previews
 
 - Rename the workspace `Preview` tab and card to `Icon-style Script Preview`.
@@ -942,7 +957,7 @@ It is not sufficiently obvious which mode is being edited, colour selection can 
 - Dice Options and reader-line dice controls expose the same roll types, modes, and effective override state.
 - Reader pop-out, fullscreen, docking, and side-switching still work.
 - Expanded portraits, selected faces, solid icons, and location art remain inside the active-speaker viewport and never cover the options bar, dialogue, resize divider, or dialogue-line list.
-- Opening and closing Visual Novel options reflows the reader without covering the portrait/dialogue or leaving the collapsed summary in an old overlay position.
+- Opening and closing the compact Speech/Roll reader popovers never covers the portrait/dialogue or leaves an invisible overlay behind.
 - The speaker/list divider works with mouse, touch, and keyboard; respects both sections' minimum heights; restores its saved position when space allows; and clamps safely in smaller reader layouts.
 - Double-clicking the speaker/list divider and using Refresh layout both restore the default split without changing the current reader line.
 - Script undo/redo treats a TXT import as one operation.
