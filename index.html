@@ -2103,6 +2103,7 @@
     <button class="workspace-tab" type="button" data-panel="characters" aria-selected="false" aria-label="Characters" title="Characters"><span class="tab-icon">♟</span><span class="tab-label">Characters</span></button>
     <button class="workspace-tab" type="button" data-panel="dice" aria-selected="false" aria-label="Advanced Tools" title="Advanced Tools"><span class="tab-icon">⚔⚄</span><span class="tab-label">Advanced Tools</span></button>
     <button class="workspace-tab" type="button" data-panel="project" aria-selected="false" aria-label="Project" title="Project"><span class="tab-icon">▣</span><span class="tab-label">Project</span></button>
+    <button class="workspace-tab" type="button" data-panel="theme" aria-selected="false" aria-label="Page Theme" title="Page Theme"><span class="tab-icon">&#9681;</span><span class="tab-label">Page Theme</span></button>
     <button class="workspace-tab" type="button" data-panel="notes" aria-selected="false" aria-label="Notes" title="Notes"><span class="tab-icon">✎</span><span class="tab-label">Notes</span></button>
     <button class="workspace-tab" type="button" data-panel="save" aria-selected="false" aria-label="Save / Export" title="Save / Export"><span class="tab-icon">⇩</span><span class="tab-label">Save / Export</span></button>
     <button class="workspace-tab" type="button" data-panel="preview" aria-selected="false" aria-label="Preview" title="Preview"><span class="tab-icon">◉</span><span class="tab-label">Preview</span></button>
@@ -2140,47 +2141,6 @@
         <label for="translator">Translation By</label>
         <input id="translator" type="text" placeholder="Bee" />
       </div>
-      <div class="field">
-        <label for="pageThemePreset">Page Theme</label>
-        <select id="pageThemePreset">
-          <option value="mocha">Mocha dark</option>
-          <option value="latte">Latte light</option>
-          <option value="custom">Custom</option>
-        </select>
-        <div class="muted" data-setting-level="simple">Choose a preset here. Selecting Custom opens the advanced colour and contrast controls.</div>
-      </div>
-      <div class="theme-colors" data-setting-level="advanced">
-        <div class="field">
-          <label for="pageThemeAccent">Accent</label>
-          <input id="pageThemeAccent" type="color" value="#cba6f7" />
-        </div>
-        <div class="field">
-          <label for="pageThemeBackground">Background</label>
-          <input id="pageThemeBackground" type="color" value="#1e1e2e" />
-        </div>
-        <div class="field">
-          <label for="pageThemeForeground">Foreground</label>
-          <input id="pageThemeForeground" type="color" value="#cdd6f4" />
-        </div>
-      </div>
-      <div class="actions theme-actions" id="pageThemeActions" data-setting-level="advanced">
-        <button class="btn ghost row" id="exportPageTheme" type="button">Export Page Theme</button>
-        <button class="btn ghost row" id="importPageTheme" type="button">Import Page Theme</button>
-        <input id="importPageThemeInput" type="file" accept=".json,application/json" hidden />
-      </div>
-      <div class="field" data-setting-level="advanced">
-        <label for="pageThemeContrast">Contrast mode <span id="pageThemeContrastValue">35%</span></label>
-        <input id="pageThemeContrast" type="range" min="0" max="100" step="1" value="35" />
-        <div class="muted">Adjust contrast in the editor and generated story theme.</div>
-      </div>
-      <div class="field" data-setting-level="advanced">
-        <label for="bubbleTextColor">Bubble Text Color (global)</label>
-        <input id="bubbleTextColor" type="color" />
-      </div>
-      <div class="field" data-setting-level="advanced">
-        <label for="nameColor">Name Color (global)</label>
-        <input id="nameColor" type="color" />
-      </div>
       <div class="field" data-setting-level="advanced">
         <label for="homeUrl">Home Link</label>
         <input id="homeUrl" type="text" placeholder="https://bleppybee.github.io/" />
@@ -2201,6 +2161,103 @@
         <label for="contentWarnings">Global Content Warnings (one per line)</label>
         <textarea id="contentWarnings" placeholder="Violence&#10;Gore"></textarea>
       </div>
+      </div>
+    </section>
+
+    <section class="card full" id="theme-card" data-workspace-panel="theme" hidden>
+      <div class="card-header">
+        <h2>Page Theme</h2>
+        <button class="card-toggle" type="button" aria-expanded="true">&#9662;</button>
+      </div>
+      <div class="card-body">
+        <p class="theme-intro muted">Choose colours here and watch the sample update immediately. <strong>Preview</strong> temporarily paints the workspace; <strong>Apply</strong> saves the theme and updates the generated story.</p>
+
+        <div class="theme-canvas-modes" role="group" aria-label="Editor canvas mode">
+          <span>Test on:</span>
+          <button class="settings-mode-button" id="themeCanvasDark" type="button" aria-pressed="true">&#9789; Dark canvas</button>
+          <button class="settings-mode-button" id="themeCanvasLight" type="button" aria-pressed="false">&#9728; Light canvas</button>
+        </div>
+
+        <div class="field">
+          <label for="pageThemePreset">Starting preset</label>
+          <select id="pageThemePreset">
+            <option value="mocha">Mocha dark</option>
+            <option value="latte">Latte light</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+
+        <div class="theme-live-sample" id="themeLiveSample" aria-label="Theme colour preview">
+          <div class="theme-sample-kicker" id="themeSampleMode">Dark page sample</div>
+          <h3>Chapter heading</h3>
+          <p>This is how body text will read against the page background.</p>
+          <div class="theme-sample-dialogue"><strong>Speaker name</strong>A sample dialogue bubble using your global text colours.</div>
+        </div>
+
+        <h3 class="theme-section-title">Page colours</h3>
+        <div class="theme-colors">
+          <div class="field">
+            <label for="pageThemeAccent">Headings &amp; accent</label>
+            <input id="pageThemeAccent" type="color" value="#cba6f7" />
+          </div>
+          <div class="field">
+            <label for="pageThemeBackground">Page background</label>
+            <input id="pageThemeBackground" type="color" value="#1e1e2e" />
+          </div>
+          <div class="field">
+            <label for="pageThemeForeground">Page text</label>
+            <input id="pageThemeForeground" type="color" value="#cdd6f4" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="pageThemeContrast">Contrast <span id="pageThemeContrastValue">35%</span></label>
+          <input id="pageThemeContrast" type="range" min="0" max="100" step="1" value="35" />
+          <div class="muted">Higher values separate headings, text, cards, and the page background more strongly.</div>
+        </div>
+
+        <h3 class="theme-section-title">Dialogue colours</h3>
+        <div class="theme-colors">
+          <div class="field">
+            <label for="bubbleTextColor">Bubble text (global)</label>
+            <input id="bubbleTextColor" type="color" value="#e0e0e0" />
+          </div>
+          <div class="field">
+            <label for="nameColor">Speaker name (global)</label>
+            <input id="nameColor" type="color" value="#b9a5cd" />
+          </div>
+        </div>
+
+        <details class="script-advanced advanced-tool-section">
+          <summary>Battle palette</summary>
+          <label class="toggle"><input type="checkbox" id="useBattleTheme" /> Use battle theme during initiative &#9876;</label>
+          <div class="theme-colors">
+            <div class="field">
+              <label for="battleThemeAccent">Battle accent</label>
+              <input id="battleThemeAccent" type="color" value="#f38ba8" />
+            </div>
+            <div class="field">
+              <label for="battleThemeBackground">Battle background</label>
+              <input id="battleThemeBackground" type="color" value="#35202b" />
+            </div>
+            <div class="field">
+              <label for="battleThemeForeground">Battle text</label>
+              <input id="battleThemeForeground" type="color" value="#f5e0e6" />
+            </div>
+          </div>
+        </details>
+
+        <div class="theme-edit-status" id="themeEditStatus" role="status" aria-live="polite">Theme is applied.</div>
+        <div class="actions theme-actions" id="pageThemeActions">
+          <button class="btn ghost row" id="previewPageTheme" type="button" title="Preview these colours on the workspace"><span aria-hidden="true">&#128065;</span> Preview</button>
+          <button class="btn row" id="applyPageTheme" type="button" title="Apply and save these theme colours"><span aria-hidden="true">&#10003;</span> Apply</button>
+          <button class="btn ghost row" id="resetPageTheme" type="button" title="Reset to the matching light or dark preset"><span aria-hidden="true">&#8634;</span> Reset</button>
+          <button class="btn ghost row" id="cancelPageTheme" type="button" title="Discard un-applied changes"><span aria-hidden="true">&#10005;</span> Cancel</button>
+        </div>
+        <div class="actions theme-actions">
+          <button class="btn ghost row" id="exportPageTheme" type="button">Export Page Theme</button>
+          <button class="btn ghost row" id="importPageTheme" type="button">Import Page Theme</button>
+          <input id="importPageThemeInput" type="file" accept=".json,application/json" hidden />
+        </div>
       </div>
     </section>
 
@@ -2264,26 +2321,11 @@
         <div class="dice-tags" id="diceTagsList" aria-label="Dice tags"></div>
         <div class="muted">Tags and line assignments are stored in the project. Script markers look like <code>[[dice: Attack roll | advantage]]</code>; use <code>[[dice: off]]</code> to override a dice character for one line.</div>
         <details class="script-advanced advanced-tool-section">
-          <summary>Initiative and battle theme</summary>
-          <label class="toggle"><input type="checkbox" id="useBattleTheme" /> Use battle theme during initiative ⚔</label>
+          <summary>Initiative behaviour</summary>
           <label class="toggle"><input type="checkbox" id="alwaysEndAllOnExit" checked /> Always end initiative on Exit marker</label>
           <label class="toggle"><input type="checkbox" id="endInitiativeWithChapter" /> End initiative with chapter</label>
           <label class="toggle"><input type="checkbox" id="rememberInitiativeOnce" /> Remember initiative through one next chapter</label>
           <div class="muted">When chapter ending is enabled, the remember option carries initiative through exactly one chapter before resetting. Turning off the Exit option defers an Exit marker until the next chapter.</div>
-          <div class="theme-colors">
-            <div class="field">
-              <label for="battleThemeAccent">Battle Accent</label>
-              <input id="battleThemeAccent" type="color" value="#f38ba8" />
-            </div>
-            <div class="field">
-              <label for="battleThemeBackground">Battle Background</label>
-              <input id="battleThemeBackground" type="color" value="#35202b" />
-            </div>
-            <div class="field">
-              <label for="battleThemeForeground">Battle Foreground</label>
-              <input id="battleThemeForeground" type="color" value="#f5e0e6" />
-            </div>
-          </div>
         </details>
       </div>
     </section>
@@ -2529,6 +2571,10 @@
         useBattleTheme: false, battleAccent: '#d20f39', battleBackground: '#fce4e8', battleForeground: '#4c2631'
       }
     };
+    let appliedPageTheme = { ...pageThemePresets.mocha, preset: 'mocha' };
+    let appliedBubbleTextColor = '#e0e0e0';
+    let appliedNameColor = '#b9a5cd';
+    let isThemePreviewing = false;
 
     const cropperState = {
       img: null,
@@ -3307,10 +3353,7 @@
       });
 
       const savedThemeMode = localStorage.getItem('storyToolTheme');
-      document.body.classList.toggle('light-mode', savedThemeMode === 'light');
-      el('themeToggle').textContent = savedThemeMode === 'light' ? '☾' : '☀';
-      el('themeToggle').setAttribute('aria-label', savedThemeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
-      el('themeToggle').title = savedThemeMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode';
+      setEditorThemeMode(savedThemeMode === 'light' ? 'light' : 'dark', false);
       setPageThemeControls(pageThemePresets.mocha);
       el('readerNextChapterMode').checked = localStorage.getItem('storyToolNextChapterMode') === 'true';
       el('readerNextChapterMode').addEventListener('change', () => {
@@ -3330,34 +3373,32 @@
         setReaderLine(readerIndex);
       });
       el('themeToggle').addEventListener('click', () => {
-        const isLight = document.body.classList.toggle('light-mode');
-        el('themeToggle').textContent = isLight ? '☾' : '☀';
-        el('themeToggle').setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
-        el('themeToggle').title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
-        localStorage.setItem('storyToolTheme', isLight ? 'light' : 'dark');
-        applyEditorTheme();
+        setEditorThemeMode(document.body.classList.contains('light-mode') ? 'dark' : 'light');
       });
+      el('themeCanvasDark').addEventListener('click', () => setEditorThemeMode('dark'));
+      el('themeCanvasLight').addEventListener('click', () => setEditorThemeMode('light'));
       el('pageThemePreset').addEventListener('change', () => {
-        const preset = el('pageThemePreset').value;
-        usePageThemePreset(preset);
-        if (preset === 'custom' && el('project-card').dataset.settingsMode === 'simple') {
-          el('project-card').querySelector('[data-mode="advanced"]').click();
-        }
+        usePageThemePreset(el('pageThemePreset').value);
       });
       ['pageThemeAccent', 'pageThemeBackground', 'pageThemeForeground'].forEach(id => {
         el(id).addEventListener('input', () => {
           el('pageThemePreset').value = 'custom';
-          applyEditorTheme(collectPageTheme());
-          scheduleAuto();
-          updatePreview();
+          handleThemeDraftChange();
         });
       });
       el('pageThemeContrast').addEventListener('input', () => {
         el('pageThemeContrastValue').textContent = `${el('pageThemeContrast').value}%`;
-        applyEditorTheme(collectPageTheme());
-        scheduleAuto();
-        updatePreview();
+        handleThemeDraftChange();
       });
+      ['bubbleTextColor', 'nameColor', 'useBattleTheme', 'battleThemeAccent', 'battleThemeBackground', 'battleThemeForeground']
+        .forEach(id => {
+          el(id).addEventListener('input', handleThemeDraftChange);
+          el(id).addEventListener('change', handleThemeDraftChange);
+        });
+      el('previewPageTheme').addEventListener('click', previewPageThemeDraft);
+      el('applyPageTheme').addEventListener('click', applyPageThemeDraft);
+      el('resetPageTheme').addEventListener('click', resetPageThemeDraft);
+      el('cancelPageTheme').addEventListener('click', cancelPageThemeDraft);
       el('exportPageTheme').addEventListener('click', () => {
         downloadJson('page-theme.json', {
           format: 'story-tool-page-theme',
@@ -3375,22 +3416,8 @@
             alert('This file does not contain a Story Tool page theme.');
             return;
           }
-          setPageThemeControls(theme);
-          scheduleAuto();
-          updatePreview();
-          updateReader();
-        });
-      });
-      ['useBattleTheme', 'battleThemeAccent', 'battleThemeBackground', 'battleThemeForeground'].forEach(id => {
-        el(id).addEventListener('input', () => {
-          scheduleAuto();
-          updatePreview();
-          updateReader();
-        });
-        el(id).addEventListener('change', () => {
-          scheduleAuto();
-          updatePreview();
-          updateReader();
+          setPageThemeControls(theme, { commit: false, apply: false });
+          handleThemeDraftChange('Imported theme is ready to preview or apply.');
         });
       });
       el('enterInitiative').addEventListener('click', () => insertAtCursor(el('scriptInput'), '\n:: ⚔ Enter Initiative ::\n'));
