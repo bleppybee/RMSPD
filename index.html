@@ -192,23 +192,64 @@
 
     .character-list-toolbar {
       position: sticky;
-      top: 8px;
-      z-index: 5;
+      top: 0;
+      z-index: 6;
+      margin: 12px 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      box-shadow: 0 8px 18px rgba(8, 8, 16, 0.18);
+    }
+
+    .character-list-toolbar > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      min-height: 42px;
+      padding: 9px 11px;
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+      list-style: none;
+    }
+
+    .character-list-toolbar > summary::-webkit-details-marker { display: none; }
+
+    .character-list-toolbar > summary::after {
+      content: "\25B8";
+      flex: 0 0 auto;
+      color: var(--muted);
+      transition: transform var(--transition);
+    }
+
+    .character-list-toolbar[open] > summary::after { transform: rotate(90deg); }
+
+    .character-list-toolbar[open] > summary {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .character-list-toolbar-content {
       display: flex;
       align-items: center;
       justify-content: flex-start;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 12px 0;
       padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--card);
+    }
+
+    .character-toolbar-summary-note {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 400;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .character-organisation {
       display: grid;
-      grid-template-columns: minmax(160px, 1fr) minmax(150px, .75fr) auto;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 160px), 1fr));
       gap: 8px;
       width: 100%;
       align-items: end;
@@ -236,6 +277,7 @@
 
     @container (max-width: 560px) {
       .character-organisation { grid-template-columns: minmax(0, 1fr); }
+      .character-toolbar-summary-note { display: none; }
     }
 
     .portrait-library-section {
@@ -254,6 +296,56 @@
 
     .portrait-library-content {
       padding: 0 12px 12px;
+    }
+
+    .portrait-gallery-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 6px 12px;
+      margin: 10px 0 8px;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--card-2);
+    }
+
+    .portrait-gallery-controls label {
+      margin: 0;
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .portrait-gallery-controls input[type="range"] {
+      grid-column: 1 / -1;
+      width: 100%;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .portrait-gallery-controls output {
+      color: var(--muted);
+      font-size: 0.76rem;
+    }
+
+    .portrait-library-viewport {
+      height: clamp(240px, 45vh, 520px);
+      min-height: 180px;
+      max-height: 72vh;
+      padding: 8px;
+      overflow: auto;
+      resize: vertical;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    .portrait-library-resize-hint {
+      margin: 7px 0 0;
+      font-size: 0.72rem;
     }
 
     .settings-panel[data-settings-mode="simple"] [data-setting-level="advanced"] {
@@ -277,11 +369,7 @@
       }
 
       #charactersList .character-summary {
-        grid-template-columns: 56px minmax(0, 1fr);
-      }
-
-      #charactersList .char-portrait-assignment {
-        grid-column: 1 / -1;
+        grid-template-columns: minmax(0, 1fr);
       }
     }
 
@@ -607,26 +695,97 @@
     }
 
     .char-row {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr);
-      gap: 12px;
-      align-items: stretch;
-      padding: 12px;
+      display: block;
+      padding: 0;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
+      overflow: clip;
+    }
+
+    .character-record-summary {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr) auto auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 58px;
+      padding: 7px 10px;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .character-record-summary::-webkit-details-marker { display: none; }
+
+    .character-record-summary:hover {
+      background: color-mix(in srgb, var(--accent) 7%, transparent);
+    }
+
+    .character-record-summary:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    .character-record-identity {
+      min-width: 0;
+    }
+
+    .character-record-name,
+    .character-record-role {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .character-record-name {
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    .character-record-role {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.7rem;
+    }
+
+    .character-record-edit-label {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .character-record-chevron {
+      color: var(--muted);
+      transition: transform var(--transition);
+    }
+
+    .char-row[open] > .character-record-summary {
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in srgb, var(--accent) 6%, transparent);
+    }
+
+    .char-row[open] > .character-record-summary .character-record-chevron {
+      transform: rotate(90deg);
+    }
+
+    .char-row:not([open]) > .character-editor-body { display: none; }
+
+    .character-editor-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px;
     }
 
     .character-summary {
       display: grid;
-      grid-template-columns: 56px minmax(140px, 1fr) minmax(190px, 1.2fr);
+      grid-template-columns: minmax(140px, 0.8fr) minmax(190px, 1.2fr);
       gap: 10px;
       align-items: start;
       min-width: 0;
     }
 
     .character-summary > * { min-width: 0; }
-    .character-summary > .char-icon { align-self: start; }
 
     .character-primary-options {
       display: grid;
@@ -736,6 +895,40 @@
       color: var(--text);
     }
 
+    .script-display-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin: 8px 0;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(255,255,255,0.025);
+    }
+
+    .script-display-controls .toggle {
+      flex: 0 0 auto;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .script-dialogue-spacing-control {
+      display: grid;
+      grid-template-columns: auto minmax(110px, 220px) auto;
+      align-items: center;
+      gap: 8px;
+      min-width: min(100%, 270px);
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .script-dialogue-spacing-control input { margin: 0; }
+    .script-dialogue-spacing-control output { min-width: 34px; text-align: right; }
+
     .script-format-toolbar {
       display: flex;
       align-items: center;
@@ -777,6 +970,7 @@
     }
 
     .highlighted-script {
+      --script-dialogue-gap: 0px;
       min-height: 220px;
       max-height: 520px;
       overflow: auto;
@@ -796,6 +990,21 @@
     }
 
     .highlighted-script-line:hover { background: rgba(255,255,255,0.035); }
+
+    .highlighted-script-line.speaker-line:not(:first-child) {
+      margin-top: var(--script-dialogue-gap);
+    }
+
+    .highlighted-script-line.source-target {
+      background: color-mix(in srgb, var(--accent) 16%, var(--card-2));
+      box-shadow: inset 4px 0 0 var(--accent);
+      color: var(--text);
+    }
+
+    .highlighted-script-line.source-target .highlighted-line-number {
+      color: var(--accent);
+      font-weight: 800;
+    }
 
     .highlighted-line-number {
       display: inline-block;
@@ -902,8 +1111,8 @@
     }
 
     .char-icon {
-      width: 50px;
-      height: 50px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       border: 2px solid rgba(255, 255, 255, 0.2);
       background-color: #2c2f44;
@@ -912,33 +1121,12 @@
       background-repeat: no-repeat;
       box-shadow: 0 6px 12px rgba(0,0,0,0.25);
       position: relative;
-      cursor: pointer;
+      cursor: inherit;
       padding: 0;
       appearance: none;
       font: inherit;
       color: inherit;
-    }
-
-    .char-icon::after {
-      content: "Upload";
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: rgba(10, 12, 20, 0.6);
-      color: #f5f5ff;
-      font-size: 10px;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      opacity: 0;
-      transition: opacity var(--transition);
-      border-radius: 50%;
-    }
-
-    .char-icon:hover::after,
-    .char-icon:focus-visible::after {
-      opacity: 1;
+      pointer-events: none;
     }
 
     .char-icon.solid-icon {
@@ -951,10 +1139,6 @@
       font-size: 0.85rem;
       font-weight: 700;
       text-shadow: 0 1px 3px rgba(0,0,0,0.55);
-    }
-
-    .char-icon.solid-icon::after {
-      display: none;
     }
 
     .note-row {
@@ -1259,8 +1443,9 @@
     }
 
     .portrait-library {
+      --portrait-card-size: 144px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--portrait-card-size)), 1fr));
       gap: 10px;
     }
 
@@ -1307,7 +1492,7 @@
 
     .portrait-card img {
       width: 100%;
-      height: 92px;
+      height: clamp(68px, calc(var(--portrait-card-size) * 0.62), 148px);
       display: block;
       object-fit: cover;
       border-radius: 8px;
@@ -3188,23 +3373,35 @@
       </div>
       <div class="card-body">
         <div class="muted">Speakers are added from the script automatically. Add full sprite images for the Visual Novel Reader, then optionally crop faces for the Icon-style Preview. The first assignment is the main sprite and face priority.</div>
-        <div class="character-list-toolbar">
-          <button class="btn" id="addCharacter">Add Character</button>
-          <button class="btn ghost row" id="addPortraits" type="button">Add Sprite Images</button>
-          <button class="btn ghost row" id="removeUnusedCharacters" type="button">Remove characters not in script</button>
-          <div class="character-organisation" aria-label="Character organisation">
-            <div class="field">
-              <label for="characterSearch">Find characters or sprites</label>
-              <input id="characterSearch" type="search" placeholder="Search names, labels, or sprites" />
+        <details class="character-list-toolbar" id="characterToolsDisclosure">
+          <summary>
+            <span>Character tools &amp; filters</span>
+            <span class="character-toolbar-summary-note">Add, find, organise, or clean up</span>
+          </summary>
+          <div class="character-list-toolbar-content">
+            <button class="btn" id="addCharacter">Add Character</button>
+            <button class="btn ghost row" id="addPortraits" type="button">Add Sprite Images</button>
+            <button class="btn ghost row" id="removeUnusedCharacters" type="button">Remove characters not in script</button>
+            <div class="character-organisation" aria-label="Character organisation">
+              <div class="field">
+                <label for="characterSearch">Find characters or sprites</label>
+                <input id="characterSearch" type="search" placeholder="Search names, labels, or sprites" />
+              </div>
+              <div class="field">
+                <label for="characterQuickSelect">Jump to character</label>
+                <select id="characterQuickSelect">
+                  <option value="">Select a character...</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="characterFolderFilter">Folder</label>
+                <select id="characterFolderFilter"><option value="">All folders</option></select>
+              </div>
+              <button class="btn ghost row" id="addCharacterFolder" type="button">＋ New folder</button>
+              <datalist id="characterFolderOptions"></datalist>
             </div>
-            <div class="field">
-              <label for="characterFolderFilter">Folder</label>
-              <select id="characterFolderFilter"><option value="">All folders</option></select>
-            </div>
-            <button class="btn ghost row" id="addCharacterFolder" type="button">＋ New folder</button>
-            <datalist id="characterFolderOptions"></datalist>
           </div>
-        </div>
+        </details>
         <details class="portrait-library-section">
           <summary>Sprite Image Gallery</summary>
           <div class="portrait-library-content">
@@ -3219,7 +3416,15 @@
               <span id="portraitSelectionStatus" class="muted" aria-live="polite">No sprite selected.</span>
               <button class="btn ghost row" id="clearPortraitSelection" type="button" disabled>Clear selection</button>
             </div>
-            <div class="portrait-library" id="portraitLibrary"></div>
+            <div class="portrait-gallery-controls">
+              <label for="portraitThumbnailSize">Preview size</label>
+              <output id="portraitThumbnailSizeValue" for="portraitThumbnailSize">144 px</output>
+              <input id="portraitThumbnailSize" type="range" min="104" max="240" step="8" value="144" aria-label="Sprite preview size" />
+            </div>
+            <div class="portrait-library-viewport" id="portraitLibraryViewport">
+              <div class="portrait-library" id="portraitLibrary"></div>
+            </div>
+            <p class="muted portrait-library-resize-hint">Scroll inside this box for more sprites. Drag its lower edge to show more or less of the gallery.</p>
             <div class="muted">Sprites are used in the Visual Novel Reader. Use <strong>Select face</strong> only when you want a cropped icon for the optional Icon-style Preview.</div>
           </div>
         </details>
@@ -3306,6 +3511,14 @@
               <button class="btn ghost row" id="scriptEditView" type="button" role="tab" aria-selected="true">Edit</button>
               <button class="btn ghost row" id="scriptHighlightedView" type="button" role="tab" aria-selected="false">Highlighted</button>
             </div>
+          </div>
+          <div class="script-display-controls" aria-label="Script display options">
+            <label class="toggle"><input id="scriptColourNames" type="checkbox" /> Colour speaker names</label>
+            <label class="script-dialogue-spacing-control" for="scriptDialogueSpacing">
+              Dialogue spacing
+              <input id="scriptDialogueSpacing" type="range" min="0" max="24" step="2" value="0" />
+              <output id="scriptDialogueSpacingValue" for="scriptDialogueSpacing">0 px</output>
+            </label>
           </div>
           <div class="script-format-toolbar" role="toolbar" aria-label="Format selected script text">
             <button class="btn ghost row" id="formatScriptBold" type="button" title="Bold selected text (Ctrl+B)" aria-label="Bold selected text"><strong>B</strong></button>
@@ -3658,6 +3871,7 @@
     const cropperCtx = cropperCanvas.getContext('2d');
     let portraitAssets = [];
     let characterFolders = [];
+    let characterPanelSequence = 0;
     let selectedPortrait = '';
     let readerItems = [];
     let readerIndex = 0;
@@ -3677,6 +3891,7 @@
     let scriptHistoryTimer = null;
     let restoringScriptHistory = false;
     let scriptDraftDirty = false;
+    let scriptSourceTarget = null;
     let chapters = [];
     let activeChapterId = '';
     let chapterSequence = 0;
@@ -5052,7 +5267,16 @@
       icon.style.backgroundImage = !useColor && compactIcon
         ? `url("${compactIcon.replace(/"/g, '%22')}")`
         : '';
-      icon.title = useColor ? 'Solid colour icon (uses bubble colour)' : 'Upload/Crop icon';
+      const role = row.querySelector('.char-role-select')?.value || 'character';
+      const roleLabels = {
+        character: 'Character',
+        existing: 'Mapped to another character',
+        narration: 'Narration / story text',
+        system: 'System / function text'
+      };
+      row.querySelector('.character-record-name').textContent = name;
+      row.querySelector('.character-record-role').textContent = roleLabels[role] || 'Character';
+      icon.title = useColor ? 'Solid colour character preview' : 'Character image preview';
     }
 
     function characterKey(character) {
@@ -5161,11 +5385,21 @@
     }
 
     function addCharacterRow(data = defaultCharacter()) {
-      const row = document.createElement('div');
+      const row = document.createElement('details');
       row.className = 'char-row';
+      row.dataset.characterPanelId = `character-panel-${++characterPanelSequence}`;
       row.innerHTML = `
-        <div class="character-summary">
-          <button class="char-icon" type="button" title="Choose or crop the character icon"></button>
+        <summary class="character-record-summary">
+          <span class="char-icon" aria-hidden="true"></span>
+          <span class="character-record-identity">
+            <strong class="character-record-name">Unnamed character</strong>
+            <span class="character-record-role">Character</span>
+          </span>
+          <span class="character-record-edit-label">Open</span>
+          <span class="character-record-chevron" aria-hidden="true">&#8250;</span>
+        </summary>
+        <div class="character-editor-body">
+          <div class="character-summary">
           <div class="field inline">
             <label>Display name (optional)</label>
             <input type="text" class="char-name" placeholder="Uses the script name" />
@@ -5176,10 +5410,11 @@
               <option value="">No gallery sprite</option>
             </select>
             <button class="btn ghost row assign-selected-portrait" type="button">Add selected gallery sprite</button>
+            <button class="btn ghost row upload-icon" type="button">Upload / crop icon</button>
             <div class="assigned-portraits" aria-label="Assigned sprites in face priority order"></div>
           </div>
-        </div>
-        <div class="character-primary-options">
+          </div>
+          <div class="character-primary-options">
           <div class="field inline reader-subtitle-settings">
             <label>Reader subtitle (optional)</label>
             <input type="text" class="char-reader-subtitle" maxlength="120" placeholder="(4 of Diamonds)" />
@@ -5232,8 +5467,8 @@
             <button class="btn ghost row replace-speaker-tags" type="button">Replace script tags (optional)</button>
             <div class="muted">The portrait and colour come from the chosen cast character. Replacing script tags is optional.</div>
           </div>
-        </div>
-        <details class="character-advanced">
+          </div>
+          <details class="character-advanced">
           <summary>Advanced character options</summary>
           <div class="character-advanced-grid">
             <div class="field inline">
@@ -5279,11 +5514,11 @@
                 </div>
               </div>
             </details>
-            <button class="btn ghost row upload-icon" type="button">Upload / crop icon</button>
+            </div>
+          </details>
+          <div class="character-card-actions">
+            <button class="btn ghost row remove-char" type="button">Remove character</button>
           </div>
-        </details>
-        <div class="character-card-actions">
-          <button class="btn ghost row remove-char" type="button">Remove character</button>
         </div>
       `;
       charactersList.appendChild(row);
@@ -5380,12 +5615,14 @@
         }
         assignPortraitAssetToRow(row, asset.id);
       });
-      icon.addEventListener('click', () => {
-        openCropper(iconInput, icon);
+      row.addEventListener('toggle', () => {
+        row.querySelector('.character-record-edit-label').textContent = row.open ? 'Close' : 'Open';
+        if (row.open) el('characterQuickSelect').value = row.dataset.characterPanelId;
       });
       nameInput.addEventListener('input', () => {
         updateCharacterIcon(row);
         applyCharacterPanelFilters();
+        refreshCharacterQuickSelect();
         scheduleAuto();
       });
       readerSubtitleInput.addEventListener('input', () => {
@@ -5405,6 +5642,7 @@
         updateCharacterIcon(row);
         refreshExistingCharacterOptions();
         applyCharacterPanelFilters();
+        refreshCharacterQuickSelect();
         scheduleAuto();
       });
       colorInput.addEventListener('input', () => {
@@ -5449,6 +5687,7 @@
         if (role === 'narration' || role === 'system') useColorIconInput.checked = false;
         refreshExistingCharacterOptions();
         updateCharacterIcon(row);
+        refreshCharacterQuickSelect();
         if (refresh) {
           updateReader();
           scheduleAuto();
@@ -6925,6 +7164,11 @@
       el('scriptInput').value.replace(/\r\n/g, '\n').split('\n').forEach((rawLine, lineIndex) => {
         const line = document.createElement('div');
         line.className = 'highlighted-script-line';
+        line.dataset.sourceLineIndex = String(lineIndex);
+        if (scriptSourceTarget?.chapterId === activeChapterId && scriptSourceTarget.lineIndex === lineIndex) {
+          line.classList.add('source-target');
+          line.setAttribute('aria-current', 'location');
+        }
         const number = document.createElement('span');
         number.className = 'highlighted-line-number';
         number.textContent = String(lineIndex + 1);
@@ -6947,6 +7191,7 @@
           fragment.appendChild(line);
           return;
         }
+        line.classList.add('speaker-line');
         line.appendChild(document.createTextNode(match[1]));
         const token = match[2].trim();
         const descriptor = resolveSpeakerDescriptor(token, speakers);
@@ -6977,6 +7222,7 @@
       const highlighted = mode === 'highlighted';
       el('scriptInput').hidden = highlighted;
       el('highlightedScript').hidden = !highlighted;
+      el('scriptColourNames').checked = highlighted;
       el('scriptEditView').setAttribute('aria-selected', highlighted ? 'false' : 'true');
       el('scriptHighlightedView').setAttribute('aria-selected', highlighted ? 'true' : 'false');
       el('scriptEditView').tabIndex = highlighted ? -1 : 0;
@@ -6984,6 +7230,15 @@
       localStorage.setItem('storyToolScriptView', highlighted ? 'highlighted' : 'edit');
       if (highlighted) renderHighlightedScript();
       else el('scriptInput').focus();
+    }
+
+    function setScriptDialogueSpacing(value, { persist = false, openPreview = false } = {}) {
+      const spacing = Math.min(24, Math.max(0, Number(value) || 0));
+      el('scriptDialogueSpacing').value = String(spacing);
+      el('scriptDialogueSpacingValue').value = `${spacing} px`;
+      el('highlightedScript').style.setProperty('--script-dialogue-gap', `${spacing}px`);
+      if (persist) localStorage.setItem('storyToolScriptDialogueSpacing', String(spacing));
+      if (openPreview && el('highlightedScript').hidden) setScriptView('highlighted');
     }
 
     function createPortraitAssetId() {
@@ -7076,6 +7331,21 @@
       });
     }
 
+    function refreshCharacterQuickSelect() {
+      const select = el('characterQuickSelect');
+      if (!select) return;
+      const current = select.value;
+      const options = Array.from(charactersList.querySelectorAll('.char-row')).map((row, index) => {
+        const name = row.querySelector('.char-name')?.value.trim()
+          || row.querySelector('.char-shortcut')?.value.trim()
+          || `Unnamed character ${index + 1}`;
+        const role = row.querySelector('.character-record-role')?.textContent || 'Character';
+        return new Option(`${name} - ${role}`, row.dataset.characterPanelId);
+      });
+      select.replaceChildren(new Option('Select a character...', ''), ...options);
+      select.value = options.some(option => option.value === current) ? current : '';
+    }
+
     function refreshCharacterOrganisation() {
       const folders = knownCharacterFolders();
       characterFolders = folders;
@@ -7087,6 +7357,7 @@
       }
       const datalist = el('characterFolderOptions');
       if (datalist) datalist.replaceChildren(...folders.map(folder => new Option(folder, folder)));
+      refreshCharacterQuickSelect();
       applyCharacterPanelFilters();
     }
 
@@ -7110,6 +7381,7 @@
       updateReader();
       scheduleAuto();
       activateWorkspacePanel('characters');
+      row.open = true;
       row.scrollIntoView({ block: 'center', behavior: 'smooth' });
       row.querySelector('.char-name').focus();
     }
@@ -7296,6 +7568,85 @@
       scheduleReaderTextFit();
     }
 
+    function scriptSourceRange(value, lineIndex) {
+      const lines = String(value || '').replace(/\r\n?/g, '\n').split('\n');
+      if (!Number.isInteger(lineIndex) || lineIndex < 0 || lineIndex >= lines.length) return null;
+      let start = 0;
+      for (let index = 0; index < lineIndex; index += 1) start += lines[index].length + 1;
+      return { start, end: start + lines[lineIndex].length };
+    }
+
+    function scrollTextareaSourceIntoView(textarea, sourceOffset) {
+      if (!textarea.clientWidth || !textarea.clientHeight) return;
+      const style = getComputedStyle(textarea);
+      const mirror = document.createElement('div');
+      Object.assign(mirror.style, {
+        position: 'fixed',
+        top: '0',
+        left: '-100000px',
+        visibility: 'hidden',
+        width: `${textarea.clientWidth}px`,
+        boxSizing: 'border-box',
+        padding: style.padding,
+        border: style.border,
+        font: style.font,
+        letterSpacing: style.letterSpacing,
+        lineHeight: style.lineHeight,
+        whiteSpace: 'pre-wrap',
+        overflowWrap: style.overflowWrap,
+        wordBreak: style.wordBreak,
+        tabSize: style.tabSize
+      });
+      mirror.appendChild(document.createTextNode(textarea.value.slice(0, sourceOffset)));
+      const marker = document.createElement('span');
+      marker.textContent = '\u200b';
+      mirror.appendChild(marker);
+      document.body.appendChild(mirror);
+      textarea.scrollTop = Math.max(0, marker.offsetTop - Math.floor(textarea.clientHeight / 2));
+      mirror.remove();
+    }
+
+    function revealReaderSource(item) {
+      if (!item?.chapterId || !Number.isInteger(item.lineIndex)) return;
+      const sourceChapter = chapters.find(chapter => chapter.id === item.chapterId);
+      if (!sourceChapter) return;
+      scriptSourceTarget = { chapterId: item.chapterId, lineIndex: item.lineIndex };
+      if (activeChapterId !== item.chapterId) {
+        activateChapter(item.chapterId, { focus: false });
+      }
+      activateWorkspacePanel('script');
+      const scriptCard = el('script-card');
+      scriptCard.classList.remove('collapsed');
+      const cardToggle = scriptCard.querySelector('.card-toggle');
+      if (cardToggle) {
+        cardToggle.setAttribute('aria-expanded', 'true');
+        cardToggle.textContent = '▾';
+      }
+      requestAnimationFrame(() => {
+        const lineNumber = item.lineIndex + 1;
+        if (!el('highlightedScript').hidden) {
+          renderHighlightedScript();
+          const targetLine = el('highlightedScript').querySelector(
+            `.highlighted-script-line[data-source-line-index="${item.lineIndex}"]`
+          );
+          if (targetLine) {
+            targetLine.tabIndex = -1;
+            targetLine.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            if (!document.body.classList.contains('reader-open')) targetLine.focus({ preventScroll: true });
+          }
+        } else {
+          const textarea = el('scriptInput');
+          const range = scriptSourceRange(textarea.value, item.lineIndex);
+          if (range) {
+            textarea.setSelectionRange(range.start, range.end);
+            scrollTextareaSourceIntoView(textarea, range.start);
+            if (!document.body.classList.contains('reader-open')) textarea.focus({ preventScroll: true });
+          }
+        }
+        renderChapterNavigation(`Opened reader line at source line ${lineNumber}.`);
+      });
+    }
+
     function readerLineButtonText(item, index) {
       const startsChapter = index === 0 || readerItems[index - 1]?.chapterIndex !== item.chapterIndex;
       const speakerLabel = item.dice ? `🎲 ${item.speaker}` : item.speaker;
@@ -7320,11 +7671,12 @@
       content.className = 'reader-line-content';
       content.textContent = readerLineButtonText(item, index);
       button.appendChild(content);
-      button.title = 'Click to read this line';
+      button.title = 'Read this line and reveal it in Script';
       button.setAttribute('aria-posinset', String(index + 1));
       button.setAttribute('aria-setsize', String(readerItems.length));
       button.addEventListener('click', () => {
         setReaderLine(index);
+        revealReaderSource(item);
       });
       return button;
     }
@@ -9757,7 +10109,9 @@
 
     el('addCharacter').addEventListener('click', () => {
       addCharacterRow();
+      charactersList.lastElementChild.open = true;
       refreshCharacterOrganisation();
+      charactersList.lastElementChild.scrollIntoView({ block: 'center', behavior: 'smooth' });
       scheduleAuto();
     });
     el('removeUnusedCharacters').addEventListener('click', removeCharactersNotInScript);
@@ -9796,6 +10150,12 @@
     el('cleanDiscordScript').addEventListener('click', cleanDiscordPaste);
     el('scriptEditView').addEventListener('click', () => setScriptView('edit'));
     el('scriptHighlightedView').addEventListener('click', () => setScriptView('highlighted'));
+    el('scriptColourNames').addEventListener('change', event => {
+      setScriptView(event.target.checked ? 'highlighted' : 'edit');
+    });
+    el('scriptDialogueSpacing').addEventListener('input', event => {
+      setScriptDialogueSpacing(event.target.value, { persist: true, openPreview: true });
+    });
     el('formatScriptBold').addEventListener('click', () => wrapScriptSelection('[b]', '[/b]', 'bold text'));
     el('formatScriptItalic').addEventListener('click', () => wrapScriptSelection('[i]', '[/i]', 'italic text'));
     el('formatScriptQuote').addEventListener('click', () => wrapScriptSelection('[quote]', '[/quote]', 'quoted text'));
@@ -9973,6 +10333,36 @@
     });
     el('characterSearch').addEventListener('input', applyCharacterPanelFilters);
     el('characterFolderFilter').addEventListener('change', applyCharacterPanelFilters);
+    el('characterQuickSelect').addEventListener('change', event => {
+      const row = Array.from(charactersList.querySelectorAll('.char-row'))
+        .find(candidate => candidate.dataset.characterPanelId === event.target.value);
+      if (!row) return;
+      el('characterSearch').value = '';
+      el('characterFolderFilter').value = '';
+      applyCharacterPanelFilters();
+      row.open = true;
+      requestAnimationFrame(() => row.scrollIntoView({ block: 'center', behavior: 'smooth' }));
+    });
+    const characterToolsDisclosure = el('characterToolsDisclosure');
+    characterToolsDisclosure.open = localStorage.getItem('storyToolCharacterToolsOpen') === 'true';
+    characterToolsDisclosure.addEventListener('toggle', () => {
+      localStorage.setItem('storyToolCharacterToolsOpen', String(characterToolsDisclosure.open));
+    });
+    const portraitThumbnailSize = el('portraitThumbnailSize');
+    const applyPortraitThumbnailSize = value => {
+      const size = Math.min(240, Math.max(104, Number(value) || 144));
+      portraitThumbnailSize.value = String(size);
+      portraitLibrary.style.setProperty('--portrait-card-size', `${size}px`);
+      el('portraitThumbnailSizeValue').value = `${size} px`;
+      return size;
+    };
+    applyPortraitThumbnailSize(localStorage.getItem('storyToolPortraitThumbnailSize'));
+    portraitThumbnailSize.addEventListener('input', event => {
+      applyPortraitThumbnailSize(event.target.value);
+    });
+    portraitThumbnailSize.addEventListener('change', event => {
+      localStorage.setItem('storyToolPortraitThumbnailSize', String(applyPortraitThumbnailSize(event.target.value)));
+    });
     el('addCharacterFolder').addEventListener('click', () => {
       const folder = prompt('New character/sprite folder name');
       if (folder === null || !folder.trim()) return;
@@ -10210,6 +10600,7 @@
     });
 
     el('scriptInput').addEventListener('input', () => {
+      scriptSourceTarget = null;
       const chapter = activeChapter();
       if (chapter && !switchingChapter) {
         chapter.cursorStart = el('scriptInput').selectionStart;
@@ -10275,6 +10666,7 @@
     initReaderSplitter();
     initTopbar();
     initSyntaxReference();
+    setScriptDialogueSpacing(localStorage.getItem('storyToolScriptDialogueSpacing'));
     if (localStorage.getItem('storyToolScriptView') === 'highlighted') setScriptView('highlighted');
 
     async function initializeProject() {
