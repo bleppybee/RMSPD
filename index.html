@@ -4678,7 +4678,7 @@
       };
     }
 
-    function collectPageTheme() {
+    function collectPageThemeControls() {
       return normalizePageTheme({
         preset: el('pageThemePreset').value,
         accent: el('pageThemeAccent').value,
@@ -4690,6 +4690,10 @@
         battleBackground: el('battleThemeBackground').value,
         battleForeground: el('battleThemeForeground').value
       });
+    }
+
+    function collectPageTheme() {
+      return normalizePageTheme(appliedPageTheme);
     }
 
     function blendHexColors(start, end, amount) {
@@ -4734,19 +4738,72 @@
     }
 
     function applyEditorTheme(theme = collectPageTheme()) {
-      const isLight = document.body.classList.contains('light-mode');
-      const light = pageThemePresets.latte;
+      const normalized = normalizePageTheme(theme);
       setBodyThemeVariables(
-        isLight ? light.background : theme.background,
-        isLight ? light.foreground : theme.foreground,
-        isLight ? light.accent : theme.accent,
-        theme.contrast
+        normalized.background,
+        normalized.foreground,
+        normalized.accent,
+        normalized.contrast
       );
       document.body.style.backgroundColor = 'var(--bg-1)';
       document.body.style.color = 'var(--text)';
     }
 
-    function setPageThemeControls(theme = {}) {
+    function setEditorThemeMode(mode, persist = true) {
+      const isLight = mode === 'light';
+      document.body.classList.toggle('light-mode', isLight);
+      const toggle = el('themeToggle');
+      toggle.textContent = isLight ? '☾' : '☀';
+      toggle.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+      toggle.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+      el('themeCanvasDark')?.setAttribute('aria-pressed', isLight ? 'false' : 'true');
+      el('themeCanvasLight')?.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+      if (persist) localStorage.setItem('storyToolTheme', isLight ? 'light' : 'dark');
+      applyEditorTheme(isThemePreviewing ? collectPageThemeControls() : collectPageTheme());
+      if (el('themeLiveSample')) refreshThemeSample();
+    }
+
+    function pageThemesMatch(first, second) {
+      return JSON.stringify(normalizePageTheme(first)) === JSON.stringify(normalizePageTheme(second));
+    }
+
+    function refreshThemeSample(message = '') {
+      const draft = collectPageThemeControls();
+      const sample = el('themeLiveSample');
+      if (!sample) return;
+      const colors = getAdjustedPageColors(draft.background, draft.foreground, draft.accent, draft.contrast);
+      sample.style.setProperty('--theme-sample-bg', colors.adjustedBg);
+      sample.style.setProperty('--theme-sample-fg', colors.adjustedFg);
+      sample.style.setProperty('--theme-sample-accent', colors.adjustedAccent);
+      sample.style.setProperty('--theme-sample-bubble', el('bubbleTextColor').value);
+      sample.style.setProperty('--theme-sample-name', el('nameColor').value);
+      el('themeSampleMode').textContent = `${colors.isLightBackground ? 'Light' : 'Dark'} page sample · ${document.body.classList.contains('light-mode') ? 'light' : 'dark'} canvas`;
+
+      const pending = !pageThemesMatch(draft, appliedPageTheme)
+        || el('bubbleTextColor').value !== appliedBubbleTextColor
+        || el('nameColor').value !== appliedNameColor;
+      const status = el('themeEditStatus');
+      status.dataset.state = pending ? 'pending' : 'applied';
+      status.textContent = message || (pending
+        ? (isThemePreviewing ? 'Previewing un-applied changes. Choose Apply to keep them.' : 'Changes are staged. Preview or apply when ready.')
+        : 'Theme is applied.');
+      el('applyPageTheme').disabled = !pending;
+      el('cancelPageTheme').disabled = !pending && !isThemePreviewing;
+    }
+
+    function setStoryThemeColorControls(bubbleText, name, commit = true) {
+      el('bubbleTextColor').value = bubbleText || '#e0e0e0';
+      el('nameColor').value = name || '#b9a5cd';
+      if (commit) {
+        appliedBubbleTextColor = el('bubbleTextColor').value;
+        appliedNameColor = el('nameColor').value;
+      }
+      syncAllColorPickers();
+      refreshThemeSample();
+    }
+
+    function setPageThemeControls(theme = {}, options = {}) {
+      const { commit = true, apply = true } = options;
       const normalized = normalizePageTheme(theme);
       el('pageThemePreset').value = normalized.preset;
       el('pageThemeAccent').value = normalized.accent;
@@ -4758,16 +4815,67 @@
       el('battleThemeAccent').value = normalized.battleAccent;
       el('battleThemeBackground').value = normalized.battleBackground;
       el('battleThemeForeground').value = normalized.battleForeground;
+      if (commit) appliedPageTheme = normalized;
+      isThemePreviewing = false;
       syncAllColorPickers();
-      applyEditorTheme(normalized);
+      refreshThemeSample();
+      if (apply) applyEditorTheme(normalized);
     }
 
     function usePageThemePreset(presetName) {
       const preset = pageThemePresets[presetName];
-      if (!preset) return;
-      setPageThemeControls({ ...preset, preset: presetName });
+      if (!preset) {
+        handleThemeDraftChange();
+        return;
+      }
+      setPageThemeControls({ ...preset, preset: presetName }, { commit: false, apply: false });
+      const dialogue = presetName === 'latte'
+        ? { bubble: '#303446', name: '#8839ef' }
+        : { bubble: '#e0e0e0', name: '#b9a5cd' };
+      setStoryThemeColorControls(dialogue.bubble, dialogue.name, false);
+      previewPageThemeDraft();
+    }
+
+    function handleThemeDraftChange(message = '') {
+      if (isThemePreviewing) applyEditorTheme(collectPageThemeControls());
+      refreshThemeSample(message);
+    }
+
+    function previewPageThemeDraft() {
+      isThemePreviewing = true;
+      applyEditorTheme(collectPageThemeControls());
+      refreshThemeSample('Previewing these colours on the workspace. Choose Apply to keep them.');
+    }
+
+    function applyPageThemeDraft() {
+      appliedPageTheme = collectPageThemeControls();
+      appliedBubbleTextColor = el('bubbleTextColor').value;
+      appliedNameColor = el('nameColor').value;
+      isThemePreviewing = false;
+      applyEditorTheme(appliedPageTheme);
       scheduleAuto();
       updatePreview();
+      updateReader();
+      refreshThemeSample('Theme applied to the editor and generated story.');
+    }
+
+    function resetPageThemeDraft() {
+      const presetName = document.body.classList.contains('light-mode') ? 'latte' : 'mocha';
+      setPageThemeControls({ ...pageThemePresets[presetName], preset: presetName }, { commit: false, apply: false });
+      setStoryThemeColorControls(
+        presetName === 'latte' ? '#303446' : '#e0e0e0',
+        presetName === 'latte' ? '#8839ef' : '#b9a5cd',
+        false
+      );
+      previewPageThemeDraft();
+    }
+
+    function cancelPageThemeDraft() {
+      setPageThemeControls(appliedPageTheme, { commit: false, apply: false });
+      setStoryThemeColorControls(appliedBubbleTextColor, appliedNameColor, false);
+      isThemePreviewing = false;
+      applyEditorTheme(appliedPageTheme);
+      refreshThemeSample('Un-applied theme changes were discarded.');
     }
 
     function collectNotes() {
