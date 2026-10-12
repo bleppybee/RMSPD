@@ -299,6 +299,7 @@
     }
 
     #theme-card .theme-actions button { width: 100%; }
+    #theme-card .theme-actions + .theme-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
     .theme-intro {
       margin: 0 0 16px;
@@ -380,6 +381,50 @@
       font-size: 0.9rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+    }
+
+    .reader-theme-unlock {
+      width: fit-content;
+      margin-bottom: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--card-2);
+    }
+
+    #readerThemeControls {
+      margin: 14px 0 0;
+      padding: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    #readerThemeControls legend {
+      padding: 0 8px;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    #readerThemeControls:disabled {
+      opacity: 0.48;
+    }
+
+    .reader.custom-reader-theme:not(.initiative-active) {
+      border-color: var(--reader-theme-accent);
+      background: var(--reader-theme-background);
+      color: var(--reader-theme-foreground);
+    }
+
+    .reader.custom-reader-theme:not(.initiative-active) .reader-speaker {
+      color: var(--reader-theme-accent);
+    }
+
+    .reader.custom-reader-theme:not(.initiative-active) .reader-dialogue {
+      color: var(--reader-theme-foreground);
+    }
+
+    @media (max-width: 640px) {
+      #theme-card .theme-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     label {
@@ -488,6 +533,7 @@
 
     .btn:hover { transform: translateY(-2px); filter: brightness(1.08); }
     .btn:active { transform: translateY(1px); }
+    .btn:disabled { cursor: not-allowed; opacity: 0.45; transform: none; filter: none; }
 
     .btn.ghost {
       background: rgba(255, 255, 255, 0.08);
@@ -1851,7 +1897,11 @@
       background: var(--card);
     }
 
-    body.light-mode .reader:not(.initiative-active) { background: var(--card-2); }
+    body.light-mode .reader:not(.initiative-active):not(.custom-reader-theme) { background: var(--card-2); }
+    body.light-mode .reader.custom-reader-theme:not(.initiative-active) {
+      background: var(--reader-theme-background);
+      color: var(--reader-theme-foreground);
+    }
 
     @media (max-width: 900px) {
       body {
@@ -2104,6 +2154,7 @@
     <button class="workspace-tab" type="button" data-panel="dice" aria-selected="false" aria-label="Advanced Tools" title="Advanced Tools"><span class="tab-icon">⚔⚄</span><span class="tab-label">Advanced Tools</span></button>
     <button class="workspace-tab" type="button" data-panel="project" aria-selected="false" aria-label="Project" title="Project"><span class="tab-icon">▣</span><span class="tab-label">Project</span></button>
     <button class="workspace-tab" type="button" data-panel="theme" aria-selected="false" aria-label="Page Theme" title="Page Theme"><span class="tab-icon">&#9681;</span><span class="tab-label">Page Theme</span></button>
+    <button class="workspace-tab" type="button" data-panel="reader-theme" aria-selected="false" aria-label="Visual Novel Theme" title="Visual Novel Theme"><span class="tab-icon">&#9724;</span><span class="tab-label">Visual Novel Theme</span></button>
     <button class="workspace-tab" type="button" data-panel="notes" aria-selected="false" aria-label="Notes" title="Notes"><span class="tab-icon">✎</span><span class="tab-label">Notes</span></button>
     <button class="workspace-tab" type="button" data-panel="save" aria-selected="false" aria-label="Save / Export" title="Save / Export"><span class="tab-icon">⇩</span><span class="tab-label">Save / Export</span></button>
     <button class="workspace-tab" type="button" data-panel="preview" aria-selected="false" aria-label="Preview" title="Preview"><span class="tab-icon">◉</span><span class="tab-label">Preview</span></button>
@@ -2258,6 +2309,41 @@
           <button class="btn ghost row" id="importPageTheme" type="button">Import Page Theme</button>
           <input id="importPageThemeInput" type="file" accept=".json,application/json" hidden />
         </div>
+      </div>
+    </section>
+
+    <section class="card full" id="reader-theme-card" data-workspace-panel="reader-theme" hidden>
+      <div class="card-header">
+        <h2>Visual Novel Theme</h2>
+        <button class="card-toggle" type="button" aria-expanded="true">&#9662;</button>
+      </div>
+      <div class="card-body">
+        <p class="theme-intro muted">The visual novel reader follows the applied Page Theme automatically. Turn on a custom reader theme only when you want the reader to look different.</p>
+        <label class="toggle reader-theme-unlock">
+          <input type="checkbox" id="useCustomReaderTheme" />
+          Use a custom reader theme
+        </label>
+        <div class="theme-edit-status" id="readerThemeStatus" role="status" aria-live="polite">Following Page Theme.</div>
+        <fieldset id="readerThemeControls" disabled>
+          <legend>Custom reader colours</legend>
+          <div class="theme-colors">
+            <div class="field">
+              <label for="readerThemeAccent">Speaker &amp; accent</label>
+              <input id="readerThemeAccent" type="color" value="#cba6f7" />
+            </div>
+            <div class="field">
+              <label for="readerThemeBackground">Reader background</label>
+              <input id="readerThemeBackground" type="color" value="#1e1e2e" />
+            </div>
+            <div class="field">
+              <label for="readerThemeForeground">Dialogue text</label>
+              <input id="readerThemeForeground" type="color" value="#cdd6f4" />
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost row" id="copyPageThemeToReader" type="button"><span aria-hidden="true">&#8634;</span> Copy Page Theme</button>
+          </div>
+        </fieldset>
       </div>
     </section>
 
@@ -3355,6 +3441,7 @@
       const savedThemeMode = localStorage.getItem('storyToolTheme');
       setEditorThemeMode(savedThemeMode === 'light' ? 'light' : 'dark', false);
       setPageThemeControls(pageThemePresets.mocha);
+      setReaderThemeControls({ custom: false, ...pageThemePresets.mocha });
       el('readerNextChapterMode').checked = localStorage.getItem('storyToolNextChapterMode') === 'true';
       el('readerNextChapterMode').addEventListener('change', () => {
         localStorage.setItem('storyToolNextChapterMode', el('readerNextChapterMode').checked ? 'true' : 'false');
@@ -3420,6 +3507,17 @@
           handleThemeDraftChange('Imported theme is ready to preview or apply.');
         });
       });
+      el('useCustomReaderTheme').addEventListener('change', () => {
+        applyReaderTheme();
+        scheduleAuto();
+      });
+      ['readerThemeAccent', 'readerThemeBackground', 'readerThemeForeground'].forEach(id => {
+        el(id).addEventListener('input', () => {
+          applyReaderTheme();
+          scheduleAuto();
+        });
+      });
+      el('copyPageThemeToReader').addEventListener('click', copyPageThemeToReader);
       el('enterInitiative').addEventListener('click', () => insertAtCursor(el('scriptInput'), '\n:: ⚔ Enter Initiative ::\n'));
       el('exitInitiative').addEventListener('click', () => insertAtCursor(el('scriptInput'), '\n:: ⚔ Exit Initiative ::\n'));
       ['alwaysEndAllOnExit', 'endInitiativeWithChapter', 'rememberInitiativeOnce'].forEach(id => {
@@ -4878,6 +4976,65 @@
       refreshThemeSample('Un-applied theme changes were discarded.');
     }
 
+    function normalizeReaderTheme(theme = {}) {
+      const pageTheme = collectPageTheme();
+      const validColor = (value, fallback) => /^#[0-9a-f]{6}$/i.test(value || '') ? value : fallback;
+      return {
+        custom: Boolean(theme.custom),
+        accent: validColor(theme.accent, pageTheme.accent),
+        background: validColor(theme.background, pageTheme.background),
+        foreground: validColor(theme.foreground, pageTheme.foreground)
+      };
+    }
+
+    function collectReaderTheme() {
+      return normalizeReaderTheme({
+        custom: el('useCustomReaderTheme').checked,
+        accent: el('readerThemeAccent').value,
+        background: el('readerThemeBackground').value,
+        foreground: el('readerThemeForeground').value
+      });
+    }
+
+    function applyReaderTheme() {
+      const theme = collectReaderTheme();
+      const reader = el('readerPanel');
+      el('readerThemeControls').disabled = !theme.custom;
+      reader.classList.toggle('custom-reader-theme', theme.custom);
+      if (theme.custom) {
+        reader.style.setProperty('--reader-theme-accent', theme.accent);
+        reader.style.setProperty('--reader-theme-background', theme.background);
+        reader.style.setProperty('--reader-theme-foreground', theme.foreground);
+      } else {
+        reader.style.removeProperty('--reader-theme-accent');
+        reader.style.removeProperty('--reader-theme-background');
+        reader.style.removeProperty('--reader-theme-foreground');
+      }
+      el('readerThemeStatus').textContent = theme.custom
+        ? 'Custom reader theme is active. Page Theme changes will no longer recolour the reader.'
+        : 'Following Page Theme. Applied page colours update the reader automatically.';
+    }
+
+    function setReaderThemeControls(theme = {}) {
+      const normalized = normalizeReaderTheme(theme);
+      el('useCustomReaderTheme').checked = normalized.custom;
+      el('readerThemeAccent').value = normalized.accent;
+      el('readerThemeBackground').value = normalized.background;
+      el('readerThemeForeground').value = normalized.foreground;
+      syncAllColorPickers();
+      applyReaderTheme();
+    }
+
+    function copyPageThemeToReader() {
+      const theme = collectPageTheme();
+      el('readerThemeAccent').value = theme.accent;
+      el('readerThemeBackground').value = theme.background;
+      el('readerThemeForeground').value = theme.foreground;
+      syncAllColorPickers();
+      applyReaderTheme();
+      scheduleAuto();
+    }
+
     function collectNotes() {
       return Array.from(notesList.querySelectorAll('.note-row')).map(row => ({
         id: parseInt(row.querySelector('.note-id').value, 10) || 1,
@@ -4893,8 +5050,9 @@
         releaseDate: el('releaseDate').value.trim(),
         translator: el('translator').value.trim(),
         pageTheme: collectPageTheme(),
-        bubbleTextColor: el('bubbleTextColor').value.trim(),
-        nameColor: el('nameColor').value.trim(),
+        readerTheme: collectReaderTheme(),
+        bubbleTextColor: appliedBubbleTextColor,
+        nameColor: appliedNameColor,
         homeUrl: el('homeUrl').value.trim(),
         pageUrl: el('pageUrl').value.trim(),
         prevUrl: el('prevUrl').value.trim(),
@@ -5607,9 +5765,8 @@
       el('releaseDate').value = data.meta?.releaseDate || todayIso();
       el('translator').value = data.meta?.translator || '';
       setPageThemeControls(data.meta?.pageTheme || pageThemePresets.mocha);
-      el('bubbleTextColor').value = data.meta?.bubbleTextColor || '#e0e0e0';
-      el('nameColor').value = data.meta?.nameColor || '#b9a5cd';
-      syncAllColorPickers();
+      setStoryThemeColorControls(data.meta?.bubbleTextColor, data.meta?.nameColor);
+      setReaderThemeControls(data.meta?.readerTheme || { custom: false, ...collectPageTheme() });
       el('homeUrl').value = data.meta?.homeUrl || '';
       el('pageUrl').value = data.meta?.pageUrl || '';
       el('prevUrl').value = data.meta?.prevUrl || '';
@@ -5975,9 +6132,8 @@
       el('translator').value = '';
       el('pageThemePreset').value = 'mocha';
       setPageThemeControls(pageThemePresets.mocha);
-      el('bubbleTextColor').value = '#e0e0e0';
-      el('nameColor').value = '#b9a5cd';
-      syncAllColorPickers();
+      setStoryThemeColorControls('#e0e0e0', '#b9a5cd');
+      setReaderThemeControls({ custom: false, ...pageThemePresets.mocha });
       el('homeUrl').value = '';
       el('pageUrl').value = '';
       el('prevUrl').value = '';
@@ -6036,9 +6192,7 @@
     resetScriptHistory();
     if (!loadFromLocal()) {
       el('releaseDate').value = todayIso();
-      el('bubbleTextColor').value = '#e0e0e0';
-      el('nameColor').value = '#b9a5cd';
-      syncAllColorPickers();
+      setStoryThemeColorControls('#e0e0e0', '#b9a5cd');
       addCharacterRow({
         icon: '',
         shortcut: '!Madoka',
