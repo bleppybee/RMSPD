@@ -980,8 +980,9 @@
 
     .inline-script-editor {
       --script-dialogue-gap: 0px;
-      display: grid;
-      align-content: start;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
       gap: 4px;
       min-width: 0;
       min-height: 84px;
@@ -996,17 +997,21 @@
 
     .inline-script-line {
       display: block;
-      min-width: 0;
+      flex: 0 0 auto;
+      box-sizing: border-box;
+      width: max-content;
+      min-width: 100%;
       min-height: 26px;
       padding: 5px 9px;
-      overflow-wrap: anywhere;
+      overflow-wrap: normal;
+      word-break: normal;
       border: 1px solid var(--border);
       border-radius: 7px;
       outline: none;
       background: color-mix(in srgb, var(--bg-3) 76%, var(--card));
       color: var(--text);
       font: 0.78rem/1.25 "Trebuchet MS", "Verdana", sans-serif;
-      white-space: pre-wrap;
+      white-space: pre;
     }
 
     .inline-script-line.chapter-heading {
