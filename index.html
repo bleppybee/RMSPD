@@ -924,6 +924,8 @@
       background: rgba(255,255,255,0.025);
     }
 
+    .script-display-controls[hidden] { display: none; }
+
     .script-display-controls .toggle {
       flex: 0 0 auto;
       letter-spacing: 0;
@@ -975,6 +977,66 @@
       display: block;
       line-height: calc(1.5em + var(--script-dialogue-gap));
     }
+
+    .inline-script-editor {
+      --script-dialogue-gap: 0px;
+      display: grid;
+      align-content: start;
+      gap: 4px;
+      min-width: 0;
+      min-height: 84px;
+      max-height: 220px;
+      overflow: auto;
+      padding: 2px 3px;
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+    }
+
+    .inline-script-editor[hidden] { display: none; }
+
+    .inline-script-line {
+      display: block;
+      min-width: 0;
+      min-height: 26px;
+      padding: 5px 9px;
+      overflow-wrap: anywhere;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      outline: none;
+      background: color-mix(in srgb, var(--bg-3) 76%, var(--card));
+      color: var(--text);
+      font: 0.78rem/1.25 "Trebuchet MS", "Verdana", sans-serif;
+      white-space: pre-wrap;
+    }
+
+    .inline-script-line.chapter-heading {
+      border-color: color-mix(in srgb, var(--accent) 72%, var(--border));
+      color: var(--accent);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+
+    .inline-script-line:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 22%, transparent);
+      background: color-mix(in srgb, var(--accent) 8%, var(--bg-3));
+    }
+
+    .inline-script-line.current-line:not(:focus) {
+      border-color: color-mix(in srgb, var(--accent) 72%, var(--border));
+    }
+
+    .inline-script-line.source-target {
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .inline-script-line:empty::before {
+      content: "Click here and type a script line…";
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .script-format-toolbar[hidden] { display: none; }
 
     .script-edit-highlights {
       position: absolute;
@@ -1975,7 +2037,31 @@
       resize: vertical;
     }
 
+    .reader-line-editor .reader-line-editor-fields {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 9px;
+    }
+
+    .reader-line-editor-fields .field { margin: 0; }
+
     .reader-line-editor .actions { margin-top: 0; }
+
+    .full-script-card {
+      width: min(1120px, 96vw);
+      max-height: 94vh;
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+    }
+
+    .full-script-card textarea {
+      width: 100%;
+      min-height: 52vh;
+      max-height: 68vh;
+      resize: vertical;
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
 
     .reader-line-editor-status {
       min-height: 1.2em;
@@ -2163,6 +2249,67 @@
       grid-template-columns: minmax(180px, 1fr);
     }
 
+    .reader-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      min-height: 34px;
+      margin-bottom: 6px;
+    }
+
+    .reader-primary-controls,
+    .reader-secondary-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .reader-primary-controls .btn,
+    .reader-secondary-controls .btn,
+    .reader-more-menu > summary {
+      min-height: 30px;
+      padding: 5px 8px;
+      font-size: 0.76rem;
+    }
+
+    .reader-primary-controls .pill {
+      max-width: min(32vw, 180px);
+      overflow: hidden;
+      padding: 5px 8px;
+      font-size: 0.7rem;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .reader-more-menu > summary {
+      justify-content: center;
+      width: 32px;
+      border-radius: 50%;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .reader-controls > .reader-more-menu .reader-more-menu-panel {
+      position: fixed;
+      top: var(--reader-menu-top, 120px);
+      right: auto;
+      left: var(--reader-menu-left, 12px);
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      width: min(420px, calc(100vw - 24px));
+      max-height: min(65vh, 520px);
+      z-index: 100;
+    }
+
+    .reader-secondary-controls .reader-chapter-nav select { max-width: 190px; }
+
+    .reader-more-menu .reader-quick-options {
+      margin: 0;
+    }
+
     .reader-line-dice-options {
       flex: 1 1 100%;
       min-width: 0;
@@ -2255,7 +2402,7 @@
     }
     .dice-inline-status[data-state="error"] { color: var(--accent-2); }
     .dice-syntax-help { margin-top: 10px; }
-    .dice-roll-label { display: inline-block; margin: 0 0 8px; padding: 3px 8px; border-radius: 999px; background: var(--accent); color: var(--card); font-size: 0.8rem; font-weight: 700; }
+    .dice-roll-label { display: inline-block; max-width: 100%; margin: 0 0 8px; padding: 3px 8px; border-radius: 999px; background: var(--accent); color: var(--card); font-size: 0.8rem; font-weight: 700; white-space: normal; overflow-wrap: anywhere; }
     .dice-roll-label[hidden] { display: none; }
     .dice-roll-label[data-mode="advantage"]::after { content: " · Advantage"; }
     .dice-roll-label[data-mode="disadvantage"]::after { content: " · Disadvantage"; }
@@ -3298,7 +3445,7 @@
       <details class="script-advanced" data-setting-level="advanced">
         <summary>Keyboard shortcuts</summary>
         <div class="hint">
-          <strong>Ctrl/Cmd + Shift + S</strong> save project · <strong>Alt + S</strong> focus script ·
+          <strong>Space</strong> play/pause reader · <strong>Ctrl/Cmd + Shift + S</strong> save project · <strong>Alt + S</strong> focus script ·
           <strong>Alt + ↑/↓</strong> previous/next reader line · <strong>Alt + Page Up/Page Down</strong> previous/next chapter ·
           <strong>Escape</strong> close the active modal or stop speech.
         </div>
@@ -3627,13 +3774,14 @@
         </section>
         <div class="field">
           <div class="script-view-header">
-            <label for="scriptInput">Script Lines</label>
+          <span id="scriptLinesHeading">Script Lines</span>
             <div class="script-view-toggle" role="tablist" aria-label="Script view">
-              <button class="btn ghost row" id="scriptEditView" type="button" role="tab" aria-selected="true">Edit</button>
-              <button class="btn ghost row" id="scriptHighlightedView" type="button" role="tab" aria-selected="false">Highlighted</button>
+            <button class="btn ghost row" id="scriptEditView" type="button" role="tab" aria-selected="true">Lines</button>
+            <button class="btn ghost row" id="scriptHighlightedView" type="button" role="tab" aria-selected="false">Preview</button>
+              <button class="btn ghost row" id="openFullScript" type="button" aria-label="Edit full story script">Full story</button>
             </div>
           </div>
-          <div class="script-display-controls" aria-label="Script display options">
+          <div class="script-display-controls" aria-label="Script display options" hidden>
             <label class="toggle"><input id="scriptColourNames" type="checkbox" /> Colour speaker names</label>
             <label class="script-dialogue-spacing-control" for="scriptDialogueSpacing">
               Dialogue spacing
@@ -3641,20 +3789,31 @@
               <output id="scriptDialogueSpacingValue" for="scriptDialogueSpacing">0 px</output>
             </label>
           </div>
-          <div class="script-format-toolbar" role="toolbar" aria-label="Format selected script text">
-            <button class="btn ghost row" id="formatScriptBold" type="button" title="Bold selected text (Ctrl+B)" aria-label="Bold selected text"><strong>B</strong></button>
-            <button class="btn ghost row" id="formatScriptItalic" type="button" title="Italicise selected text (Ctrl+I)" aria-label="Italicise selected text"><em>I</em></button>
-            <button class="btn ghost row" id="formatScriptQuote" type="button" title="Turn selected text into a quote block">❝ Quote</button>
-            <label class="script-format-colour" for="scriptFormatColour">Colour
-              <input id="scriptFormatColour" type="color" value="#cba6f7" data-palette-enhance="false" aria-label="Selected text colour" />
-            </label>
-            <button class="btn ghost row" id="formatScriptColourApply" type="button">Apply colour</button>
-            <button class="btn ghost row" id="clearScriptFormatting" type="button" title="Remove bold, italic, quote, and colour tags from selected text">Clear style</button>
-          </div>
-          <div class="script-edit-shell" id="scriptEditShell">
-            <textarea id="scriptInput" placeholder=":: Scene 1 ::&#10;!Madoka: Okay... [1]&#10;Raika: H-Huh?!&#10;CW: Flashing imagery&#10;:: Scene 2 ::&#10;Narration line here."></textarea>
+          <details class="script-advanced script-format-options">
+            <summary>Text formatting</summary>
+            <div class="script-format-toolbar" role="toolbar" aria-label="Format selected script text">
+              <button class="btn ghost row" id="formatScriptBold" type="button" title="Bold selected text (Ctrl+B)" aria-label="Bold selected text"><strong>B</strong></button>
+              <button class="btn ghost row" id="formatScriptItalic" type="button" title="Italicise selected text (Ctrl+I)" aria-label="Italicise selected text"><em>I</em></button>
+              <button class="btn ghost row" id="formatScriptQuote" type="button" title="Turn selected text into a quote block">❝ Quote</button>
+              <label class="script-format-colour" for="scriptFormatColour">Colour
+                <input id="scriptFormatColour" type="color" value="#cba6f7" data-palette-enhance="false" aria-label="Selected text colour" />
+              </label>
+              <button class="btn ghost row" id="formatScriptColourApply" type="button">Apply colour</button>
+              <button class="btn ghost row" id="clearScriptFormatting" type="button" title="Remove bold, italic, quote, and colour tags from selected text">Clear style</button>
+            </div>
+          </details>
+          <div class="script-edit-shell" id="scriptEditShell" hidden>
+            <textarea id="scriptInput" aria-hidden="true" tabindex="-1"></textarea>
             <div class="script-edit-highlights" id="scriptEditHighlights" aria-hidden="true" hidden></div>
           </div>
+          <div
+            class="inline-script-editor"
+            id="inlineScriptEditor"
+            role="group"
+            aria-labelledby="scriptLinesHeading"
+            aria-describedby="scriptLinesHint"
+          ></div>
+          <div class="muted script-lines-hint" id="scriptLinesHint">Click to edit · Enter inserts a line · Backspace at line start joins the previous line.</div>
           <div class="highlighted-script" id="highlightedScript" aria-label="Highlighted script view" hidden></div>
         </div>
         <div class="actions script-toolbar">
@@ -3680,6 +3839,7 @@
             <button class="btn ghost row" type="button" id="cleanDiscordScript">Clean Discord Paste</button>
           </div>
           <label class="toggle"><input type="checkbox" id="ignoreRepeatedSpeakers" /> Ignore all but first consecutive speaker tag</label>
+          <label class="toggle"><input type="checkbox" id="continueUnboundSpeakerTags" /> Treat an unbound “Name:” as dialogue from the previous speaker</label>
           <div class="actions">
             <button class="btn ghost row" type="button" id="enterInitiative">Enter initiative ⚔</button>
             <button class="btn ghost row" type="button" id="exitInitiative">Exit initiative ⚔</button>
@@ -3737,27 +3897,35 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="actions">
+        <div class="reader-controls">
+          <div class="reader-primary-controls" aria-label="Reader playback">
           <button class="btn ghost row" id="readerPrevious" type="button" aria-label="Previous line" title="Previous line">↑</button>
+          <button class="btn row" id="readerPlayback" type="button" aria-label="Play reader" title="Play (Space)">▶</button>
           <button class="btn ghost row" id="readerNext" type="button" aria-label="Next line" title="Next line">↓</button>
-          <button class="btn ghost row" id="readerSpeak" type="button" aria-label="Read current line aloud" title="Read current line aloud">♫</button>
-          <button class="btn ghost row" id="readerStopSpeech" type="button" aria-label="Stop speech" title="Stop speech" disabled>■</button>
-          <button class="btn ghost row" id="readerHistoryToggle" type="button" aria-pressed="false">Reader only</button>
-          <div class="reader-chapter-nav" aria-label="Reader chapter navigation">
-            <button class="btn ghost row" id="readerPreviousChapter" type="button" aria-label="Previous chapter" title="Previous chapter">‹</button>
-            <select id="readerChapterPicker" aria-label="Choose reader chapter"></select>
-            <button class="btn ghost row" id="readerNextChapter" type="button" aria-label="Next chapter" title="Next chapter">›</button>
-          </div>
-          <div class="reader-text-size" role="group" aria-label="Reader text size">
-            <button class="btn ghost row" id="readerTextSmaller" type="button" aria-label="Smaller reader text" title="Smaller reader text">A−</button>
-            <span class="pill" id="readerTextSizeValue" aria-live="polite">100%</span>
-            <button class="btn ghost row" id="readerTextLarger" type="button" aria-label="Larger reader text" title="Larger reader text">A+</button>
-          </div>
-          <button class="btn ghost row" id="readerAssignSprite" type="button" disabled>Assign selected sprite to current speaker</button>
-          <span class="pill" id="readerSpriteStatus" aria-live="polite" hidden></span>
+          <button class="btn ghost row" id="readerEditLine" type="button" aria-label="Edit current line" title="Edit current line">✎</button>
           <span class="pill" id="readerPosition">No dialogue lines</span>
-        </div>
-        <div class="reader-quick-options" aria-label="Reader options">
+          </div>
+          <details class="reader-compact-menu reader-more-menu">
+            <summary aria-label="More reader controls" title="More reader controls">⋯</summary>
+            <div class="reader-compact-menu-panel reader-more-menu-panel">
+              <div class="reader-secondary-controls">
+                <div class="reader-chapter-nav" aria-label="Reader chapter navigation">
+                  <button class="btn ghost row" id="readerPreviousChapter" type="button" aria-label="Previous chapter" title="Previous chapter">‹</button>
+                  <select id="readerChapterPicker" aria-label="Choose reader chapter"></select>
+                  <button class="btn ghost row" id="readerNextChapter" type="button" aria-label="Next chapter" title="Next chapter">›</button>
+                </div>
+                <div class="reader-text-size" role="group" aria-label="Reader text size">
+                  <button class="btn ghost row" id="readerTextSmaller" type="button" aria-label="Smaller reader text" title="Smaller reader text">A−</button>
+                  <span class="pill" id="readerTextSizeValue" aria-live="polite">100%</span>
+                  <button class="btn ghost row" id="readerTextLarger" type="button" aria-label="Larger reader text" title="Larger reader text">A+</button>
+                </div>
+                <button class="btn ghost row" id="readerSpeak" type="button" aria-label="Read current line aloud" title="Read current line aloud">♫</button>
+                <button class="btn ghost row" id="readerStopSpeech" type="button" aria-label="Stop speech" title="Stop speech" disabled>■</button>
+                <button class="btn ghost row" id="readerHistoryToggle" type="button" aria-pressed="false">Reader only</button>
+                <button class="btn ghost row" id="readerAssignSprite" type="button" disabled>Assign selected sprite to current speaker</button>
+                <span class="pill" id="readerSpriteStatus" aria-live="polite" hidden></span>
+              </div>
+              <div class="reader-quick-options" aria-label="Reader options">
           <label class="toggle" title="Continue into the next chapter"><input type="checkbox" id="readerNextChapterMode" /> ↪ Next chapter</label>
           <label class="toggle" title="Hide upcoming lines"><input type="checkbox" id="readerSpoilerToggle" aria-label="Hide upcoming lines" /> ◉ Spoilers</label>
           <label class="toggle" title="Read each selected line aloud"><input type="checkbox" id="readerAutoplaySpeech" /> ▶ Auto-read</label>
@@ -3802,7 +3970,15 @@
                   <option value="advantage">Advantage</option>
                   <option value="disadvantage">Disadvantage</option>
                 </select>
+                <label for="readerDiceResult">Result</label>
+                <input id="readerDiceResult" type="text" maxlength="120" placeholder="e.g. 1d4 → [2] = 7" />
+                <label for="readerDiceParticipants">Participants</label>
+                <input id="readerDiceParticipants" type="text" maxlength="240" placeholder="e.g. Alice, the goblin" />
+                <label class="toggle"><input type="checkbox" id="readerSpeakDiceNotation" /> Speak raw roll notation</label>
                 <button class="btn ghost row" id="applyReaderDice" type="button">Apply to line</button>
+              </div>
+            </div>
+          </details>
               </div>
             </div>
           </details>
@@ -3824,6 +4000,31 @@
             <div class="reader-line-editor-header">
               <strong id="readerLineEditorTitle">Edit reader line</strong>
               <button class="btn ghost row" id="cancelReaderLineEditTop" type="button" aria-label="Cancel line edit" title="Cancel">×</button>
+            </div>
+            <div class="reader-line-editor-fields">
+              <div class="field">
+                <label for="readerLineSpeaker">Character</label>
+                <select id="readerLineSpeaker"></select>
+              </div>
+              <div class="field">
+                <label for="readerLineDisplayName">Display name for this line</label>
+                <input id="readerLineDisplayName" type="text" maxlength="120" placeholder="Use character name" />
+              </div>
+              <div class="field">
+                <label for="readerLineSprite">Sprite for this line</label>
+                <select id="readerLineSprite"></select>
+              </div>
+              <div class="field">
+                <label for="readerLineVoice">Voice for this line</label>
+                <select id="readerLineVoice"><option value="">Use character voice</option></select>
+              </div>
+              <div class="field">
+                <label for="readerLineOverrideScope">Apply changes</label>
+                <select id="readerLineOverrideScope">
+                  <option value="line">Just this line</option>
+                  <option value="until-speaker">Until the next speaker</option>
+                </select>
+              </div>
             </div>
             <label for="readerLineEditText">Dialogue or narration</label>
             <textarea id="readerLineEditText" maxlength="10000"></textarea>
@@ -3975,7 +4176,7 @@
       <div class="import-review-details" id="importReviewDetails"></div>
       <div class="import-speaker-section">
         <strong>Speaker review</strong>
-        <p class="muted">Choose how each detected label should import. Nothing changes until you press Import.</p>
+        <p class="muted">For typos or alternate labels, map to an existing character to rewrite only the imported script tag and avoid creating a duplicate character. Nothing changes until you press Import.</p>
         <div class="import-speaker-review" id="importSpeakerReview"></div>
       </div>
       <div class="field">
@@ -3990,6 +4191,21 @@
       <div class="cropper-actions">
         <button class="btn ghost" id="cancelTextImport" type="button">Cancel</button>
         <button class="btn" id="confirmTextImport" type="button">Import</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="fullScriptModal" role="dialog" aria-modal="true" aria-labelledby="fullScriptTitle">
+    <div class="cropper-card full-script-card">
+      <div>
+        <strong id="fullScriptTitle">Full story script</strong>
+        <div class="muted">Edit across chapters here. Keep each generated “:: Chapter: … ::” heading in place so changes can be returned to the right chapter.</div>
+      </div>
+      <textarea id="fullScriptInput" aria-label="Full story script" spellcheck="false"></textarea>
+      <div class="muted" id="fullScriptStatus" role="status" aria-live="polite"></div>
+      <div class="cropper-actions">
+        <button class="btn ghost" id="cancelFullScript" type="button">Cancel</button>
+        <button class="btn" id="saveFullScript" type="button">Save full story</button>
       </div>
     </div>
   </div>
@@ -4036,6 +4252,7 @@
     let scriptHistoryTimer = null;
     let restoringScriptHistory = false;
     let scriptDraftDirty = false;
+    let syncingInlineScriptEditor = false;
     let scriptSourceTarget = null;
     let chapters = [];
     let activeChapterId = '';
@@ -4045,6 +4262,7 @@
     let readerSpeechRunId = 0;
     let readerAutoplayTimer = 0;
     let readerAdvanceTimer = 0;
+    let readerPlaying = false;
     const PROJECT_DB_NAME = 'rmspd-projects';
     const PROJECT_DB_VERSION = 1;
     const PROJECT_STORE_NAME = 'projects';
@@ -4170,8 +4388,9 @@
       { id: 'location-clear', title: 'Clear location', example: ':: Location: Clear ::', description: 'Clears the persistent location name and art.' },
       { id: 'initiative-enter', title: 'Enter initiative', example: ':: ⚔ Enter Initiative ::', description: 'Starts battle state and the optional battle palette.' },
       { id: 'initiative-exit', title: 'Exit initiative', example: ':: ⚔ Exit Initiative ::', description: 'Ends battle state according to Dice Options.' },
-      { id: 'dice', title: 'Line dice override', example: 'Alice: Attack! [[dice: Attack roll | advantage]]', description: 'Marks one line as a roll. Modes are advantage or disadvantage; use [[dice: off]] to suppress a character default.' },
+      { id: 'dice', title: 'Line dice event', example: 'Alice: Attack! [[dice: Attack roll | advantage | result=1d4%20%3D%202 | participants=Alice%2C%20Goblin]]', description: 'Shows roll type, mode, result, and participants as a separate reader badge. The reader can omit raw dice notation from speech.' },
       { id: 'subtitle', title: 'Line subtitle override', example: 'Alice: Hello. [[subtitle: (from Wonderland?)]]', description: 'Changes the reader subtitle for this line only. Use [[subtitle: off]] to hide the character subtitle on one line.' },
+      { id: 'reader-override', title: 'Reader line overrides', example: 'Alice: Hello. [[reader: name=Red%20Queen; sprite=portrait-id; voice=voice-uri]]', description: 'Overrides the display name, sprite, or voice without changing the character. Use the reader line editor to choose these values.' },
       { id: 'warning', title: 'Content warning', example: 'CW: Flashing imagery', description: 'Adds a visible scene warning without creating a character.' },
       { id: 'note', title: 'Translator note marker', example: 'Alice: A curious word.[1]', description: 'Links [1] to translator note 1.' },
       { id: 'image-slot', title: 'Pasteable script image', example: 'Image', description: 'Creates a numbered paste/upload slot in Script Images.' },
@@ -4187,11 +4406,23 @@
       const mode = ['advantage', 'disadvantage'].includes((parts[1] || '').toLowerCase())
         ? parts[1].toLowerCase()
         : '';
+      const details = {};
+      parts.slice(1).forEach(part => {
+        const separator = part.indexOf('=');
+        if (separator < 1) return;
+        const key = part.slice(0, separator).trim().toLowerCase();
+        if (!['result', 'participants'].includes(key)) return;
+        try {
+          details[key] = decodeURIComponent(part.slice(separator + 1).trim());
+        } catch (error) {
+          console.warn(`Could not decode dice ${key}.`, error);
+        }
+      });
       return {
         line: rawLine.slice(0, match.index),
         directive: label.toLowerCase() === 'off'
           ? { enabled: false, label: '', mode: '' }
-          : { enabled: true, label: label || 'Dice', mode }
+          : { enabled: true, label: label || 'Dice', mode, ...details }
       };
     }
 
@@ -4207,12 +4438,60 @@
       };
     }
 
+    function parseReaderDirective(rawLine) {
+      const match = rawLine.match(/\s*\[\[reader\s*:\s*(.*?)\s*\]\]\s*$/i);
+      if (!match) return { line: rawLine, directive: null };
+      const body = match[1].trim();
+      if (body.toLowerCase() === 'off') {
+        return { line: rawLine.slice(0, match.index), directive: { enabled: false } };
+      }
+      const directive = {};
+      body.split(';').forEach(part => {
+        const separator = part.indexOf('=');
+        if (separator < 1) return;
+        const key = part.slice(0, separator).trim().toLowerCase();
+        if (!['name', 'sprite', 'voice'].includes(key)) return;
+        try {
+          directive[key] = decodeURIComponent(part.slice(separator + 1).trim());
+        } catch (error) {
+          console.warn('Could not decode a reader line override.', error);
+        }
+      });
+      return { line: rawLine.slice(0, match.index), directive };
+    }
+
+    function serializedReaderDirective(directive) {
+      const parts = ['name', 'sprite', 'voice']
+        .filter(key => directive?.[key])
+        .map(key => `${key}=${encodeURIComponent(directive[key])}`);
+      return parts.length ? `[[reader: ${parts.join('; ')}]]` : '';
+    }
+
     function resolveDiceAssignment(directive, character) {
       if (directive?.enabled === false) return null;
-      if (directive?.enabled) return { label: directive.label, mode: directive.mode };
+      if (directive?.enabled) {
+        return {
+          label: directive.label,
+          mode: directive.mode,
+          result: directive.result || '',
+          participants: directive.participants || ''
+        };
+      }
       return character?.isDiceCharacter ? { label: 'Dice', mode: '' } : null;
     }
 
+    function diceEventText(dice) {
+      if (!dice) return '';
+      const details = [dice.result, dice.participants ? `With ${dice.participants}` : ''].filter(Boolean);
+      return [dice.label || 'Dice', ...details].join(' · ');
+    }
+
+    function stripDiceNotation(text) {
+      return String(text || '')
+        .replace(/\b\d+\s*d\s*\d+\s*(?:->\s*\[[\d,\s]+\]\s*)?(?:=\s*-?\d+)?/gi, '')
+        .replace(/[ \t]{2,}/g, ' ')
+        .trim();
+    }
     function getInitiativeSettings() {
       return {
         alwaysEndAllOnExit: el('alwaysEndAllOnExit').checked,
@@ -4355,18 +4634,40 @@
       const source = textarea.value;
       const lines = source.split(/\r\n|\n/);
       if (item.lineIndex < 0 || item.lineIndex >= lines.length) return;
-      const parsed = parseDiceDirective(lines[item.lineIndex]);
-      const cleanLine = parsed.line.replace(/\s+$/, '');
+      const parsedReader = parseReaderDirective(lines[item.lineIndex]);
+      const parsed = parseDiceDirective(parsedReader.line);
+      const parsedSubtitle = parseSubtitleDirective(parsed.line);
+      const cleanLine = parsedSubtitle.line.replace(/\s+$/, '');
       const enabled = el('readerLineIsDice').checked;
+      let diceDirective = '';
       if (enabled) {
         const tag = el('readerDiceTag').value || 'Dice';
         const mode = el('readerDiceMode').value;
-        lines[item.lineIndex] = `${cleanLine} [[dice: ${tag}${mode ? ` | ${mode}` : ''}]]`;
+        const result = el('readerDiceResult').value.trim();
+        const participants = el('readerDiceParticipants').value.trim();
+        if ([tag, result, participants].some(value => /[|\r\n]|\]\]/.test(value))) {
+          alert('Roll details cannot contain a pipe, line break, or ]].');
+          return;
+        }
+        const details = [
+          mode,
+          result ? `result=${encodeURIComponent(result)}` : '',
+          participants ? `participants=${encodeURIComponent(participants)}` : ''
+        ].filter(Boolean);
+        diceDirective = `[[dice: ${tag}${details.length ? ` | ${details.join(' | ')}` : ''}]]`;
       } else if (item.character?.isDiceCharacter) {
-        lines[item.lineIndex] = `${cleanLine} [[dice: off]]`;
-      } else {
-        lines[item.lineIndex] = cleanLine;
+        diceDirective = '[[dice: off]]';
       }
+      lines[item.lineIndex] = [
+        cleanLine,
+        parsedSubtitle.directive
+          ? parsedSubtitle.directive.enabled
+            ? `[[subtitle: ${parsedSubtitle.directive.value}]]`
+            : '[[subtitle: off]]'
+          : '',
+        diceDirective,
+        serializedReaderDirective(parsedReader.directive)
+      ].filter(Boolean).join(' ');
       commitScriptHistory();
       textarea.value = lines.join(source.includes('\r\n') ? '\r\n' : '\n');
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
@@ -6007,6 +6308,97 @@
       }).join('\n\n');
     }
 
+    function splitFullStoryScript(source) {
+      if (chapters.length <= 1) {
+        return [{ title: chapters[0]?.title || 'Chapter 1', script: String(source || '') }];
+      }
+      const lines = String(source || '').replace(/\r\n?/g, '\n').split('\n');
+      const sections = [];
+      let current = null;
+      let markers = 0;
+      const preamble = [];
+      lines.forEach(line => {
+        const match = line.match(/^::\s*chapter\s*:\s*(.*?)\s*::$/i);
+        if (match) {
+          markers += 1;
+          if (current) sections.push({ ...current, script: current.lines.join('\n') });
+          current = { title: match[1].trim(), lines: [] };
+        } else if (current) {
+          current.lines.push(line);
+        } else {
+          preamble.push(line);
+        }
+      });
+      if (current) sections.push({ ...current, script: current.lines.join('\n') });
+      if (markers !== chapters.length) {
+        return {
+          error: `Found ${markers} chapter headings, but this project has ${chapters.length} chapters. Keep one generated heading per chapter; inline chapter markers make the full-story edit ambiguous.`
+        };
+      }
+      if (preamble.length) {
+        const prefix = preamble.join('\n');
+        sections[0].script = sections[0].script ? `${prefix}\n${sections[0].script}` : prefix;
+      }
+      return sections;
+    }
+
+    function openFullStoryEditor() {
+      if (scriptDraftDirty) applyScriptDraft();
+      commitScriptHistory();
+      saveActiveChapterState();
+      el('fullScriptInput').value = flattenChapterScripts(chapters);
+      el('fullScriptStatus').textContent = chapters.length > 1
+        ? `${chapters.length} chapters · save requires exactly one generated chapter heading per chapter.`
+        : 'One chapter · edits will be saved directly to the current chapter.';
+      el('fullScriptModal').classList.add('active');
+      requestAnimationFrame(() => {
+        el('fullScriptInput').focus();
+        el('fullScriptInput').setSelectionRange(0, 0);
+      });
+    }
+
+    function closeFullStoryEditor() {
+      el('fullScriptModal').classList.remove('active');
+    }
+
+    function saveFullStoryEditor() {
+      const sections = splitFullStoryScript(el('fullScriptInput').value);
+      if (!Array.isArray(sections)) {
+        el('fullScriptStatus').textContent = sections.error;
+        return;
+      }
+      sections.forEach((section, index) => {
+        const chapter = chapters[index];
+        const script = section.script;
+        const history = (chapter.history || []).slice(
+          0,
+          Math.max(0, (Number.isInteger(chapter.historyIndex) ? chapter.historyIndex : -1) + 1)
+        );
+        if (history.at(-1)?.value !== script) {
+          history.push({ value: script, selectionStart: 0, selectionEnd: 0 });
+        }
+        chapter.history = history.slice(-80);
+        chapter.historyIndex = chapter.history.length - 1;
+        chapter.title = section.title || `Chapter ${index + 1}`;
+        chapter.script = script;
+        chapter.cursorStart = 0;
+        chapter.cursorEnd = 0;
+        chapter.scrollTop = 0;
+        const previousImages = chapter.images || [];
+        chapter.images = Array.from(
+          { length: extractStandaloneImageSlots(script).length },
+          (_, imageIndex) => normalizeScriptImageEntry(previousImages[imageIndex] || '')
+        );
+      });
+      closeFullStoryEditor();
+      activateChapter(activeChapterId, { saveCurrent: false, focus: false, refresh: false });
+      renderChapterNavigation('Saved full-story edits to their chapters.');
+      syncScriptCharacters();
+      updateReader();
+      updatePreview();
+      scheduleAuto();
+    }
+
     function allChapterImages(sourceChapters = chapters) {
       return sourceChapters.flatMap(chapter => Array.isArray(chapter.images) ? chapter.images : []);
     }
@@ -6108,6 +6500,7 @@
       syncScriptImageSlots(target.images || []);
       updateScriptHistoryButtons();
       renderChapterNavigation();
+      renderInlineScriptEditor();
       if (!el('highlightedScript').hidden) renderHighlightedScript();
       renderEditableScriptAids();
       switchingChapter = false;
@@ -6118,7 +6511,9 @@
           Math.min(length, target.cursorEnd || target.cursorStart || 0)
         );
         textarea.scrollTop = target.scrollTop || 0;
-        if (focus) textarea.focus();
+        if (focus && !el('inlineScriptEditor').hidden) {
+          restoreInlineScriptSelection(textarea.selectionStart, textarea.selectionEnd, { focus: true });
+        }
       });
       if (refresh) {
         updateReader();
@@ -6285,8 +6680,8 @@
         action.className = 'import-speaker-action';
         action.setAttribute('aria-label', `Import action for ${token}`);
         [
-          ['create', 'Create / keep speaker'],
-          ['map', 'Map to existing character'],
+          ['create', 'Create new character'],
+          ['map', 'Use existing character (rewrite tag)'],
           ['narrator', 'Treat as Narrator'],
           ['system', 'Treat as System'],
           ['ignore', 'Ignore label; keep as narration']
@@ -6423,8 +6818,12 @@
       const value = textarea.value;
       textarea.value = value.slice(0, start) + text + value.slice(end);
       textarea.selectionStart = textarea.selectionEnd = start + text.length;
-      textarea.focus();
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      if (textarea === el('scriptInput') && !el('inlineScriptEditor').hidden) {
+        restoreInlineScriptSelection(textarea.selectionStart, textarea.selectionEnd, { focus: true });
+      } else {
+        textarea.focus();
+      }
     }
 
     function wrapScriptSelection(openTag, closeTag, placeholder = 'formatted text') {
@@ -6438,8 +6837,12 @@
       textarea.setRangeText(`${openTag}${content}${closeTag}`, start, end, 'select');
       textarea.selectionStart = start + openTag.length;
       textarea.selectionEnd = textarea.selectionStart + content.length;
-      textarea.focus();
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      if (!el('inlineScriptEditor').hidden) {
+        restoreInlineScriptSelection(textarea.selectionStart, textarea.selectionEnd, { focus: true });
+      } else {
+        textarea.focus();
+      }
       commitScriptHistory();
     }
 
@@ -6454,8 +6857,12 @@
       textarea.setRangeText(cleaned, start, end, 'select');
       textarea.selectionStart = start;
       textarea.selectionEnd = start + cleaned.length;
-      textarea.focus();
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      if (!el('inlineScriptEditor').hidden) {
+        restoreInlineScriptSelection(textarea.selectionStart, textarea.selectionEnd, { focus: true });
+      } else {
+        textarea.focus();
+      }
       commitScriptHistory();
     }
 
@@ -6701,7 +7108,8 @@
     }
 
     function readerSpeechSegments(item, muteNarration) {
-      const text = storyFormattingPlainText(item?.text || '');
+      let text = storyFormattingPlainText(item?.text || '');
+      if (item?.dice && !el('readerSpeakDiceNotation').checked) text = stripDiceNotation(text);
       if (!muteNarration) return text.trim() ? [{ text, muted: false }] : [];
       if (!item?.character) return text.trim() ? [{ text, muted: true }] : [];
       const semanticPattern = /(\([^()\n]*\)|\[[^\[\]\n]*\])/g;
@@ -6711,17 +7119,20 @@
       })).filter(segment => segment.text.trim());
     }
 
-    function configureReaderUtterance(utterance, character, useNarratorVoice = false) {
+    function configureReaderUtterance(utterance, character, useNarratorVoice = false, voiceOverride = '') {
       const voices = window.speechSynthesis.getVoices();
+      const selectedCharacter = voiceOverride && character
+        ? { ...character, speechVoice: voiceOverride }
+        : character;
       const characterVoice = !useNarratorVoice && character
-        ? voices.find(candidate => candidate.voiceURI === character.speechVoice)
+        ? voices.find(candidate => candidate.voiceURI === selectedCharacter.speechVoice)
         : null;
       const fallbackVoiceId = el('readerSpeechVoice').value || el('readerSpeechVoice').dataset.pendingVoice || '';
       const fallbackVoice = voices.find(candidate => candidate.voiceURI === fallbackVoiceId);
       if (characterVoice) {
         utterance.voice = characterVoice;
-        utterance.rate = Number.isFinite(character.speechRate) ? character.speechRate : 1;
-        utterance.pitch = Number.isFinite(character.speechPitch) ? character.speechPitch : 1;
+        utterance.rate = Number.isFinite(selectedCharacter.speechRate) ? selectedCharacter.speechRate : 1;
+        utterance.pitch = Number.isFinite(selectedCharacter.speechPitch) ? selectedCharacter.speechPitch : 1;
       } else {
         if (fallbackVoice) utterance.voice = fallbackVoice;
         utterance.rate = Number(el('readerSpeechRate').value) || 1;
@@ -6731,17 +7142,27 @@
 
     function advanceAfterSpeech(runId, sourceIndex, sourceKey) {
       if (runId !== readerSpeechRunId
-        || !el('readerAutoAdvanceSpeech').checked
+        || (!readerPlaying && !el('readerAutoAdvanceSpeech').checked)
         || readerIndex !== sourceIndex
-        || readerItems[readerIndex]?.sourceKey !== sourceKey
-        || sourceIndex >= readerItems.length - 1) return;
+        || readerItems[readerIndex]?.sourceKey !== sourceKey) return;
+      const nextIndex = sourceIndex + 1;
+      if (nextIndex >= readerItems.length) {
+        if (readerPlaying) stopReaderPlayback();
+        return;
+      }
+      if (readerPlaying
+        && readerItems[nextIndex]?.chapterIndex !== readerItems[sourceIndex]?.chapterIndex
+        && !el('readerNextChapterMode').checked) {
+        stopReaderPlayback();
+        return;
+      }
       clearTimeout(readerAdvanceTimer);
       readerAdvanceTimer = setTimeout(() => {
         readerAdvanceTimer = 0;
         if (runId !== readerSpeechRunId
           || readerIndex !== sourceIndex
           || readerItems[readerIndex]?.sourceKey !== sourceKey) return;
-        setReaderLine(sourceIndex + 1);
+        setReaderLine(nextIndex);
       }, 120);
     }
 
@@ -6789,7 +7210,7 @@
           return;
         }
         const utterance = new SpeechSynthesisUtterance(entry.text);
-        configureReaderUtterance(utterance, item.character, entry.narratorVoice);
+        configureReaderUtterance(utterance, item.character, entry.narratorVoice, item.readerOverride?.voice || '');
         utterance.volume = entry.muted ? 0 : 1;
         utterance.onstart = showSpeaking;
         utterance.onend = () => playEntry(entryIndex + 1);
@@ -6816,6 +7237,34 @@
       if (typeof window.speechSynthesis !== 'undefined') window.speechSynthesis.cancel();
       el('readerSpeak').disabled = false;
       el('readerStopSpeech').disabled = true;
+    }
+
+    function syncReaderPlaybackButton() {
+      const button = el('readerPlayback');
+      if (!button) return;
+      button.textContent = readerPlaying ? 'Ⅱ' : '▶';
+      button.setAttribute('aria-label', readerPlaying ? 'Pause reader' : 'Play reader');
+      button.title = readerPlaying ? 'Pause (Space)' : 'Play (Space)';
+      button.setAttribute('aria-pressed', readerPlaying ? 'true' : 'false');
+      button.disabled = !readerItems.length || !speechSynthesisAvailable();
+    }
+
+    function stopReaderPlayback() {
+      readerPlaying = false;
+      stopReaderSpeech();
+      syncReaderPlaybackButton();
+    }
+
+    function toggleReaderPlayback() {
+      if (!readerItems.length || !speechSynthesisAvailable()) return;
+      if (readerPlaying) {
+        stopReaderPlayback();
+        return;
+      }
+      readerPlaying = true;
+      lastAutoplaySourceKey = '';
+      syncReaderPlaybackButton();
+      setReaderLine(readerIndex);
     }
 
     function truncateText(text, maxLength = 80) {
@@ -6895,7 +7344,7 @@
     }
 
     function insertSyntaxIntoScript(text) {
-      if (el('scriptInput').hidden) setScriptView('edit');
+      if (el('inlineScriptEditor').hidden) setScriptView('edit');
       const textarea = el('scriptInput');
       const before = textarea.value.slice(0, textarea.selectionStart);
       const after = textarea.value.slice(textarea.selectionEnd);
@@ -7006,7 +7455,8 @@
         let lastNarrationItem = null;
 
         String(chapter.script || '').replace(/\r\n/g, '\n').split('\n').forEach((rawLine, lineIndex) => {
-          const parsedLine = parseDiceDirective(rawLine);
+          const parsedReader = parseReaderDirective(rawLine);
+          const parsedLine = parseDiceDirective(parsedReader.line);
           const parsedSubtitle = parseSubtitleDirective(parsedLine.line);
           const line = parsedSubtitle.line.trim();
           if (!line || /^={3,}$/.test(line)) return;
@@ -7086,18 +7536,21 @@
             sourceKey: `${chapter.id}:${lineIndex}`,
             initiative: initiativeState.initiative,
             location: activeLocation ? { ...activeLocation } : null,
-            subtitleOverride: parsedSubtitle.directive
+            subtitleOverride: parsedSubtitle.directive,
+            readerOverride: parsedReader.directive?.enabled === false ? null : parsedReader.directive
           };
           const match = line.match(/^(.+?)\s*:\s*(.*)$/);
           if (match) {
             const token = match[1].trim();
+            const rawDialogue = match[2].trim();
+            const dialogue = parsedLine.directive?.result ? stripDiceNotation(rawDialogue) : rawDialogue;
             if (isNarratorToken(token)) {
               lastSpeaker = null;
               const narrationItem = {
-                speaker: 'Narration',
+                speaker: parsedReader.directive?.name || 'Narration',
                 character: null,
                 narration: true,
-                text: match[2].trim(),
+                text: dialogue,
                 dice: resolveDiceAssignment(parsedLine.directive, null),
                 ...chapterData
               };
@@ -7113,13 +7566,27 @@
                 character: null,
                 narration: true,
                 system: true,
-                text: match[2].trim(),
+                text: dialogue,
                 dice: resolveDiceAssignment(parsedLine.directive, null),
                 ...chapterData
               });
               return;
             }
-            const descriptor = resolveSpeakerDescriptor(token, byToken) || inferredSpeaker(token);
+            const boundDescriptor = resolveSpeakerDescriptor(token, byToken);
+            if (!boundDescriptor && el('continueUnboundSpeakerTags').checked && lastSpeaker) {
+              items.push({
+                speaker: parsedReader.directive?.name || lastSpeaker.speakerName,
+                speakerToken: lastSpeaker.speakerToken || '',
+                character: lastSpeaker.character,
+                narration: false,
+                text: dialogue,
+                dice: resolveDiceAssignment(parsedLine.directive, lastSpeaker.character),
+                ...chapterData
+              });
+              lastNarrationItem = null;
+              return;
+            }
+            const descriptor = boundDescriptor || inferredSpeaker(token);
             if (descriptor.system) {
               lastSpeaker = null;
               lastNarrationItem = null;
@@ -7128,7 +7595,7 @@
                 character: null,
                 narration: true,
                 system: true,
-                text: match[2].trim(),
+                text: dialogue,
                 dice: resolveDiceAssignment(parsedLine.directive, null),
                 ...chapterData
               });
@@ -7138,9 +7605,10 @@
               lastSpeaker = null;
               const narrationItem = {
                 speaker: 'Narration',
+                speakerToken: token,
                 character: null,
                 narration: true,
-                text: match[2].trim(),
+                text: dialogue,
                 dice: resolveDiceAssignment(parsedLine.directive, null),
                 ...chapterData
               };
@@ -7148,27 +7616,30 @@
               lastNarrationItem = narrationItem;
               return;
             }
-            lastSpeaker = descriptor;
+            lastSpeaker = { ...descriptor, speakerToken: token };
             lastNarrationItem = null;
             items.push({
-              speaker: descriptor.speakerName,
+              speaker: parsedReader.directive?.name || descriptor.speakerName,
+              speakerToken: token,
               character: descriptor.character,
               narration: false,
-              text: match[2].trim(),
+              text: dialogue,
               dice: resolveDiceAssignment(parsedLine.directive, descriptor.character),
               ...chapterData
             });
             return;
           }
 
-          if (!lastSpeaker && lastNarrationItem && !parsedLine.directive && !parsedSubtitle.directive) {
+          if (!lastSpeaker && lastNarrationItem
+            && !parsedLine.directive && !parsedSubtitle.directive && !parsedReader.directive) {
             lastNarrationItem.text += `\n${line}`;
           } else {
             const item = {
-              speaker: lastSpeaker?.speakerName || 'Narration',
+              speaker: parsedReader.directive?.name || lastSpeaker?.speakerName || 'Narration',
+              speakerToken: lastSpeaker?.speakerToken || '',
               character: lastSpeaker?.character || null,
               narration: !lastSpeaker,
-              text: line,
+              text: parsedLine.directive?.result ? stripDiceNotation(line) : line,
               dice: resolveDiceAssignment(parsedLine.directive, lastSpeaker?.character || null),
               ...chapterData
             };
@@ -7200,7 +7671,7 @@
         if (disguise && known.has(disguise[1].trim().toLowerCase())) return;
         if (!known.has(token.toLowerCase())) tokens.add(token);
       });
-      tokens.forEach(token => {
+      if (!el('continueUnboundSpeakerTags').checked) tokens.forEach(token => {
         addCharacterRow({
           icon: '',
           shortcut: token,
@@ -7209,7 +7680,7 @@
           useColorIcon: true
         });
       });
-      if (tokens.size) {
+      if (tokens.size && !el('continueUnboundSpeakerTags').checked) {
         refreshExistingCharacterOptions();
         scheduleAuto();
       }
@@ -7331,40 +7802,319 @@
     }
 
     function renderEditableScriptAids() {
-      const textarea = el('scriptInput');
       const overlay = el('scriptEditHighlights');
-      const enabled = el('scriptColourNames').checked && !textarea.hidden;
-      overlay.hidden = !enabled;
-      if (!enabled) {
-        overlay.replaceChildren();
+      overlay.hidden = true;
+      overlay.replaceChildren();
+    }
+
+    function inlineScriptLineText(line) {
+      return line.textContent.replace(/\u00a0/g, ' ');
+    }
+
+    function inlineScriptOffsetForPoint(node, offset) {
+      const line = node instanceof Element
+        ? node.closest('.inline-script-line')
+        : node?.parentElement?.closest('.inline-script-line');
+      if (!line) return null;
+      const lines = Array.from(el('inlineScriptEditor').children);
+      const lineIndex = lines.indexOf(line);
+      if (lineIndex < 0) return null;
+      const range = document.createRange();
+      range.selectNodeContents(line);
+      try {
+        range.setEnd(node, offset);
+      } catch (error) {
+        return null;
+      }
+      const prefixLength = lines.slice(0, lineIndex)
+        .reduce((length, previous) => length + inlineScriptLineText(previous).length + 1, 0);
+      return prefixLength + range.toString().length;
+    }
+
+    function syncInlineScriptSelection() {
+      const selection = window.getSelection();
+      if (!selection?.anchorNode || !selection.focusNode) return null;
+      const start = inlineScriptOffsetForPoint(selection.anchorNode, selection.anchorOffset);
+      const end = inlineScriptOffsetForPoint(selection.focusNode, selection.focusOffset);
+      if (start === null || end === null) return null;
+      const textarea = el('scriptInput');
+      textarea.setSelectionRange(Math.min(start, end), Math.max(start, end));
+      const chapter = activeChapter();
+      if (chapter && !switchingChapter) {
+        chapter.cursorStart = textarea.selectionStart;
+        chapter.cursorEnd = textarea.selectionEnd;
+      }
+      return { start: Math.min(start, end), end: Math.max(start, end) };
+    }
+
+    function inlineScriptLineAtOffset(offset) {
+      const lines = el('scriptInput').value.replace(/\r\n?/g, '\n').split('\n');
+      let remaining = Math.max(0, Math.min(el('scriptInput').value.length, offset));
+      for (let index = 0; index < lines.length; index += 1) {
+        if (remaining <= lines[index].length || index === lines.length - 1) {
+          return { index, offset: Math.min(remaining, lines[index].length) };
+        }
+        remaining -= lines[index].length + 1;
+      }
+      return { index: 0, offset: 0 };
+    }
+
+    function restoreInlineScriptSelection(start, end = start, { focus = false } = {}) {
+      const editor = el('inlineScriptEditor');
+      const startPoint = inlineScriptLineAtOffset(start);
+      const endPoint = inlineScriptLineAtOffset(end);
+      const startLine = editor.children[startPoint.index];
+      const endLine = editor.children[endPoint.index];
+      if (!startLine || !endLine) return;
+      const place = (line, offset) => {
+        if (!line.firstChild) line.appendChild(document.createTextNode(''));
+        const textNode = line.firstChild;
+        return { node: textNode, offset: Math.min(offset, textNode.textContent.length) };
+      };
+      const startPosition = place(startLine, startPoint.offset);
+      const endPosition = place(endLine, endPoint.offset);
+      if (focus) startLine.focus({ preventScroll: true });
+      const selection = window.getSelection();
+      const range = document.createRange();
+      range.setStart(startPosition.node, startPosition.offset);
+      range.setEnd(endPosition.node, endPosition.offset);
+      selection.removeAllRanges();
+      selection.addRange(range);
+      startLine.scrollIntoView({ block: 'nearest' });
+    }
+
+    function renderInlineScriptEditor({ restoreFocus = false } = {}) {
+      const editor = el('inlineScriptEditor');
+      const active = document.activeElement?.closest?.('.inline-script-line');
+      const shouldRestoreFocus = restoreFocus || Boolean(active && editor.contains(active));
+      const activeLineIndex = active ? Number(active.dataset.sourceLineIndex) : -1;
+      const textarea = el('scriptInput');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const lines = textarea.value.replace(/\r\n?/g, '\n').split('\n');
+      const fragment = document.createDocumentFragment();
+      lines.forEach((text, index) => {
+        const line = document.createElement('div');
+        line.className = 'inline-script-line';
+        if (/^\s*(?:::|S\d+(?:E|EP)\d+\..+\.txt\s*$)/i.test(text)) {
+          line.classList.add('chapter-heading');
+        }
+        if (scriptSourceTarget?.chapterId === activeChapterId && scriptSourceTarget.lineIndex === index) {
+          line.classList.add('source-target');
+        }
+        if (index === (activeLineIndex >= 0 ? activeLineIndex : scriptSourceTarget?.lineIndex ?? 0)) {
+          line.classList.add('current-line');
+        }
+        line.contentEditable = 'true';
+        line.spellcheck = false;
+        line.dataset.sourceLineIndex = String(index);
+        line.setAttribute('role', 'textbox');
+        line.setAttribute('aria-label', `Script line ${index + 1}`);
+        line.setAttribute('aria-multiline', 'false');
+        line.textContent = text;
+        fragment.appendChild(line);
+      });
+      editor.replaceChildren(fragment);
+      if (shouldRestoreFocus) restoreInlineScriptSelection(start, end, { focus: true });
+    }
+
+    function refreshInlineScriptLineMetadata() {
+      Array.from(el('inlineScriptEditor').children).forEach((line, index) => {
+        const text = inlineScriptLineText(line);
+        line.dataset.sourceLineIndex = String(index);
+        line.setAttribute('aria-label', `Script line ${index + 1}`);
+        line.classList.toggle('chapter-heading', /^\s*(?:::|S\d+(?:E|EP)\d+\..+\.txt\s*$)/i.test(text));
+        line.classList.toggle(
+          'source-target',
+          scriptSourceTarget?.chapterId === activeChapterId && scriptSourceTarget.lineIndex === index
+        );
+        line.classList.toggle('current-line', line === document.activeElement);
+      });
+    }
+
+    function syncInlineScriptSource({ focusOffset = null } = {}) {
+      const editor = el('inlineScriptEditor');
+      const lines = Array.from(editor.children, inlineScriptLineText);
+      const value = lines.join('\n');
+      const selection = syncInlineScriptSelection();
+      const textarea = el('scriptInput');
+      textarea.value = value;
+      const start = focusOffset === null ? selection?.start ?? textarea.selectionStart : focusOffset;
+      const end = focusOffset === null ? selection?.end ?? start : focusOffset;
+      textarea.setSelectionRange(Math.min(start, value.length), Math.min(end, value.length));
+      syncingInlineScriptEditor = true;
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      syncingInlineScriptEditor = false;
+    }
+
+    function createInlineScriptLine(text = '') {
+      const line = document.createElement('div');
+      line.className = 'inline-script-line';
+      line.contentEditable = 'true';
+      line.spellcheck = false;
+      line.setAttribute('role', 'textbox');
+      line.setAttribute('aria-multiline', 'false');
+      line.textContent = text;
+      return line;
+    }
+
+    function inlineLineCaretOffset(line, node, offset) {
+      const range = document.createRange();
+      range.selectNodeContents(line);
+      range.setEnd(node, offset);
+      return range.toString().length;
+    }
+
+    function inlineLineStartOffset(line) {
+      const lines = Array.from(el('inlineScriptEditor').children);
+      const index = lines.indexOf(line);
+      return lines.slice(0, index).reduce((length, previous) =>
+        length + inlineScriptLineText(previous).length + 1, 0);
+    }
+
+    function inlineLineSelection(line) {
+      const selection = window.getSelection();
+      if (!selection?.anchorNode || !selection.focusNode) return null;
+      const anchorLine = selection.anchorNode instanceof Element
+        ? selection.anchorNode.closest('.inline-script-line')
+        : selection.anchorNode.parentElement?.closest('.inline-script-line');
+      const focusLine = selection.focusNode instanceof Element
+        ? selection.focusNode.closest('.inline-script-line')
+        : selection.focusNode.parentElement?.closest('.inline-script-line');
+      if (anchorLine !== line || focusLine !== line) return null;
+      const anchor = inlineLineCaretOffset(line, selection.anchorNode, selection.anchorOffset);
+      const focus = inlineLineCaretOffset(line, selection.focusNode, selection.focusOffset);
+      return { start: Math.min(anchor, focus), end: Math.max(anchor, focus) };
+    }
+
+    function setInlineLineCaret(line, offset, { focus = true } = {}) {
+      if (!line) return;
+      if (!line.firstChild) line.appendChild(document.createTextNode(''));
+      if (focus) line.focus({ preventScroll: true });
+      const range = document.createRange();
+      range.setStart(line.firstChild, Math.min(offset, line.firstChild.textContent.length));
+      range.collapse(true);
+      const selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      line.scrollIntoView({ block: 'nearest' });
+    }
+
+    function handleInlineScriptKeydown(event) {
+      const line = event.target.closest('.inline-script-line');
+      if (!line) return;
+      if ((event.ctrlKey || event.metaKey) && !event.altKey) {
+        const key = event.key.toLowerCase();
+        if (key === 'b' && !event.shiftKey) {
+          event.preventDefault();
+          syncInlineScriptSelection();
+          wrapScriptSelection('[b]', '[/b]', 'bold text');
+          return;
+        }
+        if (key === 'i' && !event.shiftKey) {
+          event.preventDefault();
+          syncInlineScriptSelection();
+          wrapScriptSelection('[i]', '[/i]', 'italic text');
+          return;
+        }
+        if (key === 'z') {
+          event.preventDefault();
+          if (event.shiftKey) redoScriptEdit();
+          else undoScriptEdit();
+          return;
+        }
+        if (key === 'y') {
+          event.preventDefault();
+          redoScriptEdit();
+          return;
+        }
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        const local = inlineLineSelection(line) || {
+          start: inlineScriptLineText(line).length,
+          end: inlineScriptLineText(line).length
+        };
+        const text = inlineScriptLineText(line);
+        const nextLine = createInlineScriptLine(text.slice(local.end));
+        const desiredCaret = inlineLineStartOffset(line) + local.start + 1;
+        line.textContent = text.slice(0, local.start);
+        line.after(nextLine);
+        refreshInlineScriptLineMetadata();
+        syncInlineScriptSource({ focusOffset: desiredCaret });
+        setInlineLineCaret(nextLine, 0);
+        syncInlineScriptSelection();
         return;
       }
-      const speakers = buildSpeakerMap(collectCharacters());
-      const fragment = document.createDocumentFragment();
-      textarea.value.replace(/\r\n/g, '\n').split('\n').forEach((rawLine, lineIndex, lines) => {
-        const match = rawLine.match(/^(\s*)(.+?)(\s*:\s*)(.*)$/);
-        if (!match || parseLocationDirective(rawLine)) {
-          fragment.appendChild(document.createTextNode(rawLine));
-        } else {
-          fragment.appendChild(document.createTextNode(match[1]));
-          const token = match[2].trim();
-          const descriptor = resolveSpeakerDescriptor(token, speakers);
-          const narrator = isNarratorToken(token) || Boolean(descriptor?.narration);
-          const system = /^cw$/i.test(token) || isSystemToken(token) || Boolean(descriptor?.system);
-          const name = document.createElement('span');
-          name.className = `script-edit-name${narrator || system ? ' narrator' : ''}`;
-          name.textContent = match[2];
-          if (!narrator && !system) {
-            const colour = descriptor?.character?.bubbleColor || inferredColorFor(token);
-            name.style.backgroundColor = colour;
-            name.style.color = readableTextForHex(colour);
-          }
-          fragment.append(name, document.createTextNode(`${match[3]}${match[4]}`));
-        }
-        if (lineIndex < lines.length - 1) fragment.appendChild(document.createTextNode('\n'));
-      });
-      overlay.replaceChildren(fragment);
-      syncEditableScriptAidScroll();
+      const local = inlineLineSelection(line);
+      if ((event.key === 'Backspace' || event.key === 'ArrowLeft') && local?.start === 0 && local.end === 0) {
+        const previous = line.previousElementSibling;
+        if (!previous) return;
+        event.preventDefault();
+        const previousLength = inlineScriptLineText(previous).length;
+        previous.textContent += inlineScriptLineText(line);
+        line.remove();
+        refreshInlineScriptLineMetadata();
+        syncInlineScriptSource({ focusOffset: inlineLineStartOffset(previous) + previousLength });
+        setInlineLineCaret(previous, previousLength);
+        syncInlineScriptSelection();
+      } else if ((event.key === 'Delete' || event.key === 'ArrowRight')
+        && local?.start === inlineScriptLineText(line).length && local.end === local.start) {
+        const next = line.nextElementSibling;
+        if (!next) return;
+        event.preventDefault();
+        const offset = inlineScriptLineText(line).length;
+        line.textContent += inlineScriptLineText(next);
+        next.remove();
+        refreshInlineScriptLineMetadata();
+        syncInlineScriptSource({ focusOffset: inlineLineStartOffset(line) + offset });
+        setInlineLineCaret(line, offset);
+        syncInlineScriptSelection();
+      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        const target = event.key === 'ArrowUp' ? line.previousElementSibling : line.nextElementSibling;
+        if (!target || !local || local.start !== local.end) return;
+        event.preventDefault();
+        setInlineLineCaret(target, Math.min(local.start, inlineScriptLineText(target).length));
+        syncInlineScriptSelection();
+      }
+    }
+
+    function handleInlineScriptPaste(event) {
+      const line = event.target.closest('.inline-script-line');
+      if (!line) return;
+      const pasted = event.clipboardData?.getData('text/plain');
+      if (pasted === undefined) return;
+      event.preventDefault();
+      const selection = inlineLineSelection(line) || {
+        start: inlineScriptLineText(line).length,
+        end: inlineScriptLineText(line).length
+      };
+      const original = inlineScriptLineText(line);
+      const prefix = original.slice(0, selection.start);
+      const suffix = original.slice(selection.end);
+      const parts = pasted.replace(/\r\n?/g, '\n').split('\n');
+      if (parts.length === 1) {
+        line.textContent = `${prefix}${parts[0]}${suffix}`;
+        const caret = prefix.length + parts[0].length;
+        refreshInlineScriptLineMetadata();
+        syncInlineScriptSource({ focusOffset: inlineLineStartOffset(line) + caret });
+        setInlineLineCaret(line, caret);
+      } else {
+        const inserted = parts.map(part => createInlineScriptLine(part));
+        line.textContent = `${prefix}${parts[0]}`;
+        inserted[inserted.length - 1].textContent += suffix;
+        let target = line;
+        inserted.forEach(next => {
+          target.after(next);
+          target = next;
+        });
+        refreshInlineScriptLineMetadata();
+        const caret = parts.at(-1).length;
+        const targetOffset = inlineLineStartOffset(inserted.at(-1)) + caret;
+        syncInlineScriptSource({ focusOffset: targetOffset });
+        setInlineLineCaret(inserted.at(-1), caret);
+      }
+      syncInlineScriptSelection();
     }
 
     function renderHighlightedScript() {
@@ -7431,8 +8181,8 @@
 
     function setScriptView(mode) {
       const highlighted = mode === 'highlighted';
-      el('scriptInput').hidden = highlighted;
-      el('scriptEditShell').hidden = highlighted;
+      el('scriptEditShell').hidden = true;
+      el('inlineScriptEditor').hidden = highlighted;
       el('highlightedScript').hidden = !highlighted;
       el('scriptEditView').setAttribute('aria-selected', highlighted ? 'false' : 'true');
       el('scriptHighlightedView').setAttribute('aria-selected', highlighted ? 'true' : 'false');
@@ -7441,8 +8191,7 @@
       localStorage.setItem('storyToolScriptView', highlighted ? 'highlighted' : 'edit');
       if (highlighted) renderHighlightedScript();
       else {
-        renderEditableScriptAids();
-        el('scriptInput').focus();
+        renderInlineScriptEditor({ restoreFocus: true });
       }
     }
 
@@ -7829,6 +8578,7 @@
       if (activeChapterId !== item.chapterId) {
         activateChapter(item.chapterId, { focus: false });
       }
+      refreshInlineScriptLineMetadata();
       activateWorkspacePanel('script');
       const scriptCard = el('script-card');
       scriptCard.classList.remove('collapsed');
@@ -7854,8 +8604,15 @@
           const range = scriptSourceRange(textarea.value, item.lineIndex);
           if (range) {
             textarea.setSelectionRange(range.start, range.end);
-            scrollTextareaSourceIntoView(textarea, range.start);
-            if (!document.body.classList.contains('reader-open')) textarea.focus({ preventScroll: true });
+            const targetLine = el('inlineScriptEditor').querySelector(
+              `.inline-script-line[data-source-line-index="${item.lineIndex}"]`
+            );
+            if (targetLine) {
+              targetLine.scrollIntoView({ block: 'center', behavior: 'smooth' });
+              if (!document.body.classList.contains('reader-open')) {
+                restoreInlineScriptSelection(range.start, range.end, { focus: true });
+              }
+            }
           }
         }
         renderChapterNavigation(`Opened reader line at source line ${lineNumber}.`);
@@ -7863,23 +8620,62 @@
     }
 
     function readerSourceLineParts(rawLine) {
-      const parsedDice = parseDiceDirective(rawLine);
+      const parsedReader = parseReaderDirective(rawLine);
+      const parsedDice = parseDiceDirective(parsedReader.line);
       const parsedSubtitle = parseSubtitleDirective(parsedDice.line);
       const core = parsedSubtitle.line.replace(/\s+$/, '');
-      const speakerMatch = core.match(/^(\s*.+?\s*:\s*)(.*)$/);
+      const speakerMatch = core.match(/^(\s*(.+?)\s*:\s*)(.*)$/);
       return {
         core,
-        dialogue: speakerMatch ? speakerMatch[2] : core,
+        dialogue: speakerMatch ? speakerMatch[3] : core,
         prefix: speakerMatch ? speakerMatch[1] : '',
+        token: speakerMatch ? speakerMatch[2].trim() : '',
         dice: parsedDice.directive,
-        subtitle: parsedSubtitle.directive
+        subtitle: parsedSubtitle.directive,
+        reader: parsedReader.directive
       };
     }
 
     function serializedDiceDirective(directive) {
       if (!directive) return '';
       if (directive.enabled === false) return '[[dice: off]]';
-      return `[[dice: ${directive.label || 'Dice'}${directive.mode ? ` | ${directive.mode}` : ''}]]`;
+      const details = [
+        directive.mode,
+        directive.result ? `result=${encodeURIComponent(directive.result)}` : '',
+        directive.participants ? `participants=${encodeURIComponent(directive.participants)}` : ''
+      ].filter(Boolean);
+      return `[[dice: ${directive.label || 'Dice'}${details.length ? ` | ${details.join(' | ')}` : ''}]]`;
+    }
+
+    function populateReaderLineEditorOptions(item, parts) {
+      const speaker = el('readerLineSpeaker');
+      const choices = new Map([['-', 'Narration']]);
+      collectCharacters()
+        .filter(character => !character.isExisting && !character.isNarrationRole && !character.isSystemRole)
+        .forEach(character => {
+          const key = characterKey(character);
+          if (key) choices.set(key, character.displayName || key);
+        });
+      const selectedToken = parts.token || item.speakerToken || (item.character ? characterKey(item.character) : '-');
+      if (selectedToken && !choices.has(selectedToken)) choices.set(selectedToken, selectedToken);
+      speaker.replaceChildren(...Array.from(choices, ([value, label]) => new Option(label, value)));
+      speaker.value = choices.has(selectedToken) ? selectedToken : '-';
+
+      const sprite = el('readerLineSprite');
+      sprite.replaceChildren(new Option('Use character sprite', ''));
+      portraitAssets.forEach((asset, index) => {
+        sprite.add(new Option(asset.name || `Sprite ${index + 1}`, asset.id));
+      });
+      sprite.value = parts.reader?.sprite || '';
+
+      const voice = el('readerLineVoice');
+      const selectedVoice = parts.reader?.voice || '';
+      voice.dataset.pendingVoice = selectedVoice;
+      renderSpeechVoiceOptions(voice, selectedVoice);
+      if (selectedVoice && !Array.from(voice.options).some(option => option.value === selectedVoice)) {
+        voice.add(new Option(`Unavailable voice (${selectedVoice})`, selectedVoice));
+      }
+      voice.value = selectedVoice;
     }
 
     function closeReaderLineEditor({ restoreFocus = true } = {}) {
@@ -7897,6 +8693,7 @@
     function openReaderLineEditor(item, index) {
       const chapter = chapters.find(candidate => candidate.id === item?.chapterId);
       if (!chapter || !Number.isInteger(item?.lineIndex)) return;
+      stopReaderPlayback();
       setReaderLine(index);
       stopReaderSpeech();
       const source = activeChapterId === chapter.id ? el('scriptInput').value : chapter.script;
@@ -7914,11 +8711,14 @@
         sourceKey: item.sourceKey
       };
       el('readerLineEditorTitle').textContent = `Edit ${item.speaker || 'narration'} · source line ${item.lineIndex + 1}`;
+      populateReaderLineEditorOptions(item, parts);
+      el('readerLineDisplayName').value = parts.reader?.name || '';
+      el('readerLineOverrideScope').value = 'line';
       el('readerLineEditText').value = parts.dialogue;
       el('readerLineSubtitleOverride').checked = Boolean(parts.subtitle);
       el('readerLineSubtitleText').value = parts.subtitle?.enabled ? parts.subtitle.value : characterSubtitle;
       el('readerLineSubtitleField').hidden = !parts.subtitle;
-      el('readerLineEditorStatus').textContent = 'Apply updates the source script; Cancel leaves it unchanged.';
+      el('readerLineEditorStatus').textContent = 'Changes stay in the script. “Until the next speaker” carries the selected character and overrides through their following lines.';
       el('readerLineEditor').hidden = false;
       requestAnimationFrame(() => {
         el('readerLineEditText').focus();
@@ -7949,16 +8749,58 @@
         el('readerLineEditorStatus').textContent = 'That source line no longer exists. Cancel and select it again.';
         return;
       }
+      const item = readerItems[target.readerIndex];
       const parts = readerSourceLineParts(lines[target.lineIndex]);
       const dialogue = el('readerLineEditText').value.replace(/\s*\r?\n+\s*/g, ' ').trim();
-      const rebuilt = [`${parts.prefix}${dialogue}`];
-      if (el('readerLineSubtitleOverride').checked) {
-        rebuilt.push(subtitleValue ? `[[subtitle: ${subtitleValue}]]` : '[[subtitle: off]]');
+      const speakerToken = el('readerLineSpeaker').value || '-';
+      const readerOverride = {
+        name: el('readerLineDisplayName').value.trim(),
+        sprite: el('readerLineSprite').value,
+        voice: el('readerLineVoice').value
+      };
+      const hasReaderOverride = Boolean(readerOverride.name || readerOverride.sprite || readerOverride.voice);
+      const applyUntilSpeaker = el('readerLineOverrideScope').value === 'until-speaker';
+      const characterMap = buildSpeakerMap(collectCharacters());
+      const originalSpeakerKey = item?.character ? characterKey(item.character).toLocaleLowerCase() : '';
+      const linesToUpdate = [];
+      for (let lineIndex = target.lineIndex; lineIndex < lines.length; lineIndex += 1) {
+        const lineParts = readerSourceLineParts(lines[lineIndex]);
+        if (lineIndex > target.lineIndex && lineParts.token) {
+          if (isNarratorToken(lineParts.token) || isSystemToken(lineParts.token)) break;
+          const nextSpeaker = resolveSpeakerDescriptor(lineParts.token, characterMap);
+          const nextKey = nextSpeaker?.character ? characterKey(nextSpeaker.character).toLocaleLowerCase() : '';
+          if (nextKey && nextKey !== originalSpeakerKey) break;
+        }
+        const content = lineParts.dialogue.trim();
+        if (lineIndex > target.lineIndex
+          && (/^::/.test(content) || /^CW\s*:/i.test(content) || /^image$/i.test(content) || /^\[\[\s*img\s*:/i.test(content))) break;
+        if (lineIndex === target.lineIndex || lineParts.token || content) {
+          linesToUpdate.push({ lineIndex, parts: lineParts });
+        }
+        if (!applyUntilSpeaker) break;
       }
-      const diceDirective = serializedDiceDirective(parts.dice);
-      if (diceDirective) rebuilt.push(diceDirective);
+
       commitScriptHistory();
-      lines[target.lineIndex] = rebuilt.join(' ');
+      linesToUpdate.forEach(({ lineIndex, parts: lineParts }, updateIndex) => {
+        const sourceToken = updateIndex === 0 || lineParts.token ? `${speakerToken}: ` : '';
+        const rebuilt = [`${sourceToken}${updateIndex === 0 ? dialogue : lineParts.dialogue.trim()}`];
+        if (el('readerLineSubtitleOverride').checked) {
+          rebuilt.push(subtitleValue ? `[[subtitle: ${subtitleValue}]]` : '[[subtitle: off]]');
+        } else if (lineParts.subtitle) {
+          rebuilt.push(lineParts.subtitle.enabled
+            ? `[[subtitle: ${lineParts.subtitle.value}]]`
+            : '[[subtitle: off]]');
+        }
+        const diceDirective = serializedDiceDirective(lineParts.dice);
+        if (diceDirective) rebuilt.push(diceDirective);
+        const readerDirective = hasReaderOverride
+          ? serializedReaderDirective(readerOverride)
+          : lineParts.reader
+            ? '[[reader: off]]'
+            : '';
+        if (readerDirective) rebuilt.push(readerDirective);
+        lines[lineIndex] = rebuilt.join(' ');
+      });
       textarea.value = lines.join('\n');
       const range = scriptSourceRange(textarea.value, target.lineIndex);
       if (range) textarea.setSelectionRange(range.start, range.end);
@@ -7972,7 +8814,7 @@
     function readerLineButtonText(item, index) {
       const startsChapter = index === 0 || readerItems[index - 1]?.chapterIndex !== item.chapterIndex;
       const speakerLabel = item.dice ? `🎲 ${item.speaker}` : item.speaker;
-      const diceLabel = item.dice ? `[${item.dice.label}${item.dice.mode ? ` · ${item.dice.mode}` : ''}] ` : '';
+      const diceLabel = item.dice ? `[${diceEventText(item.dice)}] ` : '';
       return `${diceLabel}${speakerLabel ? `${speakerLabel}: ` : ''}${truncateText(storyFormattingPlainText(item.text), 100)}`;
     }
 
@@ -8126,6 +8968,10 @@
         el('readerLineIsDice').disabled = true;
         el('readerDiceTag').disabled = true;
         el('readerDiceMode').disabled = true;
+        el('readerDiceResult').value = '';
+        el('readerDiceResult').disabled = true;
+        el('readerDiceParticipants').value = '';
+        el('readerDiceParticipants').disabled = true;
         el('applyReaderDice').disabled = true;
         el('readerPanel').classList.remove('initiative-active', 'narration-active');
         el('readerPanel').classList.remove('location-transition', 'has-corner-reference');
@@ -8136,6 +8982,9 @@
         el('readerPosition').textContent = 'No dialogue lines';
         el('readerLines').innerHTML = '';
         el('readerSpeak').disabled = true;
+        el('readerEditLine').disabled = true;
+        readerPlaying = false;
+        syncReaderPlaybackButton();
         syncReaderSpriteAssignmentControl();
         syncReaderChapterNavigation();
         scheduleReaderTextFit();
@@ -8149,6 +8998,7 @@
         : 'Read current line aloud';
       readerIndex = Math.max(0, Math.min(index, readerItems.length - 1));
       const item = readerItems[readerIndex];
+      el('readerEditLine').disabled = !Number.isInteger(item.lineIndex) || item.lineIndex < 0;
       const diceMark = item.dice ? '🎲 ' : '';
       el('readerSpeaker').textContent = item.character
         ? `${diceMark}${item.speaker}`
@@ -8199,16 +9049,20 @@
       el('readerInitiativeBadge').hidden = !item.initiative;
       el('readerDiceLabel').hidden = !item.dice;
       if (item.dice) {
-        el('readerDiceLabel').textContent = item.dice.label;
+        el('readerDiceLabel').textContent = diceEventText(item.dice);
         el('readerDiceLabel').dataset.mode = item.dice.mode;
       }
       el('readerLineIsDice').checked = Boolean(item.dice);
       el('readerLineIsDice').disabled = false;
+      el('readerDiceResult').value = item.dice?.result || '';
+      el('readerDiceParticipants').value = item.dice?.participants || '';
       el('readerDiceTag').disabled = false;
       el('readerDiceMode').disabled = false;
       el('applyReaderDice').disabled = false;
       if (item.dice?.label && item.dice.label !== 'Dice') refreshReaderDiceTags(item.dice.label);
       el('readerDiceMode').value = item.dice?.mode || '';
+      el('readerDiceResult').disabled = !item.dice;
+      el('readerDiceParticipants').disabled = !item.dice;
       const pageTheme = collectPageTheme();
       const inBattleTheme = Boolean(item.initiative && pageTheme.useBattleTheme);
       el('readerPanel').classList.toggle('initiative-active', inBattleTheme);
@@ -8225,10 +9079,13 @@
       }
       el('readerDialogue').classList.remove('assignable');
       el('readerDialogue').title = 'Current reader text';
-      const solidIcon = Boolean(item.character?.useColorIcon && !item.locationTransition);
+      const spriteOverride = item.readerOverride?.sprite
+        ? portraitAssets.find(asset => asset.id === item.readerOverride.sprite)?.src || ''
+        : '';
+      const solidIcon = Boolean(item.character?.useColorIcon && !item.locationTransition && !spriteOverride);
       const portrait = item.locationTransition
         ? (location?.image || '')
-        : solidIcon ? '' : (item.character?.icon || '');
+        : spriteOverride || (solidIcon ? '' : (item.character?.icon || ''));
       el('readerPortrait').style.backgroundImage = portrait ? `url("${portrait.replace(/"/g, '%22')}")` : '';
       el('readerPortrait').style.backgroundColor = solidIcon ? (item.character.bubbleColor || '#37333d') : '';
       el('readerPortrait').textContent = portrait
@@ -8246,20 +9103,25 @@
       const sourceChapter = chapters.find(chapter => chapter.id === item.chapterId);
       if (sourceChapter) sourceChapter.readerLine = item.lineIndex;
       readerSpeakButton.disabled = !speechSynthesisAvailable() || item.speakable === false;
+      syncReaderPlaybackButton();
       renderReaderLineWindow({ ensureIndex: readerIndex });
       const activeButton = el('readerLines').querySelector('.reader-line.active');
       if (activeButton) activeButton.scrollIntoView({ block: 'nearest' });
-      if (el('readerAutoplaySpeech').checked && item.sourceKey !== lastAutoplaySourceKey) {
+      if ((readerPlaying || el('readerAutoplaySpeech').checked) && item.sourceKey !== lastAutoplaySourceKey) {
         lastAutoplaySourceKey = item.sourceKey;
         const expectedIndex = readerIndex;
         const expectedSourceKey = item.sourceKey;
         clearTimeout(readerAutoplayTimer);
         readerAutoplayTimer = setTimeout(() => {
           readerAutoplayTimer = 0;
-          if (!el('readerAutoplaySpeech').checked
+          if ((!readerPlaying && !el('readerAutoplaySpeech').checked)
             || readerIndex !== expectedIndex
             || readerItems[readerIndex]?.sourceKey !== expectedSourceKey) return;
-          speakCurrentReaderLine();
+          if (readerPlaying && item.speakable === false) {
+            advanceAfterSpeech(readerSpeechRunId, expectedIndex, expectedSourceKey);
+          } else {
+            speakCurrentReaderLine();
+          }
         }, 80);
       }
       scheduleReaderTextFit();
@@ -9232,6 +10094,7 @@
         nextUrl: el('nextUrl').value.trim(),
         activeChapterId,
         ignoreRepeatedSpeakers: el('ignoreRepeatedSpeakers').checked,
+        continueUnboundSpeakerTags: el('continueUnboundSpeakerTags').checked,
         diceTags: diceTags.slice(),
         initiativeOptions: getInitiativeSettings(),
         speechSettings: {
@@ -9242,7 +10105,8 @@
           namesUseNarratorVoice: el('readerSpeakNamesNarratorVoice').checked,
           onlyDialogue: el('readerOnlyDialogueSpeech').checked,
           autoplay: el('readerAutoplaySpeech').checked,
-          autoAdvance: el('readerAutoAdvanceSpeech').checked
+          autoAdvance: el('readerAutoAdvanceSpeech').checked,
+          speakDiceNotation: el('readerSpeakDiceNotation').checked
         },
         contentWarnings: el('contentWarnings').value
           .split('\n')
@@ -9364,7 +10228,8 @@
       };
 
       lines.forEach(rawLine => {
-        const parsedLine = parseDiceDirective(rawLine);
+        const parsedReader = parseReaderDirective(rawLine);
+        const parsedLine = parseDiceDirective(parsedReader.line);
         const parsedSubtitle = parseSubtitleDirective(parsedLine.line);
         const trimmed = parsedSubtitle.line.trim();
         if (!trimmed) return;
@@ -9450,7 +10315,8 @@
         const match = trimmed.match(/^(.+?)\s*:\s*(.*)$/);
         if (match) {
           const token = match[1].trim();
-          const line = match[2].trim();
+          const rawDialogue = match[2].trim();
+          const line = parsedLine.directive?.result ? stripDiceNotation(rawDialogue) : rawDialogue;
           const tokenLower = token.toLowerCase();
           if (isNarratorToken(tokenLower)) {
             ensureScene();
@@ -9471,7 +10337,25 @@
             return;
           }
 
-          const descriptor = resolveSpeakerDescriptor(token, byToken) || inferredSpeaker(token);
+          const boundDescriptor = resolveSpeakerDescriptor(token, byToken);
+          if (!boundDescriptor && options.continueUnboundSpeakerTags && lastSpeaker) {
+            ensureScene();
+            current.items.push({
+              type: 'continuation',
+              character: lastSpeaker,
+              html: renderSemanticStoryText(
+                line,
+                noteMap,
+                warnings,
+                options.dialogueTheme,
+                Boolean(lastSpeaker?.isProtagonist)
+              ),
+              dice: resolveDiceAssignment(parsedLine.directive, lastSpeaker)
+            });
+            lastSpeakerRun = lastSpeaker;
+            return;
+          }
+          const descriptor = boundDescriptor || inferredSpeaker(token);
           ensureScene();
           if (descriptor.system) {
             current.items.push({ type: 'system', text: line });
@@ -9493,7 +10377,8 @@
           current.items.push({
             type: repeatedSpeaker ? 'continuation' : 'dialogue',
             character: descriptor.character,
-            speakerName: descriptor.speakerName,
+            speakerName: parsedReader.directive?.name || descriptor.speakerName,
+            spriteOverride: options.portraitAssets?.find(asset => asset.id === parsedReader.directive?.sprite)?.src || '',
             html: renderSemanticStoryText(line, noteMap, warnings, options.dialogueTheme, Boolean(descriptor.character?.isProtagonist)),
             dice: resolveDiceAssignment(parsedLine.directive, descriptor.character)
           });
@@ -9507,14 +10392,26 @@
           current.items.push({
             type: 'continuation',
             character: lastSpeaker,
-            html: renderSemanticStoryText(trimmed, noteMap, warnings, options.dialogueTheme, Boolean(lastSpeaker?.isProtagonist)),
+            html: renderSemanticStoryText(
+              parsedLine.directive?.result ? stripDiceNotation(trimmed) : trimmed,
+              noteMap,
+              warnings,
+              options.dialogueTheme,
+              Boolean(lastSpeaker?.isProtagonist)
+            ),
             dice: resolveDiceAssignment(parsedLine.directive, lastSpeaker)
           });
           lastSpeakerRun = lastSpeaker;
         } else {
           current.items.push({
             type: 'narration',
-            html: renderSemanticStoryText(trimmed, noteMap, warnings, options.dialogueTheme, false),
+            html: renderSemanticStoryText(
+              parsedLine.directive?.result ? stripDiceNotation(trimmed) : trimmed,
+              noteMap,
+              warnings,
+              options.dialogueTheme,
+              false
+            ),
             dice: resolveDiceAssignment(parsedLine.directive, null)
           });
           lastSpeakerRun = null;
@@ -9556,10 +10453,10 @@
             const char = item.character;
             const diceBadge = item.dice ? '<span class="dice-character" title="Dice line">🎲</span> ' : '';
             const diceLabel = item.dice
-              ? `<div class="dice-roll-label" data-mode="${escapeAttr(item.dice.mode)}">${escapeHtml(item.dice.label)}</div>`
+              ? `<div class="dice-roll-label" data-mode="${escapeAttr(item.dice.mode)}">${escapeHtml(diceEventText(item.dice))}</div>`
               : '';
-            const avatarImage = char.faceIcon || char.icon;
-            const avatar = char.useColorIcon
+            const avatarImage = item.spriteOverride || char.faceIcon || char.icon;
+            const avatar = char.useColorIcon && !item.spriteOverride
               ? `<div class="avatar initials" style="background-color:${escapeAttr(char.bubbleColor || '#37333d')}">${escapeHtml(char.displayName || char.shortcut || '?').slice(0,2)}</div>`
               : avatarImage
               ? `<div class="avatar" style="background-image:url('${escapeAttr(avatarImage)}')"></div>`
@@ -9582,7 +10479,7 @@
             const char = item.character;
             const bubbleStyle = char && char.bubbleColor ? ` style="--bubble:${escapeAttr(char.bubbleColor)}"` : '';
             const diceLabel = item.dice
-              ? `<div class="dice-roll-label" data-mode="${escapeAttr(item.dice.mode)}">${escapeHtml(item.dice.label)}</div>`
+              ? `<div class="dice-roll-label" data-mode="${escapeAttr(item.dice.mode)}">${escapeHtml(diceEventText(item.dice))}</div>`
               : '';
             const bubble = `<div class="bubble"${bubbleStyle}>${diceLabel}${item.html}</div>`;
             return `
@@ -9593,7 +10490,7 @@
             `;
           }
           const diceLabel = item.dice
-            ? `<div class="dice-roll-label" data-mode="${escapeAttr(item.dice.mode)}">${escapeHtml(item.dice.label)}</div>`
+            ? `<div class="dice-roll-label" data-mode="${escapeAttr(item.dice.mode)}">${escapeHtml(diceEventText(item.dice))}</div>`
             : '';
           const bubble = `<div class="bubble narration-bubble">${diceLabel}${item.html}</div>`;
           return `
@@ -9670,6 +10567,7 @@
         prevUrl: meta.prevUrl || '',
         nextUrl: meta.nextUrl || '',
         ignoreRepeatedSpeakers: Boolean(meta.ignoreRepeatedSpeakers),
+        continueUnboundSpeakerTags: Boolean(meta.continueUnboundSpeakerTags),
         initiativeOptions: {
           alwaysEndAllOnExit: meta.initiativeOptions?.alwaysEndAllOnExit !== false,
           endWithChapter: Boolean(meta.initiativeOptions?.endWithChapter),
@@ -9697,9 +10595,11 @@
       );
       const scriptHtml = renderScript(data.script || '', data.characters || [], data.notes || [], warnings, {
         ignoreRepeatedSpeakers: safeMeta.ignoreRepeatedSpeakers,
+        continueUnboundSpeakerTags: safeMeta.continueUnboundSpeakerTags,
         initiativeSettings: safeMeta.initiativeOptions,
         useBattleTheme: pageTheme.useBattleTheme,
         images: data.images || [],
+        portraitAssets: data.portraitAssets || [],
         dialogueTheme: safeMeta.dialogueTheme
       });
       const notesHtml = renderNotes(data.notes || []);
@@ -10245,6 +11145,7 @@
       el('prevUrl').value = data.meta?.prevUrl || '';
       el('nextUrl').value = data.meta?.nextUrl || '';
       el('ignoreRepeatedSpeakers').checked = Boolean(data.meta?.ignoreRepeatedSpeakers);
+      el('continueUnboundSpeakerTags').checked = Boolean(data.meta?.continueUnboundSpeakerTags);
       el('alwaysEndAllOnExit').checked = data.meta?.initiativeOptions?.alwaysEndAllOnExit !== false;
       el('endInitiativeWithChapter').checked = Boolean(data.meta?.initiativeOptions?.endWithChapter);
       el('rememberInitiativeOnce').checked = Boolean(data.meta?.initiativeOptions?.rememberOnce);
@@ -10260,6 +11161,7 @@
       el('readerOnlyDialogueSpeech').checked = Boolean(speechSettings.onlyDialogue);
       el('readerAutoplaySpeech').checked = Boolean(speechSettings.autoplay);
       el('readerAutoAdvanceSpeech').checked = Boolean(speechSettings.autoAdvance);
+      el('readerSpeakDiceNotation').checked = Boolean(speechSettings.speakDiceNotation);
       syncReaderSpeechOptionState();
       diceTags = Array.isArray(data.meta?.diceTags)
         ? [...new Set(data.meta.diceTags.map(tag => String(tag).trim()).filter(tag =>
@@ -10503,16 +11405,22 @@
     });
 
     el('cleanDiscordScript').addEventListener('click', cleanDiscordPaste);
+    el('openFullScript').addEventListener('click', openFullStoryEditor);
+    el('saveFullScript').addEventListener('click', saveFullStoryEditor);
+    el('cancelFullScript').addEventListener('click', closeFullStoryEditor);
+    el('fullScriptModal').addEventListener('click', event => {
+      if (event.target === el('fullScriptModal')) closeFullStoryEditor();
+    });
     el('scriptEditView').addEventListener('click', () => setScriptView('edit'));
     el('scriptHighlightedView').addEventListener('click', () => setScriptView('highlighted'));
     el('scriptColourNames').addEventListener('change', event => {
       localStorage.setItem('storyToolScriptColourNames', event.target.checked ? 'true' : 'false');
       renderEditableScriptAids();
-      el('scriptInput').focus();
+      el('inlineScriptEditor').querySelector('.inline-script-line')?.focus();
     });
     el('scriptDialogueSpacing').addEventListener('input', event => {
       setScriptDialogueSpacing(event.target.value, { persist: true });
-      el('scriptInput').focus();
+      el('inlineScriptEditor').querySelector('.inline-script-line')?.focus();
     });
     el('formatScriptBold').addEventListener('click', () => wrapScriptSelection('[b]', '[/b]', 'bold text'));
     el('formatScriptItalic').addEventListener('click', () => wrapScriptSelection('[i]', '[/i]', 'italic text'));
@@ -10646,6 +11554,14 @@
       el('readerLineSubtitleField').hidden = !event.target.checked;
       if (event.target.checked) el('readerLineSubtitleText').focus();
     });
+    el('readerLineIsDice').addEventListener('change', event => {
+      el('readerDiceResult').disabled = !event.target.checked;
+      el('readerDiceParticipants').disabled = !event.target.checked;
+    });
+    el('continueUnboundSpeakerTags').addEventListener('change', () => {
+      if (!el('continueUnboundSpeakerTags').checked) syncScriptCharacters();
+      scheduleAuto();
+    });
     el('readerPrevious').addEventListener('click', () => setReaderLine(readerIndex - 1));
     el('readerNext').addEventListener('click', () => setReaderLine(readerIndex + 1));
     el('readerPreviousChapter').addEventListener('click', () => moveReaderChapter(-1));
@@ -10657,6 +11573,23 @@
     });
     el('readerTextSmaller').addEventListener('click', () => adjustReaderTextScale(-0.1));
     el('readerTextLarger').addEventListener('click', () => adjustReaderTextScale(0.1));
+    el('readerPlayback').addEventListener('click', toggleReaderPlayback);
+    el('readerEditLine').addEventListener('click', () => {
+      const item = readerItems[readerIndex];
+      if (item) openReaderLineEditor(item, readerIndex);
+    });
+    const readerMoreMenu = el('reader-card').querySelector('.reader-more-menu');
+    readerMoreMenu.addEventListener('toggle', () => {
+      if (!readerMoreMenu.open) return;
+      const bounds = readerMoreMenu.querySelector('summary').getBoundingClientRect();
+      const width = Math.min(420, window.innerWidth - 24);
+      const left = Math.max(12, Math.min(bounds.right - width, window.innerWidth - width - 12));
+      readerMoreMenu.style.setProperty('--reader-menu-left', `${left}px`);
+      readerMoreMenu.style.setProperty('--reader-menu-top', `${Math.max(12, Math.min(bounds.bottom + 6, window.innerHeight - 180))}px`);
+    });
+    document.addEventListener('click', event => {
+      if (readerMoreMenu.open && !readerMoreMenu.contains(event.target)) readerMoreMenu.open = false;
+    });
     el('readerSpeak').addEventListener('click', speakCurrentReaderLine);
     el('readerStopSpeech').addEventListener('click', stopReaderSpeech);
     const readerHistoryButton = el('readerHistoryToggle');
@@ -10673,6 +11606,27 @@
     });
     el('undoScript').addEventListener('click', undoScriptEdit);
     el('redoScript').addEventListener('click', redoScriptEdit);
+    el('inlineScriptEditor').addEventListener('keydown', handleInlineScriptKeydown);
+    el('inlineScriptEditor').addEventListener('paste', handleInlineScriptPaste);
+    el('inlineScriptEditor').addEventListener('input', event => {
+      if (!event.target.closest('.inline-script-line')) return;
+      refreshInlineScriptLineMetadata();
+      syncInlineScriptSource();
+    });
+    ['keyup', 'mouseup', 'focusin'].forEach(type => {
+      el('inlineScriptEditor').addEventListener(type, () => {
+        refreshInlineScriptLineMetadata();
+        syncInlineScriptSelection();
+      });
+    });
+    el('inlineScriptEditor').addEventListener('focusout', () => {
+      setTimeout(() => {
+        if (!el('inlineScriptEditor').contains(document.activeElement)) applyScriptDraft();
+      }, 0);
+    });
+    document.addEventListener('selectionchange', () => {
+      if (el('inlineScriptEditor').contains(document.activeElement)) syncInlineScriptSelection();
+    });
     el('scriptInput').addEventListener('keydown', event => {
       if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
       const key = event.key.toLowerCase();
@@ -10811,6 +11765,17 @@
       }
     });
     window.addEventListener('keydown', event => {
+      if (event.code === 'Space' && !event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey) {
+        const target = event.target instanceof Element ? event.target : null;
+        const editing = target?.closest('input, textarea, select, [contenteditable="true"]');
+        const otherControl = target?.closest('button, a, summary');
+        const modalOpen = document.querySelector('.modal.active');
+        if (!editing && (!otherControl || target?.closest('#readerPlayback')) && !modalOpen) {
+          event.preventDefault();
+          toggleReaderPlayback();
+          return;
+        }
+      }
       if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 's') {
         event.preventDefault();
         saveProjectToBrowser({ applyScript: true });
@@ -10818,7 +11783,7 @@
       }
       if (event.altKey && !event.ctrlKey && !event.metaKey && event.key.toLowerCase() === 's') {
         event.preventDefault();
-        el('scriptInput').focus();
+        el('inlineScriptEditor').querySelector('.inline-script-line')?.focus();
         return;
       }
       if (event.altKey && ['ArrowUp', 'ArrowDown'].includes(event.key)) {
@@ -10837,6 +11802,11 @@
       if (event.key === 'Escape' && el('importReviewModal').classList.contains('active')) {
         event.preventDefault();
         closeTextImportReview();
+        return;
+      }
+      if (event.key === 'Escape' && el('fullScriptModal').classList.contains('active')) {
+        event.preventDefault();
+        closeFullStoryEditor();
         return;
       }
       if (event.key === 'Escape' && el('paletteModal').classList.contains('active')) {
@@ -10944,6 +11914,7 @@
       el('prevUrl').value = '';
       el('nextUrl').value = '';
       el('ignoreRepeatedSpeakers').checked = false;
+      el('continueUnboundSpeakerTags').checked = false;
       el('alwaysEndAllOnExit').checked = true;
       el('endInitiativeWithChapter').checked = false;
       el('rememberInitiativeOnce').checked = false;
@@ -10958,6 +11929,7 @@
       el('readerOnlyDialogueSpeech').checked = false;
       el('readerAutoplaySpeech').checked = false;
       el('readerAutoAdvanceSpeech').checked = false;
+      el('readerSpeakDiceNotation').checked = false;
       lastAutoplaySourceKey = '';
       syncReaderSpeechOptionState();
       diceTags = ['Attack roll', 'Damage roll', 'Check'];
@@ -11011,6 +11983,7 @@
       scheduleScriptHistory();
       syncScriptImageSlots();
       renderEditableScriptAids();
+      if (!syncingInlineScriptEditor) renderInlineScriptEditor();
       if (!el('highlightedScript').hidden) renderHighlightedScript();
     });
     el('scriptInput').addEventListener('blur', () => applyScriptDraft());
@@ -11045,7 +12018,7 @@
       el('readerSpeechPitchValue').value = Number(el('readerSpeechPitch').value).toFixed(1);
       scheduleSave();
     });
-    ['readerSpeakNames', 'readerSpeakNamesNarratorVoice', 'readerOnlyDialogueSpeech', 'readerAutoplaySpeech', 'readerAutoAdvanceSpeech']
+    ['readerSpeakNames', 'readerSpeakNamesNarratorVoice', 'readerOnlyDialogueSpeech', 'readerAutoplaySpeech', 'readerAutoAdvanceSpeech', 'readerSpeakDiceNotation']
       .forEach(id => el(id).addEventListener('change', () => {
         if (id === 'readerSpeakNames') syncReaderSpeechOptionState();
         if (id === 'readerAutoplaySpeech' && el(id).checked) {
